@@ -217,7 +217,7 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
     });
   }
 
-  const emailTaken = await isEmailTaken(body.email);
+  const emailTaken = await isEmailTaken(body.email, id);
   if (emailTaken) {
     return response.status(400).json({
       error: "Email already exists",
