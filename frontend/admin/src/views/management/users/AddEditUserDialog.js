@@ -22,6 +22,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
   });
   const [errors, setErrors] = useState({});
   const [formValid, setFormValid] = useState(false);
+  const [validated, setValidated] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -73,6 +74,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    setValidated(true);
     if (formValid) {
       onSubmit(formData);
     }
@@ -91,7 +93,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
               value={formData.email}
               onChange={handleChange}
               label="Email"
-              invalid={!!errors.email}
+              invalid={!!errors.email && validated}
             />
             <div className="invalid-feedback">{errors.email}</div>
           </CCol>
@@ -104,7 +106,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
                 value={formData.password}
                 onChange={handleChange}
                 label="Password"
-                invalid={!!errors.password}
+                invalid={!!errors.password && validated}
               />
               <div className="invalid-feedback">{errors.password}</div>
             </CCol>
@@ -116,7 +118,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
               value={formData.first_name}
               onChange={handleChange}
               label="First Name"
-              invalid={!!errors.first_name}
+              invalid={!!errors.first_name && validated}
             />
             <div className="invalid-feedback">{errors.first_name}</div>
           </CCol>
@@ -124,7 +126,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
             <CFormInput
               id="last_name"
               name="last_name"
-              value={formData.last_name}
+              value={formData.last_name && validated}
               onChange={handleChange}
               label="Last Name"
             />

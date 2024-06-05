@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   CButton,
@@ -24,8 +24,10 @@ import axios from 'axios'
 
 const Login = () => {
 
-  const [errorMessage, setError] = useState('');
+  const [errors, setErrors] = useState('');
+  const [formValid, setFormValid] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', color: '' });
+  const [validated, setValidated] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -44,35 +46,56 @@ const Login = () => {
     }, 3000);
   };
 
+  useEffect(() => {
+    validateForm();
+  }, [formData]);
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    if (!formData.password.trim()) {
+      errors.password = 'Password is required';
+    } 
+
+    setErrors(errors);
+    setFormValid(Object.keys(errors).length === 0);
+  };
+
   const onSubmit = async e => {
     e.preventDefault();
-    try {
-      const res = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email,
-        password
-      });
-      if (res.status === 200 || res.status === 201) {
-        if (stayLoggedIn) { 
-          localStorage.setItem('token', res.data.token);
-          localStorage.setItem('user', JSON.stringify(res.data.user));
+    setValidated(true);
+    if (formValid) {
+      try {
+        const res = await axios.post(`${BASE_URL}/api/auth/login`, {
+          email,
+          password
+        });
+        if (res.status === 200 || res.status === 201) {
+          if (stayLoggedIn) { 
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+          } else {
+            sessionStorage.setItem('token', res.data.token);
+            sessionStorage.setItem('user', JSON.stringify(res.data.user));
+          }
+          
+          showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
+  
+          setTimeout(() => {
+            window.location.replace('/');
+          }, 1000);
         } else {
-          sessionStorage.setItem('token', res.data.token);
-          sessionStorage.setItem('user', JSON.stringify(res.data.user));
+          throw new Error('Invalid response from server');
         }
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        showToast(err.response ? err.response.data.message : err.message, 'danger');
         
-        showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
-
-        setTimeout(() => {
-          window.location.replace('/');
-        }, 1000);
-      } else {
-        throw new Error('Invalid response from server');
       }
-    } catch (err) {
-      console.error(err.response ? err.response.data : err.message);
-      setError(err.response ? err.response.data.message : err.message);
-      showToast(err.response ? err.response.data.message : err.message, 'danger');
-      
     }
   };
   
@@ -107,7 +130,9 @@ const Login = () => {
                         autoComplete="email"
                         value={email}
                         onChange={onChange}
+                        invalid={!!errors.email && validated}
                       />
+                      {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -120,7 +145,9 @@ const Login = () => {
                         autoComplete="current-password"
                         value={password}
                         onChange={onChange}
+                        invalid={!!errors.password && validated}
                       />
+                      {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
@@ -142,8 +169,7 @@ const Login = () => {
                   <div>
                     <h2>Sign up</h2>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
+                    Join Nova Forge, the premier marketplace for buying and selling mined resources from space. Discover the future of space mining and trade with us today.
                     </p>
                     <Link to="/register">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>
