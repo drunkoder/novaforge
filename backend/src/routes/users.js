@@ -123,13 +123,13 @@ app.post("/api/users", [validateToken], async (request, response) => {
 });
 
 // Create user
-app.post("/api/users/registration", async (request, response) => {
+app.post("/api/users/register", async (request, response) => {
   const body = request.body;
   if (!body || !body.password) {
     // Bad request
     return response.status(400).json({
       error: "bad request",
-      message: "No body provided",
+      message: "Please fill in required fields",
     });
   }
 
