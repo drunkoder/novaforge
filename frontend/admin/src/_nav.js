@@ -45,9 +45,9 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Reports',
-    to: '/reports',
-    icon: <CIcon icon={cilChartPie} customClassName="nav-icon" />,
+    name: 'Exchange Rate',
+    to: '/exchange-rates',
+    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
   }
 ]
 
