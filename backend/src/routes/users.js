@@ -256,7 +256,7 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
 
 
 // buy nova coin
-app.post("/api/users/add-coins/:id", [validateToken], async (request, response) => {
+app.post("/api/users/:id/add-coins", [validateToken], async (request, response) => {
   const { id } = request.params;
   const { exchangeRateId, amount } = request.body;
 
@@ -287,7 +287,7 @@ app.post("/api/users/add-coins/:id", [validateToken], async (request, response) 
     }
 
     // Calculate amount of coins based on exchange rate
-    const coinsToAdd = amount * exchangeRate.coins;
+    const coinsToAdd = amount / exchangeRate.coins;
 
     // Update nova_coin_balance
     user.nova_coin_balance += coinsToAdd;
@@ -308,6 +308,54 @@ app.post("/api/users/add-coins/:id", [validateToken], async (request, response) 
   }
 });
 
+// withdraw 
+app.post("/api/users/:id/withdraw-coins", [validateToken], async (request, response) => {
+  const { id } = request.params;
+  const { amount } = request.body;
+
+  if (!id || !amount) {
+    return response.status(400).json({
+      error: "bad request",
+      message: "Missing required parameters",
+    });
+  }
+
+  try {
+    // Find the user
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return response.status(404).json({
+        error: "User not found",
+        message: "User with the provided ID does not exist",
+      });
+    }
+
+    // Check if user has enough balance to withdraw
+    if (user.nova_coin_balance < amount) {
+      return response.status(400).json({
+        error: "Insufficient balance",
+        message: "You do not have enough coins to withdraw",
+      });
+    }
+
+    // Update nova_coin_balance
+    user.nova_coin_balance -= amount;
+    await user.save();
+
+    var userVM = mapUserToViewModel(user);
+
+    return response.status(200).json({
+      message: "Coins withdrawn successfully",
+      coinsWithdrawn: amount,
+      updatedUser: userVM,
+    });
+  } catch (error) {
+    return response.status(500).json({
+      error: "Internal server error",
+      message: error.message,
+    });
+  }
+});
 
 // private methods here
 function mapToViewModel(users) {

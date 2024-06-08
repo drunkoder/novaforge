@@ -8,10 +8,12 @@ import { CContainer, CRow, CCol, CCard, CCardBody, CButton, CBadge, CCardTitle, 
 import CIcon from '@coreui/icons-react';
 import { cilPlus, cilMinus, cilLemon } from '@coreui/icons';
 import AddFundsDialog from './AddFundsDialog';
+import WithdrawFundsDialog from './WithrdawFundsDialog';
 
 const UserWallet = ({ }) => {
   const [user, setUser] = useState(null);
   const [showAddFundsDialog, setShowAddFundsDialog] = useState(false);
+  const [showWithdrawFundsDialog, setShowWithdrawFundsDialog] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', color: '' });
 
   useEffect(() => {
@@ -43,10 +45,6 @@ const UserWallet = ({ }) => {
     setShowAddFundsDialog(true);
   };
 
-  const handleWithdraw = () => {
-    console.log('Withdraw clicked');
-  };
-
   const handleCloseAddFundsDialog = () => {
     setShowAddFundsDialog(false);
   };
@@ -54,7 +52,7 @@ const UserWallet = ({ }) => {
   const handleAddFundsSubmit = async (formData) => {
     console.log(formData);
     try {
-      const response = await axios.post(`${BASE_URL}/api/users/add-coins/${user._id}`, formData);
+      const response = await axios.post(`${BASE_URL}/api/users/${user._id}/add-coins`, formData);
       if (response.status === 200 || response.status === 201) {
         showToast('You have successfully added funds!', 'success');
         setUser(response.data);
@@ -77,6 +75,42 @@ const UserWallet = ({ }) => {
 
     setShowAddFundsDialog(false);
   }
+
+  const handleWithdraw = () => {
+    setShowWithdrawFundsDialog(true);
+  };
+
+  const handleCloseWithdrawFundsDialog = () => {
+    setShowWithdrawFundsDialog(false);
+  };
+
+  const handleWithdrawFundsSubmit = async (formData) => {
+    console.log(formData);
+    try {
+      const response = await axios.post(`${BASE_URL}/api/users/${user._id}/withdraw-coins`, formData);
+      if (response.status === 200 || response.status === 201) {
+        showToast('You have successfully withdrawn your funds!', 'success');
+        setUser(response.data);
+        fetchUserDetails(response.data.updatedUser.id);
+
+        const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
+        let updatedUser = JSON.parse(storedUser);
+        updatedUser.nova_coin_balance = response.data.updatedUser.nova_coin_balance;
+
+        const updatedUserStr = JSON.stringify(updatedUser);
+        sessionStorage.setItem('user', updatedUserStr); 
+        localStorage.setItem('user', updatedUserStr); 
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      console.error('Error withdrawing your fund:', error);
+      showToast(error.response ? error.response.data.message : error.message, 'danger');
+    }
+
+    setShowWithdrawFundsDialog(false);
+  }
+
 
   const showToast = (message, color) => {
     setToast({ show: true, message, color });
@@ -126,6 +160,12 @@ const UserWallet = ({ }) => {
                 visible={showAddFundsDialog}
                 onClose={handleCloseAddFundsDialog}
                 onSubmit={handleAddFundsSubmit}
+              />
+
+              <WithdrawFundsDialog
+                visible={showWithdrawFundsDialog}
+                onClose={handleCloseWithdrawFundsDialog}
+                onSubmit={handleWithdrawFundsSubmit}
               />
             </CCardBody>
           </CCard>

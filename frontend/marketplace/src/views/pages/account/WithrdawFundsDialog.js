@@ -13,11 +13,12 @@ import {
   CModalHeader,
   CCard,
   CRow,
-  CCardImage,
-  CCardBody, CCardText, CCardTitle
+  CCardBody,
+  CCardText,
+  CCardTitle
 } from '@coreui/react';
 
-const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
+const WithdrawFundsDialog = ({ visible, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     exchangeRateId: '',
     amount: 0,
@@ -27,6 +28,7 @@ const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
   const [validated, setValidated] = useState(false);
   const [exchangeRates, setExchangeRates] = useState([]);
   const [convertedAmount, setConvertedAmount] = useState(0);
+  const [currency, setCurrency] = useState('');
 
   useEffect(() => {
     if (visible) {
@@ -42,17 +44,24 @@ const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
       }));
     }
   }, [visible, exchangeRates]);
-
+  
   useEffect(() => {
     validateForm();
   }, [formData]);
 
   useEffect(() => {
-    if (formData.exchangeRateId && formData.amount) {
+    if (formData.exchangeRateId) {
       const selectedRate = exchangeRates.find(rate => rate._id === formData.exchangeRateId);
+      if(formData.amount){
+        if (selectedRate) {
+          const converted = formData.amount * selectedRate.coins;
+          setConvertedAmount(converted.toFixed(2));
+          setCurrency(selectedRate.code);
+        }
+      }
+      
       if (selectedRate) {
-        const converted = formData.amount / selectedRate.coins;
-        setConvertedAmount(converted.toFixed(2));
+        setCurrency(selectedRate.code);
       }
     }
   }, [formData, exchangeRates]);
@@ -114,12 +123,24 @@ const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
   };
 
   return (
-    <CModal visible={visible} backdrop="static" onClose={onClose} size="lg">
-      <CModalHeader closeButton>Add Funds</CModalHeader>
+    <CModal visible={visible} backdrop="static" onClose={onClose}>
+      <CModalHeader closeButton>Withdraw Funds</CModalHeader>
       <CModalBody>
         <CForm className="row g-3" onSubmit={handleSubmit}>
-          <CCol md={6}>
-            <CFormLabel htmlFor='exchangeRateId'>Add Funds in</CFormLabel>
+          <CCol md={12}>
+            <CFormLabel htmlFor='amount'>Amount of Nova Coins To Withdraw</CFormLabel>
+            <CFormInput
+              type="number"
+              id="amount"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              invalid={!!errors.amount && validated}
+            />
+            {errors.amount && validated && <div className="invalid-feedback">{errors.amount}</div>}
+          </CCol>
+          <CCol md={12}>
+            <CFormLabel htmlFor='exchangeRateId'>Withdraw in</CFormLabel>
             <CFormSelect
               id="exchangeRateId"
               name="exchangeRateId"
@@ -133,25 +154,16 @@ const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
             </CFormSelect>
             {errors.exchangeRateId && validated && <div className="invalid-feedback">{errors.exchangeRateId}</div>}
           </CCol>
-          <CCol md={6}>
-          <CFormLabel htmlFor='amount'>Amount</CFormLabel>
-            <CFormInput
-              type="number"
-              id="amount"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              invalid={!!errors.amount && validated}
-            />
-            {errors.amount && validated && <div className="invalid-feedback">{errors.amount}</div>}
-          </CCol>
           <CCol md={12}>
             <CCard className="mb-3">
               <CRow className="g-0">
                 <CCol md={12}>
                   <CCardBody>
                     <CCardText>
-                      <small className="text-body-secondary">Nova coins to buy</small>
+                      <small className="text-body-secondary">Currency conversion</small>
+                    </CCardText>
+                    <CCardText className="text-body-secondary mr-2" style={{ fontSize: '2.5rem', display: 'inline', marginRight: '10px' }}>
+                      {currency}
                     </CCardText>
                     <CCardText style={{ fontSize: '2.5rem', display: 'inline' }}>
                       {convertedAmount}
@@ -165,7 +177,7 @@ const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
       </CModalBody>
       <CModalFooter>
         <CButton color="primary" onClick={handleSubmit} disabled={!formValid}>
-          Add Funds
+          Withdraw Funds
         </CButton>
         <CButton color="secondary" onClick={onClose}>Cancel</CButton>
       </CModalFooter>
@@ -173,4 +185,4 @@ const AddFundsDialog = ({ visible, onClose, onSubmit }) => {
   );
 };
 
-export default AddFundsDialog;
+export default WithdrawFundsDialog;
