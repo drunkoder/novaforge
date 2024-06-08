@@ -1,5 +1,6 @@
 import express from "express";
 import UserModel from "../models/users.js";
+import ExchangeRateModel from "../models/exchange_rates.js";
 import { generatePassword } from "../utils/index.js";
 import { validateToken } from "../middlewares/auth.js";
 
@@ -24,6 +25,7 @@ app.get("/api/users/:id", [validateToken], (request, response) => {
         message: "User with the provided ID does not exist",
       });
     }
+
     return response.status(200).json(user);
   })
   .catch((error) => {
@@ -253,6 +255,61 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
 });
 
 
+// buy nova coin
+app.post("/api/users/add-coins/:id", [validateToken], async (request, response) => {
+  const { id } = request.params;
+  const { exchangeRateId, amount } = request.body;
+
+  if (!id || !exchangeRateId || !amount) {
+    return response.status(400).json({
+      error: "bad request",
+      message: "Missing required parameters",
+    });
+  }
+
+  try {
+    // Find the user
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return response.status(404).json({
+        error: "User not found",
+        message: "User with the provided ID does not exist",
+      });
+    }
+
+    // Find exchange rate by ID
+    const exchangeRate = await ExchangeRateModel.findById(exchangeRateId);
+    if (!exchangeRate) {
+      return response.status(404).json({
+        error: "Exchange rate not found",
+        message: "Exchange rate with the provided ID not available",
+      });
+    }
+
+    // Calculate amount of coins based on exchange rate
+    const coinsToAdd = amount * exchangeRate.coins;
+
+    // Update nova_coin_balance
+    user.nova_coin_balance += coinsToAdd;
+    await user.save();
+
+    var userVM = mapUserToViewModel(user);
+
+    return response.status(200).json({
+      message: "Coins added successfully",
+      coinsAdded: coinsToAdd,
+      updatedUser: userVM,
+    });
+  } catch (error) {
+    return response.status(500).json({
+      error: "Internal server error",
+      message: error.message,
+    });
+  }
+});
+
+
+// private methods here
 function mapToViewModel(users) {
   return users.map(user => ({
     id: user._id.toString(),
@@ -263,6 +320,19 @@ function mapToViewModel(users) {
     role: user.role
   }));
 }
+
+function mapUserToViewModel(user) {
+  return {
+    id: user._id.toString(),
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    friendly_name: `${user.first_name} ${user.last_name}`,
+    role: user.role,
+    nova_coin_balance: user.nova_coin_balance
+  };
+}
+
 
 async function isEmailTaken(email, userId = null) {
   try {

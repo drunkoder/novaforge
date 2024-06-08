@@ -32,6 +32,7 @@ app.post('/api/auth/login', async (req, res) => {
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
+      friendly_name: `${user.first_name} ${user.last_name}`,
       role: user.role,
       nova_coin_balance: user.nova_coin_balance
     };
