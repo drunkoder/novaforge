@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import UserModel from '../models/users.js';
 import ProductModel from '../models/products.js';
 import MiningAreaModel from '../models/mining_areas.js';
-import MiningAreaProductModel from '../models/mining_area_products.js';
+import ExchangeRateModel from '../models/exchange_rates.js';
 import userRoles from '../utils/enums.js';
 import connectDB from '../config/db.js';
 import { generatePassword } from '../utils/index.js';
@@ -143,11 +143,52 @@ const createSampleUser = async () => {
     }
 };
 
+const createExchangeRates = async () => {
+    try {
+      const existingRates = await ExchangeRateModel.find();
+      if (existingRates.length > 0) {
+        console.log("Exchange rates already exist.");
+        return;
+      }
+  
+      // sample exchange rates
+      const sampleExchangeRates = [
+        { country_name: 'United States', code: 'USD', coins: 1.0 },
+        { country_name: 'Europe', code: 'EUR', coins: 0.84 },
+        { country_name: 'United Kingdom', code: 'GBP', coins: 0.72 },
+        { country_name: 'Japan', code: 'JPY', coins: 109.53 },
+        { country_name: 'Switzerland', code: 'CHF', coins: 0.92 },
+        { country_name: 'Canada', code: 'CAD', coins: 1.21 },
+        { country_name: 'Australia', code: 'AUD', coins: 1.29 },
+        { country_name: 'China', code: 'CNY', coins: 6.42 },
+        { country_name: 'India', code: 'INR', coins: 72.89 },
+        { country_name: 'Brazil', code: 'BRL', coins: 5.06 },
+        { country_name: 'Russia', code: 'RUB', coins: 73.43 },
+        { country_name: 'South Korea', code: 'KRW', coins: 1125.47 },
+        { country_name: 'Mexico', code: 'MXN', coins: 19.91 },
+        { country_name: 'Turkey', code: 'TRY', coins: 8.50 },
+        { country_name: 'Indonesia', code: 'IDR', coins: 14345.95 },
+        { country_name: 'South Africa', code: 'ZAR', coins: 14.44 },
+        { country_name: 'Saudi Arabia', code: 'SAR', coins: 3.75 },
+        { country_name: 'Nigeria', code: 'NGN', coins: 411.51 },
+        { country_name: 'Argentina', code: 'ARS', coins: 95.96 },
+        { country_name: 'Egypt', code: 'EGP', coins: 15.69 }
+      ];
+  
+      await ExchangeRateModel.insertMany(sampleExchangeRates);
+      console.log("Sample exchange rates created successfully.");
+    } catch (error) {
+      console.error("Error creating sample exchange rates:", error);
+    }
+  };
+
+  
 const initializeDatabase = async () => {
     try {
         await createAdminUser();
         await createSampleUser();
         await createSampleMiningAreas();
+        await createExchangeRates();
     } catch (error) {
         console.error('Error initializing database:', error);
     } finally {
