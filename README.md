@@ -8,3 +8,5 @@ Run back-end server
 5. run node .\init_db.js
 6. go back to backend directory
 7. run npm start
+
+truptesh testing
