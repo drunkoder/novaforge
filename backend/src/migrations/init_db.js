@@ -4,7 +4,7 @@ import UserModel from '../models/users.js';
 import ProductModel from '../models/products.js';
 import MiningAreaModel from '../models/mining_areas.js';
 import ExchangeRateModel from '../models/exchange_rates.js';
-import userRoles from '../utils/enums.js';
+import { userRoles } from '../utils/enums.js';
 import connectDB from '../config/db.js';
 import { generatePassword } from '../utils/index.js';
 
@@ -25,7 +25,8 @@ const createAdminUser = async () => {
             email: 'admin@example.org',
             first_name: 'Administrator',
             password: hashedPassword,
-            role: userRoles.ADMIN
+            role: userRoles.ADMIN,
+            purchased_products: []
         });
         await adminUser.save();
         console.log("Admin user created successfully.");
@@ -134,8 +135,37 @@ const createSampleUser = async () => {
             email: 'user@example.org',
             first_name: 'User 1',
             password: hashedPassword,
-            role: userRoles.USER
+            role: userRoles.USER,
+            purchased_products: []
         });
+
+        const miningAreas = await MiningAreaModel.find();
+
+        const purchasedProducts = [
+            {
+                product_id: miningAreas[0].products[0].product_id,
+                mining_area_id: miningAreas[0]._id,
+                price: miningAreas[0].products[0].price,
+                quantity: 2,
+                status: 'AVAILABLE'
+            },
+            {
+                product_id: miningAreas[1].products[1].product_id,
+                mining_area_id: miningAreas[1]._id,
+                price: miningAreas[1].products[1].price,
+                quantity: 3,
+                status: 'SOLD'
+            },
+            {
+                product_id: miningAreas[2].products[0].product_id,
+                mining_area_id: miningAreas[2]._id,
+                price: miningAreas[2].products[0].price,
+                quantity: 1,
+                status: 'FOR_SALE'
+            }
+        ];
+
+        user.purchased_products = purchasedProducts;
         await user.save();
         console.log("User created successfully.");
     } catch (error) {
