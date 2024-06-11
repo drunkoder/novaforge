@@ -1,0 +1,82 @@
+body {
+  margin: auto;
+  overflow: auto;
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  display: auto;
+  overflow: auto;
+}
+
+#three-canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; 
+  z-index: -1; 
+}
+
+#description {
+  position: auto;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  display: none;
+}
+
+#planet-table {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+}
+
+#planet-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#planet-table th, #planet-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+#planet-table th {
+  background-color: #f2f2f2;
+}
+
+#planet-info {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  display: none;
+  font-family: Arial, sans-serif;
+}
+
+#back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  background-color: #f2f2f2;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+}
+
+.content {
+  padding: 20px;
+}
