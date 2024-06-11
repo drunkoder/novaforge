@@ -1,6 +1,6 @@
 import express from "express";
 import UserModel from "../models/users.js";
-import userRoles from '../utils/enums.js';
+import { userRoles } from '../utils/enums.js';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 

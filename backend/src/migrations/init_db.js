@@ -4,7 +4,7 @@ import UserModel from '../models/users.js';
 import ProductModel from '../models/products.js';
 import MiningAreaModel from '../models/mining_areas.js';
 import ExchangeRateModel from '../models/exchange_rates.js';
-import userRoles from '../utils/enums.js';
+import { userRoles } from '../utils/enums.js';
 import connectDB from '../config/db.js';
 import { generatePassword } from '../utils/index.js';
 
@@ -25,7 +25,8 @@ const createAdminUser = async () => {
             email: 'admin@example.org',
             first_name: 'Administrator',
             password: hashedPassword,
-            role: userRoles.ADMIN
+            role: userRoles.ADMIN,
+            purchased_products: []
         });
         await adminUser.save();
         console.log("Admin user created successfully.");
@@ -45,39 +46,119 @@ const createSampleMiningAreas = async () => {
 
         // Create sample products
         const sampleProducts = [
-            { code: 'PROD001', name: 'Sample Product 1', description: 'Description for Sample Product 1' },
-            { code: 'PROD002', name: 'Sample Product 2', description: 'Description for Sample Product 2' },
-            { code: 'PROD003', name: 'Sample Product 3', description: 'Description for Sample Product 3' }
+            { code: 'GOLD', name: 'Gold', description: 'Pure gold extracted from asteroids.' },
+            { code: 'SILVER', name: 'Silver', description: 'High-quality silver from lunar mining.' },
+            { code: 'PLATINUM', name: 'Platinum', description: 'Rare platinum metals found in outer belt asteroids.' },
+            { code: 'DIAMOND', name: 'Diamond', description: 'Flawless diamonds mined from Martian soil.' },
+            { code: 'COPPER', name: 'Copper', description: 'Industrial-grade copper for spacecraft construction.' },
+            { code: 'IRON', name: 'Iron', description: 'High-purity iron ore from asteroid mines.' },
+            { code: 'NICKEL', name: 'Nickel', description: 'Nickel alloy for spacecraft components.' },
+            { code: 'TITANIUM', name: 'Titanium', description: 'Titanium alloy for space station construction.' },
+            { code: 'URANIUM', name: 'Uranium', description: 'Highly enriched uranium for power generation.' },
+            { code: 'ALUMINUM', name: 'Aluminum', description: 'Lightweight aluminum for spacecraft frames.' }
         ];
         const createdProducts = await ProductModel.insertMany(sampleProducts);
 
         // Create sample mining areas with products
         const sampleMiningAreas = [
             {
-                name: 'Sample Mining Area 1',
-                type: 'planet',
-                description: 'Description for Sample Mining Area 1',
+                name: 'Asteroid Mining Site Alpha',
+                type: 'Asteroid',
+                description: 'Prime asteroid belt location for mineral extraction.',
                 products: [
-                    { product_id: new mongoose.Types.ObjectId(createdProducts[0]._id), price: 100, quantity: 10 },
-                    { product_id: new mongoose.Types.ObjectId(createdProducts[1]._id), price: 150, quantity: 15 }
+                    { product_id: createdProducts[0]._id, price: 100, quantity: 10 },
+                    { product_id: createdProducts[1]._id, price: 150, quantity: 15 },
+                    { product_id: createdProducts[2]._id, price: 120, quantity: 20 }
                 ]
             },
             {
-                name: 'Sample Mining Area 2',
-                type: 'asteroid',
-                description: 'Description for Sample Mining Area 2',
+                name: 'Lunar Mining Base Omega',
+                type: 'Moon',
+                description: 'State-of-the-art facility on the lunar surface for rare metal extraction.',
                 products: [
-                    { product_id: new mongoose.Types.ObjectId(createdProducts[1]._id), price: 200, quantity: 20 },
-                    { product_id: new mongoose.Types.ObjectId(createdProducts[2]._id), price: 250, quantity: 25 }
+                    { product_id: createdProducts[3]._id, price: 200, quantity: 20 },
+                    { product_id: createdProducts[4]._id, price: 250, quantity: 25 },
+                    { product_id: createdProducts[5]._id, price: 180, quantity: 30 }
                 ]
             },
             {
-                name: 'Sample Mining Area 3',
-                type: 'planet',
-                description: 'Description for Sample Mining Area 3',
+                name: 'Martian Mining Outpost Delta',
+                type: 'Planet',
+                description: 'Remote outpost on Mars for harvesting valuable minerals.',
                 products: [
-                    { product_id: new mongoose.Types.ObjectId(createdProducts[0]._id), price: 300, quantity: 30 },
-                    { product_id: new mongoose.Types.ObjectId(createdProducts[2]._id), price: 350, quantity: 35 }
+                    { product_id: createdProducts[6]._id, price: 220, quantity: 22 },
+                    { product_id: createdProducts[7]._id, price: 270, quantity: 27 },
+                    { product_id: createdProducts[8]._id, price: 190, quantity: 32 }
+                ]
+            },
+            {
+                name: 'Europa Ice Mining Station Gamma',
+                type: 'Moon',
+                description: 'Subsurface ice mining station on Jupiter\'s moon Europa.',
+                products: [
+                    { product_id: createdProducts[9]._id, price: 150, quantity: 15 },
+                    { product_id: createdProducts[1]._id, price: 180, quantity: 18 },
+                    { product_id: createdProducts[3]._id, price: 200, quantity: 20 }
+                ]
+            },
+            {
+                name: 'Kuiper Belt Mining Facility Epsilon',
+                type: 'Asteroid',
+                description: 'Advanced mining facility located in the Kuiper Belt for rare elements.',
+                products: [
+                    { product_id: createdProducts[4]._id, price: 170, quantity: 17 },
+                    { product_id: createdProducts[5]._id, price: 200, quantity: 20 },
+                    { product_id: createdProducts[6]._id, price: 230, quantity: 23 }
+                ]
+            },
+            {
+                name: 'Mercury Mining Outpost Theta',
+                type: 'Planet',
+                description: 'Outpost on Mercury\'s surface for heat-resistant mineral extraction.',
+                products: [
+                    { product_id: createdProducts[7]._id, price: 190, quantity: 19 },
+                    { product_id: createdProducts[8]._id, price: 220, quantity: 22 },
+                    { product_id: createdProducts[9]._id, price: 240, quantity: 24 }
+                ]
+            },
+            {
+                name: 'Venus Cloud Mining Platform Zeta',
+                type: 'Planet',
+                description: 'Floating platform in Venus\'s atmosphere for cloud mining operations.',
+                products: [
+                    { product_id: createdProducts[0]._id, price: 160, quantity: 16 },
+                    { product_id: createdProducts[2]._id, price: 190, quantity: 19 },
+                    { product_id: createdProducts[4]._id, price: 210, quantity: 21 }
+                ]
+            },
+            {
+                name: 'Phobos Regolith Mining Facility Sigma',
+                type: 'Moon',
+                description: 'Base on Mars\'s moon Phobos for regolith mining.',
+                products: [
+                    { product_id: createdProducts[1]._id, price: 200, quantity: 20 },
+                    { product_id: createdProducts[3]._id, price: 230, quantity: 23 },
+                    { product_id: createdProducts[5]._id, price: 250, quantity: 25 }
+                ]
+            },
+            {
+                name: 'Deimos Ice Mining Outpost Kappa',
+                type: 'Moon',
+                description: 'Outpost on Mars\'s moon Deimos for ice mining operations.',
+                products: [
+                    { product_id: createdProducts[6]._id, price: 170, quantity: 17 },
+                    { product_id: createdProducts[8]._id, price: 200, quantity: 20 },
+                    { product_id: createdProducts[0]._id, price: 220, quantity: 22 }
+                ]
+            },
+            {
+                name: 'Oort Cloud Prospecting Station Omega',
+                type: 'Asteroid',
+                description: 'Remote station in the Oort Cloud for prospecting comet nuclei.',
+                products: [
+                    { product_id: createdProducts[2]._id, price: 180, quantity: 18 },
+                    { product_id: createdProducts[4]._id, price: 210, quantity: 21 },
+                    { product_id: createdProducts[6]._id, price: 240, quantity: 24 }
                 ]
             }
         ];
@@ -92,24 +173,6 @@ const createSampleMiningAreas = async () => {
 
             const miningArea = new MiningAreaModel(area);
             await miningArea.save();
-
-            // Create mining area products
-            // for (const productData of sampleArea.products) {
-            //     console.log(productData);
-            //     const productId = new mongoose.Types.ObjectId(productData.product_id);
-
-            //     const miningAreaProduct = new MiningAreaProductModel({
-            //         mining_area_id: miningArea._id,
-            //         product_id: productId,
-            //         price: productData.price,
-            //         quantity: productData.quantity
-            //     });
-            //     await miningAreaProduct.save();
-
-            //     miningArea.products.push(productId);
-            // }
-
-            // await miningArea.save();
         }
 
         console.log("Sample mining areas created successfully.");
@@ -117,6 +180,8 @@ const createSampleMiningAreas = async () => {
         console.error("Error creating sample mining areas:", error);
     }
 };
+
+
 
 
 const createSampleUser = async () => {
@@ -134,14 +199,140 @@ const createSampleUser = async () => {
             email: 'user@example.org',
             first_name: 'User 1',
             password: hashedPassword,
-            role: userRoles.USER
+            role: userRoles.USER,
+            purchased_products: []
         });
+
+        const miningAreas = await MiningAreaModel.find();
+
+        const purchasedProducts = [
+            {
+                product_id: miningAreas[0].products[0].product_id,
+                mining_area_id: miningAreas[0]._id,
+                price: miningAreas[0].products[0].price,
+                quantity: 2,
+                status: 'AVAILABLE'
+            },
+            {
+                product_id: miningAreas[1].products[1].product_id,
+                mining_area_id: miningAreas[1]._id,
+                price: miningAreas[1].products[1].price,
+                quantity: 3,
+                status: 'SOLD'
+            },
+            {
+                product_id: miningAreas[2].products[0].product_id,
+                mining_area_id: miningAreas[2]._id,
+                price: miningAreas[2].products[0].price,
+                quantity: 1,
+                status: 'FOR_SALE'
+            }
+        ];
+
+        user.purchased_products = purchasedProducts;
         await user.save();
         console.log("User created successfully.");
     } catch (error) {
         console.error("Error creating user:", error);
     }
 };
+
+const createSampleUsers = async () => {
+    try {
+        // Check if sample users already exist
+        const existingUsers = await UserModel.find({ role: userRoles.USER });
+        if (existingUsers.length >= 5) {
+            console.log("Sample users already exist.");
+            return;
+        }
+
+        // Retrieve mining areas
+        const miningAreas = await MiningAreaModel.find();
+
+        // Create sample users
+        const sampleUsers = [
+            {
+                email: 'user1@example.org',
+                first_name: 'John',
+                password: 'user1@123',
+                role: userRoles.USER,
+                purchased_products: [
+                    { product_id: miningAreas[0].products[0].product_id, mining_area_id: miningAreas[0]._id, price: 100, quantity: 2, status: 'AVAILABLE' },
+                    { product_id: miningAreas[0].products[1].product_id, mining_area_id: miningAreas[0]._id, price: 150, quantity: 3, status: 'SOLD' },
+                    { product_id: miningAreas[1].products[0].product_id, mining_area_id: miningAreas[1]._id, price: 200, quantity: 1, status: 'FOR_SALE' },
+                    { product_id: miningAreas[1].products[1].product_id, mining_area_id: miningAreas[1]._id, price: 250, quantity: 4, status: 'SOLD' },
+                    { product_id: miningAreas[2].products[0].product_id, mining_area_id: miningAreas[2]._id, price: 300, quantity: 2, status: 'AVAILABLE' }
+                ]
+            },
+            {
+                email: 'user2@example.org',
+                first_name: 'Alice',
+                password: 'user2@123',
+                role: userRoles.USER,
+                purchased_products: [
+                    { product_id: miningAreas[0].products[1].product_id, mining_area_id: miningAreas[0]._id, price: 150, quantity: 3, status: 'SOLD' },
+                    { product_id: miningAreas[1].products[0].product_id, mining_area_id: miningAreas[1]._id, price: 200, quantity: 1, status: 'FOR_SALE' },
+                    { product_id: miningAreas[2].products[1].product_id, mining_area_id: miningAreas[2]._id, price: 250, quantity: 4, status: 'SOLD' },
+                    { product_id: miningAreas[3].products[0].product_id, mining_area_id: miningAreas[3]._id, price: 300, quantity: 2, status: 'AVAILABLE' },
+                    { product_id: miningAreas[4].products[0].product_id, mining_area_id: miningAreas[4]._id, price: 350, quantity: 3, status: 'SOLD' }
+                ]
+            },
+            {
+                email: 'user3@example.org',
+                first_name: 'Bob',
+                password: 'user3@123',
+                role: userRoles.USER,
+                purchased_products: [
+                    { product_id: miningAreas[1].products[1].product_id, mining_area_id: miningAreas[1]._id, price: 250, quantity: 4, status: 'SOLD' },
+                    { product_id: miningAreas[2].products[0].product_id, mining_area_id: miningAreas[2]._id, price: 300, quantity: 2, status: 'AVAILABLE' },
+                    { product_id: miningAreas[3].products[1].product_id, mining_area_id: miningAreas[3]._id, price: 350, quantity: 3, status: 'SOLD' },
+                    { product_id: miningAreas[4].products[1].product_id, mining_area_id: miningAreas[4]._id, price: 400, quantity: 1, status: 'FOR_SALE' },
+                    { product_id: miningAreas[5].products[0].product_id, mining_area_id: miningAreas[5]._id, price: 450, quantity: 2, status: 'AVAILABLE' }
+                ]
+            },
+            {
+                email: 'user4@example.org',
+                first_name: 'Emily',
+                password: 'user4@123',
+                role: userRoles.USER,
+                purchased_products: [
+                    { product_id: miningAreas[2].products[1].product_id, mining_area_id: miningAreas[2]._id, price: 300, quantity: 2, status: 'AVAILABLE' },
+                    { product_id: miningAreas[3].products[0].product_id, mining_area_id: miningAreas[3]._id, price: 350, quantity: 3, status: 'SOLD' },
+                    { product_id: miningAreas[4].products[0].product_id, mining_area_id: miningAreas[4]._id, price: 400, quantity: 1, status: 'FOR_SALE' },
+                    { product_id: miningAreas[5].products[1].product_id, mining_area_id: miningAreas[5]._id, price: 450, quantity: 2, status: 'AVAILABLE' },
+                    { product_id: miningAreas[6].products[0].product_id, mining_area_id: miningAreas[6]._id, price: 500, quantity: 3, status: 'SOLD' }
+                ]
+            },
+            {
+                email: 'user5@example.org',
+                first_name: 'David',
+                password: 'user5@123',
+                role: userRoles.USER,
+                purchased_products: [
+                    { product_id: miningAreas[3].products[1].product_id, mining_area_id: miningAreas[3]._id, price: 350, quantity: 3, status: 'SOLD' },
+                    { product_id: miningAreas[4].products[0].product_id, mining_area_id: miningAreas[4]._id, price: 400, quantity: 1, status: 'FOR_SALE' },
+                    { product_id: miningAreas[5].products[1].product_id, mining_area_id: miningAreas[5]._id, price: 450, quantity: 2, status: 'AVAILABLE' },
+                    { product_id: miningAreas[6].products[0].product_id, mining_area_id: miningAreas[6]._id, price: 500, quantity: 3, status: 'SOLD' },
+                    { product_id: miningAreas[7].products[1].product_id, mining_area_id: miningAreas[7]._id, price: 550, quantity: 1, status: 'FOR_SALE' }
+                ]
+            }
+        ];
+
+        for (const userData of sampleUsers) {
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+            delete userData.password;
+            userData.password = hashedPassword;
+            const user = new UserModel(userData);
+            await user.save();
+        }
+
+        console.log("Sample users created successfully.");
+    } catch (error) {
+        console.error("Error creating sample users:", error);
+    }
+};
+
+
 
 const createExchangeRates = async () => {
     try {
@@ -185,10 +376,11 @@ const createExchangeRates = async () => {
   
 const initializeDatabase = async () => {
     try {
-        await createAdminUser();
-        await createSampleUser();
         await createSampleMiningAreas();
         await createExchangeRates();
+        await createAdminUser();
+        await createSampleUser();
+        await createSampleUsers();
     } catch (error) {
         console.error('Error initializing database:', error);
     } finally {

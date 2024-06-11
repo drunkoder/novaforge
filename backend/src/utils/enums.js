@@ -3,4 +3,10 @@ const userRoles = {
     USER: 'User'
 };
 
-export default userRoles;
+const inventoryStatus = {
+    AVAILABLE: 'AVAILABLE',
+    SOLD: 'SOLD',
+    FOR_SALE: 'FOR_SALE'
+};
+
+export { userRoles, inventoryStatus };

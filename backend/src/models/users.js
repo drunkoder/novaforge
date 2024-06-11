@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import userRoles from "../utils/enums.js";
+import { userRoles } from "../utils/enums.js";
 
 const UserSchema = new Schema({
   email: {
@@ -40,6 +40,18 @@ const UserSchema = new Schema({
     type: Number,
     default: 0,
   },
+  purchased_products: [{
+    product_id: { type: Schema.Types.ObjectId, ref: 'products' },
+    mining_area_id: { type: Schema.Types.ObjectId, ref: 'mining_areas' },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    purchase_date: { type: Date, default: Date.now },
+    status: {
+      type: String,
+      enum: ['AVAILABLE', 'SOLD', 'FOR_SALE'],
+      default: 'AVAILABLE'
+    }
+  }]
 });
 
 const UserModel = mongoose.model("users", UserSchema);

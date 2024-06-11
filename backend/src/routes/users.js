@@ -357,6 +357,69 @@ app.post("/api/users/:id/withdraw-coins", [validateToken], async (request, respo
   }
 });
 
+// TODO: My Inventory APIs
+app.get('/api/users/:id/inventory', [validateToken], async (request, response) => {
+  const { id } = request.params;
+  const { status, search, page = 1, limit = 10 } = request.query;
+
+  if (!id) {
+    return response.status(400).json({
+      error: 'bad request',
+      message: 'No ID provided',
+    });
+  }
+
+  const pageNumber = parseInt(page) || 1;
+  const pageSize = parseInt(limit) || 10;
+  const skip = (pageNumber - 1) * pageSize;
+
+  try {
+    const user = await UserModel.findById(id)
+      .populate('purchased_products.product_id')
+      .populate('purchased_products.mining_area_id');
+
+    if (!user) {
+      return response.status(404).json({
+        error: 'User not found',
+        message: 'User with the provided ID does not exist',
+      });
+    }
+
+    let inventory = user.purchased_products;
+
+
+    // filter the status, AVAILABLE, SOLD, FOR_SALE
+    if (status) {
+      inventory = inventory.filter(product => product.status === status);
+    }
+
+    // if there's search keyword, search for area name or product name
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      inventory = inventory.filter(product =>
+        searchRegex.test(product.product_id.name) || 
+        searchRegex.test(product.mining_area_id.name)
+      );
+    }
+
+    const totalPages = Math.ceil(inventory.length / pageSize);
+    const paginatedInventory = inventory.slice(skip, skip + pageSize);
+
+    response.status(200).json({
+      totalItems: inventory.length,
+      totalPages,
+      currentPage: pageNumber,
+      inventory: paginatedInventory
+    });
+  } catch (error) {
+    return response.status(400).json({
+      error: 'Error finding user inventory',
+      message: error.message,
+    });
+  }
+});
+
+
 // private methods here
 function mapToViewModel(users) {
   return users.map(user => ({
