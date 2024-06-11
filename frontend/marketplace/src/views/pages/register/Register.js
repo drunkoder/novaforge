@@ -199,7 +199,7 @@ const Register = () => {
                   </div>
                   <div className="d-grid">
                     <p className="text-body-secondary text-center mt-3">Already have an account? 
-                      <CButton color="link" className="px-0" href="#/login">
+                      <CButton color="link" className="px-0" href="/login">
                         Login
                       </CButton>
                     </p>
