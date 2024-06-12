@@ -1,27 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { CContainer, CRow, CCol  } from '@coreui/react';
 import * as THREE from 'three';
-//import axios from '../../../axios_interceptor';
-import axios from 'axios';
 
-import './App.css';
+import '../../assets/css/landing_page.css'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import suen from './Planets_textures/2k_sun.jpg';
-import mercury from './Planets_textures/2k_mercury.jpg';
-import venus from './Planets_textures/2k_venus.jpg';
-import earth from './Planets_textures/2k_earth_.jpg';
-import mars from './Planets_textures/2k_mars.jpg';
-import jupiter from './Planets_textures/2k_jupiter.jpg';
-import saturn from './Planets_textures/2k_saturn.jpg';
-import uranus from './Planets_textures/2k_uranus.jpg';
-import neptune from './Planets_textures/2k_neptune.jpg';
-import milky from './Planets_textures/8k_stars_milky_way.jpg';
+import suen from '../../assets/images/planets_textures/2k_sun.jpg';
+import mercury from '../../assets/images/planets_textures/2k_mercury.jpg';
+import venus from '../../assets/images/planets_textures/2k_venus.jpg';
+import earth from '../../assets/images/planets_textures/2k_earth_.jpg';
+import mars from '../../assets/images/planets_textures/2k_mars.jpg';
+import jupiter from '../../assets/images/planets_textures/2k_jupiter.jpg';
+import saturn from '../../assets/images/planets_textures/2k_saturn.jpg';
+import uranus from '../../assets/images/planets_textures/2k_uranus.jpg';
+import neptune from '../../assets/images/planets_textures/2k_neptune.jpg';
+import milky from '../../assets/images/planets_textures/8k_stars_milky_way.jpg';
 import MiningAreaModel from '../../../../../backend/src/models/mining_areas';
-import instance from '../../axios_interceptor';
-import { AppFooter } from '../../components';
-import {AppHeader} from '../../components';
+import axios from '../../axios_interceptor';
+// import { AppFooter } from '../../components';
+// import {AppHeader} from '../../components';
 
 
-const Landing_page = () => {
+const LandingPage = () => {
   const mountRef = useRef(null);
   const planetsRef = useRef([]);
   const cameraRef = useRef(null);
@@ -33,6 +32,7 @@ const Landing_page = () => {
   const [error, setError] = useState(null);
 
   var [filteredData,setfilteredData] = useState(null);
+  var [miningAreas,setMiningAreas] = useState(null);
 
   const planetsData = [
     { name: "Mercury", texture: mercury, size: 0.5, distance: 5.8, info: 'Mercury is the closest planet to the Sun.' },
@@ -51,13 +51,12 @@ const Landing_page = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/miningareas', {
-          headers: {
-            'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWU0YjRmYTRlZWZjNTJiNWFlNTk1NSIsImVtYWlsIjoidXNlckBleGFtcGxlLm9yZyIsImZpcnN0X25hbWUiOiJVc2VyIDEiLCJyb2xlIjoiVXNlciIsIm5vdmFfY29pbl9iYWxhbmNlIjowLCJpYXQiOjE3MTgwNjQzNzZ9.lUBdL0eAISmOLdBaeJR4sqsYWm6cgQggYR-a2tISWBg'
-          }
-        });
+        const response = await axios.get(`${BASE_URL}/api/miningareas`);
         const miningAreas = response.data.miningAreas;
   
+        setMiningAreas(miningAreas);
+        
+        console.log(response);
         const filteredData = miningAreas.map(area => {
           const products = area.products.map(product => ({
             name: area.name,
@@ -78,6 +77,8 @@ const Landing_page = () => {
   }, []);
   
   useEffect(() => {
+    if (!miningAreas) return;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 70;
@@ -85,7 +86,7 @@ const Landing_page = () => {
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth - 5, window.innerHeight - 5);
+    renderer.setSize(mountRef.current.offsetWidth, mountRef.current.offsetHeight);
     mountRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -97,7 +98,7 @@ const Landing_page = () => {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 10;
-    controls.maxDistance = 500;
+    controls.maxDistance = Math.max(50, miningAreas.length * 10); // TODO: temporarily randomize distance between planets
     controlsRef.current = controls;
 
     const textureLoader = new THREE.TextureLoader();
@@ -110,21 +111,41 @@ const Landing_page = () => {
     scene.add(sun);
 
     const planets = [];
-    planetsData.forEach(data => {
-      const geometry = new THREE.SphereGeometry(data.size, 32, 32);
-      const texture = textureLoader.load(data.texture);
-      const material = new THREE.MeshBasicMaterial({ map: texture });
-      const planet = new THREE.Mesh(geometry, material);
-      planet.position.x = data.distance;
-      planet.userData = { name: data.name, distance: data.distance, info: data.info };
-      planets.push(planet);
-      scene.add(planet);
+    miningAreas.forEach((data, index) => {
+      const { image, name, description } = data;
 
-      const orbitGeometry = new THREE.RingGeometry(data.distance - 0.1, data.distance + 0.1, 64);
-      const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-      const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
-      orbit.rotation.x = Math.PI / 2;
-      scene.add(orbit);
+      const size = Math.random() * (2 - 0.5) + 0.5; // TODO: temporary as api is not returning any size yet
+      const geometry = new THREE.SphereGeometry(size, 32, 32);
+      const planetImage = image || '2k_earth_.jpg'; // default is 2k_earth
+      
+      const planetTexture = new Promise((resolve, reject) => {
+        const texture = new THREE.TextureLoader().load(`src/assets/images/planets_textures/${planetImage}`, resolve, undefined, reject);
+      });
+
+      planetTexture.then(texture => {
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        const planet = new THREE.Mesh(geometry, material);
+
+        // TODO: temporary assign random distance based on index
+        const distance = (index + 1) * 10;
+        planet.position.x = distance;
+        planet.userData = { name, distance, description };
+
+        // planet.position.x = data.distance;
+        // planet.userData = { name: data.name, distance: data.distance, info: data.info };
+        planets.push(planet);
+        scene.add(planet);
+
+        const orbitGeometry = new THREE.RingGeometry(distance - 0.1, distance + 0.1, 64);
+        const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+        const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+        orbit.rotation.x = Math.PI / 2;
+        scene.add(orbit);
+      }).catch(error => {
+        console.error('Error loading texture:', error);
+      });
+
+      
     });
     planetsRef.current = planets;
 
@@ -180,9 +201,9 @@ const Landing_page = () => {
 
 
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = mountRef.current.offsetWidth / mountRef.current.offsetHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(mountRef.current.offsetWidth, mountRef.current.offsetHeight);
     };
     window.addEventListener('resize', handleResize);
 
@@ -190,7 +211,7 @@ const Landing_page = () => {
       window.removeEventListener('resize', handleResize);
       mountRef.current.removeChild(renderer.domElement);
     };
-  }, [isFocused, selectedPlanet]);
+  }, [isFocused, selectedPlanet, miningAreas]);
 
   const zoomToPlanet = (planet) => {
     setSelectedPlanet(planet);
@@ -212,16 +233,20 @@ const Landing_page = () => {
     const planetInfo = document.getElementById('planet-info');
     
     planetInfo.style.display = 'block';
-    planetInfo.innerHTML = `<strong>${data.name}</strong><br>${data.info}`;
+    planetInfo.innerHTML = `<strong>${data.name}</strong><br>${data.description}`;
   };
 
   
 
   return (
-    <div> 
-    <AppHeader />
-    <div className="container-fluid">
-      <div ref={mountRef} className="canvas-container" style={{ height: '90vh' }}></div>
+    <CContainer>
+      <CRow>
+        <CCol>
+          <div ref={mountRef} className="canvas-container">
+
+          </div>
+        </CCol>
+      </CRow>
       <div id="planet-table" className="mt-3">
         <table className="table table-dark table-hover">
           <thead>
@@ -244,10 +269,8 @@ const Landing_page = () => {
         )}
       </div>
       <div id="planet-info" className="mt-3"></div>
-    </div>
-    <AppFooter />
-    </div>
+    </CContainer>
   );
 };
 
-export default Landing_page;
+export default LandingPage;

@@ -55,7 +55,7 @@ const AppHeader = () => {
         </CHeaderNav>
         <CHeaderNav className="d-none d-md-flex">
         <CNavItem>
-            <CNavLink href="/#/landing_page">Home</CNavLink>
+            <CNavLink href="/landing-page">Home</CNavLink>
           </CNavItem>
           <CNavItem>
             <CNavLink href="/my-inventory">My Inventory</CNavLink>
