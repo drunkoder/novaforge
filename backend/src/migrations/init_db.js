@@ -10,6 +10,23 @@ import { generatePassword } from '../utils/index.js';
 
 connectDB();
 
+const planetImages = {
+    Mercury: '2k_mercury.jpg',
+    Venus: '2k_venus.jpg',
+    Earth: '2k_earth_.jpg',
+    Mars: '2k_mars.jpg',
+    Jupiter: '2k_jupiter.jpg',
+    Saturn: '2k_saturn.jpg',
+    Uranus: '2k_uranus.jpg',
+    Neptune: '2k_neptune.jpg'
+};
+
+const getRandomPlanetImage = () => {
+    const planets = Object.keys(planetImages);
+    const randomPlanet = planets[Math.floor(Math.random() * planets.length)];
+    return planetImages[randomPlanet];
+};
+
 const createAdminUser = async () => {
     try {
         // Check if an admin user already exists
@@ -65,6 +82,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Asteroid Mining Site Alpha',
                 type: 'Asteroid',
                 description: 'Prime asteroid belt location for mineral extraction.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[0]._id, price: 100, quantity: 10 },
                     { product_id: createdProducts[1]._id, price: 150, quantity: 15 },
@@ -75,6 +93,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Lunar Mining Base Omega',
                 type: 'Moon',
                 description: 'State-of-the-art facility on the lunar surface for rare metal extraction.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[3]._id, price: 200, quantity: 20 },
                     { product_id: createdProducts[4]._id, price: 250, quantity: 25 },
@@ -85,6 +104,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Martian Mining Outpost Delta',
                 type: 'Planet',
                 description: 'Remote outpost on Mars for harvesting valuable minerals.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[6]._id, price: 220, quantity: 22 },
                     { product_id: createdProducts[7]._id, price: 270, quantity: 27 },
@@ -95,6 +115,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Europa Ice Mining Station Gamma',
                 type: 'Moon',
                 description: 'Subsurface ice mining station on Jupiter\'s moon Europa.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[9]._id, price: 150, quantity: 15 },
                     { product_id: createdProducts[1]._id, price: 180, quantity: 18 },
@@ -105,6 +126,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Kuiper Belt Mining Facility Epsilon',
                 type: 'Asteroid',
                 description: 'Advanced mining facility located in the Kuiper Belt for rare elements.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[4]._id, price: 170, quantity: 17 },
                     { product_id: createdProducts[5]._id, price: 200, quantity: 20 },
@@ -115,6 +137,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Mercury Mining Outpost Theta',
                 type: 'Planet',
                 description: 'Outpost on Mercury\'s surface for heat-resistant mineral extraction.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[7]._id, price: 190, quantity: 19 },
                     { product_id: createdProducts[8]._id, price: 220, quantity: 22 },
@@ -125,6 +148,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Venus Cloud Mining Platform Zeta',
                 type: 'Planet',
                 description: 'Floating platform in Venus\'s atmosphere for cloud mining operations.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[0]._id, price: 160, quantity: 16 },
                     { product_id: createdProducts[2]._id, price: 190, quantity: 19 },
@@ -135,6 +159,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Phobos Regolith Mining Facility Sigma',
                 type: 'Moon',
                 description: 'Base on Mars\'s moon Phobos for regolith mining.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[1]._id, price: 200, quantity: 20 },
                     { product_id: createdProducts[3]._id, price: 230, quantity: 23 },
@@ -145,6 +170,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Deimos Ice Mining Outpost Kappa',
                 type: 'Moon',
                 description: 'Outpost on Mars\'s moon Deimos for ice mining operations.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[6]._id, price: 170, quantity: 17 },
                     { product_id: createdProducts[8]._id, price: 200, quantity: 20 },
@@ -155,6 +181,7 @@ const createSampleMiningAreas = async () => {
                 name: 'Oort Cloud Prospecting Station Omega',
                 type: 'Asteroid',
                 description: 'Remote station in the Oort Cloud for prospecting comet nuclei.',
+                image: getRandomPlanetImage(),
                 products: [
                     { product_id: createdProducts[2]._id, price: 180, quantity: 18 },
                     { product_id: createdProducts[4]._id, price: 210, quantity: 21 },
@@ -168,6 +195,7 @@ const createSampleMiningAreas = async () => {
                 name: sampleArea.name,
                 type: sampleArea.type,
                 description: sampleArea.description,
+                image: sampleArea.image,
                 products: sampleArea.products
             });
 
