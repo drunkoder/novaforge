@@ -1,4 +1,3 @@
-```markdown
 # Nova Forge
 
 ## Description
@@ -86,22 +85,3 @@ Follow these instructions to set up and run the project locally.
 4. Log in using the credentials: 
    - Email: admin@example.org
    - Password: admin@123
-
-## Contributing
-
-If you'd like to contribute to this project, please follow the [Contributing Guidelines](CONTRIBUTING.md).
-
-## License
-
-This project is licensed under the [License Name] License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Acknowledgements
-
-- Acknowledge any third-party libraries or tutorials used in the project.
-
-## Contact
-
-For any inquiries or support, feel free to contact us at [contact@example.com].
-```
-
-Now, the commands are formatted and visually separated from the regular text, making it easier to follow.
