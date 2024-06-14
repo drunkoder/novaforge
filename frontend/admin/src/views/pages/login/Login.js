@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   CButton,
@@ -24,8 +24,10 @@ import axios from 'axios'
 
 const Login = () => {
 
-  const [errorMessage, setError] = useState('');
+  const [errors, setErrors] = useState('');
+  const [formValid, setFormValid] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', color: '' });
+  const [validated, setValidated] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -44,37 +46,58 @@ const Login = () => {
     }, 3000);
   };
 
+  useEffect(() => {
+    validateForm();
+  }, [formData]);
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    if (!formData.password.trim()) {
+      errors.password = 'Password is required';
+    } 
+
+    setErrors(errors);
+    setFormValid(Object.keys(errors).length === 0);
+  };
+
   const onSubmit = async e => {
     e.preventDefault();
-    const admin = true;
-    try {
-      const res = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email,
-        password,
-        admin
-      });
-      if (res.status === 200 || res.status === 201) {
-        if (stayLoggedIn) { 
-          localStorage.setItem('token', res.data.token);
-          localStorage.setItem('user', JSON.stringify(res.data.user));
-        } else {
-          sessionStorage.setItem('token', res.data.token);
-          sessionStorage.setItem('user', JSON.stringify(res.data.user));
-        }
-        
-        showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
+    setValidated(true);
+    if (formValid) {
+      const admin = true;
+      try {
+        const res = await axios.post(`${BASE_URL}/api/auth/login`, {
+          email,
+          password,
+          admin
+        });
+        if (res.status === 200 || res.status === 201) {
+          if (stayLoggedIn) { 
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+          } else {
+            sessionStorage.setItem('token', res.data.token);
+            sessionStorage.setItem('user', JSON.stringify(res.data.user));
+          }
+          
+          showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
 
-        setTimeout(() => {
-          window.location.replace('/');
-        }, 1000);
-      } else {
-        throw new Error('Invalid response from server');
+          setTimeout(() => {
+            window.location.replace('/');
+          }, 1000);
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        showToast(err.response ? err.response.data.message : err.message, 'danger');
+        
       }
-    } catch (err) {
-      console.error(err.response ? err.response.data : err.message);
-      setError(err.response ? err.response.data.message : err.message);
-      showToast(err.response ? err.response.data.message : err.message, 'danger');
-      
     }
   };
   
@@ -109,7 +132,9 @@ const Login = () => {
                         autoComplete="email"
                         value={email}
                         onChange={onChange}
+                        invalid={!!errors.email && validated}
                       />
+                      {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -122,7 +147,9 @@ const Login = () => {
                         autoComplete="current-password"
                         value={password}
                         onChange={onChange}
+                        invalid={!!errors.password && validated}
                       />
+                      {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>

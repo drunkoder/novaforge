@@ -23,6 +23,7 @@ const connectDB = () => {
         })
         .then(() => console.log("DB Connected Successfully..."))
         .catch((error) => console.log(error));
+        
 };
 
 export default connectDB;
