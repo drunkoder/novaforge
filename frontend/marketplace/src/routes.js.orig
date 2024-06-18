@@ -1,8 +1,13 @@
 import React from 'react'
 import UserWallet from './views/pages/account/UserWallet'
-import { element, exact } from 'prop-types'
-import MyInventory from './views/pages/myInventory/myInventory'
+<<<<<<< Updated upstream
+import { element } from 'prop-types'
 import LandingPage from './views/dashboard/LandingPage'
+=======
+import { element, exact } from 'prop-types'
+// import UserInventory from './views/pages/myInventory/myInventory'
+import MyInventory from './views/pages/myInventory/myInventory'
+>>>>>>> Stashed changes
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
@@ -13,8 +18,13 @@ const routes = [
   { path: '/inventory', name: 'My Inventory', element: MyInventory},
   { path: '/community', name: 'Community', element: Dashboard },
   { path: '/my-wallet', name: 'My Wallet', element: UserWallet },
+<<<<<<< Updated upstream
   { path: '/landing-page', name: 'Planetarium', element: LandingPage },
- { path: '/login', name: 'Login', element: Dashboard, exact: true }
+
+=======
+  // { path: '/inventory', name: 'my inventory', element: MyInventory, exact: true},
+>>>>>>> Stashed changes
+  { path: '/login', name: 'Login', element: Dashboard, exact: true }
 ]
 
 export default routes
