@@ -40,7 +40,7 @@ app.post('/api/auth/login', async (req, res) => {
     console.log(process.env.JWT_SEED);
     const token = jwt.sign(newUser, process.env.JWT_SEED);
 
-    res.json({ message: "Login successful", user: newUser, token });
+    res.json({ message: "Login successful", user: newUser, token});
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
