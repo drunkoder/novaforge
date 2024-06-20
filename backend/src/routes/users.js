@@ -360,7 +360,7 @@ app.post("/api/users/:id/withdraw-coins", [validateToken], async (request, respo
 // TODO: My Inventory APIs
 app.get('/api/users/:id/inventory', [validateToken], async (request, response) => {
   const { id } = request.params;
-  const { status, search, page = 1, limit = 3 } = request.query;
+  const { status, search, page = 1, limit = 10 } = request.query;
 
   if (!id) {
     return response.status(400).json({
@@ -393,20 +393,19 @@ app.get('/api/users/:id/inventory', [validateToken], async (request, response) =
       inventory = inventory.filter(product => product.status === status);
     }
 
-    // if there's search keyword, search for area name or product name or status
+    // if there's search keyword, search for area name or product name
     if (search) {
       const searchRegex = new RegExp(search, 'i');
       inventory = inventory.filter(product =>
         searchRegex.test(product.product_id.name) || 
-        searchRegex.test(product.mining_area_id.name) ||
-        searchRegex.test(product.status)
+        searchRegex.test(product.mining_area_id.name)
       );
     }
 
     const totalPages = Math.ceil(inventory.length / pageSize);
     const paginatedInventory = inventory.slice(skip, skip + pageSize);
 
-    response.status(200).json({ 
+    response.status(200).json({
       totalItems: inventory.length,
       totalPages,
       currentPage: pageNumber,

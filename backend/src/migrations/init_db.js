@@ -211,6 +211,7 @@ const createSampleMiningAreas = async () => {
 
 
 
+
 const createSampleUser = async () => {
     try {
         // Check if an sample user already exists

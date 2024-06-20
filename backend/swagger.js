@@ -5,16 +5,14 @@ import * as authRoutes from './src/routes/auth.js';
 import * as miningAreaRoutes from './src/routes/miningAreas.js';
 import * as productRoutes from './src/routes/products.js';
 import * as userRoutes from './src/routes/users.js';
-// import * as userInventoryRoutes from './src/routes/userInventory.js'
 import path from 'path';
 
 const router = express.Router();
-  
+
 router.use('/auth', authRoutes.default);
 router.use('/miningareas', miningAreaRoutes.default);
 router.use('/products', productRoutes.default);
 router.use('/users', userRoutes.default);
-// router.use('./inventory', userInventoryRoutes.default);
 
 // setup
 const swaggerOptions = {

@@ -75,24 +75,19 @@ const Login = () => {
           password
         });
         if (res.status === 200 || res.status === 201) {
-          const user = res.data.user;
-
-          console.log(`user id = ${user.id}`);
           if (stayLoggedIn) { 
             localStorage.setItem('token', res.data.token);
-            localStorage.setItem('user', JSON.stringify(user)); 
-            localStorage.setItem('user_id', user.id);
+            localStorage.setItem('user', JSON.stringify(res.data.user));
           } else {
             sessionStorage.setItem('token', res.data.token);
-            sessionStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('user_id', user.id);
+            sessionStorage.setItem('user', JSON.stringify(res.data.user));
           }
-
+          
           showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
   
           setTimeout(() => {
             window.location.replace('/');
-          }, 8000);
+          }, 1000);
         } else {
           throw new Error('Invalid response from server');
         }
