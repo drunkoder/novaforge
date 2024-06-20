@@ -16,6 +16,8 @@ import uranus from '../../assets/images/planets_textures/2k_uranus.jpg';
 import neptune from '../../assets/images/planets_textures/2k_neptune.jpg';
 import milky from '../../assets/images/planets_textures/8k_stars_milky_way.jpg';
 
+
+
 const LandingPage = () => {
   const mountRef = useRef(null);
   const planetsRef = useRef([]);
@@ -167,17 +169,14 @@ const LandingPage = () => {
   const zoomToPlanet = async (planet) => {
     setSelectedPlanet(planet);
     setIsFocused(true);
-    const products = await fetchProductData(planet.userData.products);
+    const products = await fetchProductData(planet.userData.id);
     showInfo(planet.userData, products);
   };
 
-  const fetchProductData = async (products) => {
+  const fetchProductData = async (planetId) => {
     try {
-      const productData = await Promise.all(products.map(async (product) => {
-        const response = await axios.get(`${BASE_URL}/api/products/${product.product_id}`);
-        return response.data;
-      }));
-      return productData;
+      const response = await axios.get(`${BASE_URL}/api/miningareas/${planetId}/products`);
+      return response.data.products;
     } catch (error) {
       setError(error.message);
     }
@@ -198,9 +197,9 @@ const LandingPage = () => {
     const planetInfo = document.getElementById('planet-info');
     planetInfo.style.display = 'block';
 
-    let productTable = `<table class="table table-white table-hover"><thead><tr><th>Code</th><th>Description</th></tr></thead><tbody>`;
+    let productTable = `<table class="table table-white table-hover"><thead><tr><th>Code</th><th>Description</th><th>Price</th><th>Quantity</th></tr></thead><tbody>`;
     products.forEach(product => {
-      productTable += `<tr><td>${product.code}</td><td>${product.description}</td></tr>`;
+      productTable += `<tr><td>${product.code}</td><td>${product.description}</td><td>${product.price}</td><td>${product.quantity}</td></tr>`;
     });
     productTable += `</tbody></table>`;
 
