@@ -1,8 +1,12 @@
 import express from "express";
+import mongoose, { Schema } from "mongoose";
 import UserModel from "../models/users.js";
 import ExchangeRateModel from "../models/exchange_rates.js";
 import { generatePassword } from "../utils/index.js";
 import { validateToken } from "../middlewares/auth.js";
+import { communityProductStatus, transactionTypes } from "../utils/enums.js";
+import CommunityProductModel from "../models/community_products.js";
+import TransactionModel from "../models/transactions.js";
 
 const app = express();
 
@@ -420,6 +424,182 @@ app.get('/api/users/:id/inventory', [validateToken], async (request, response) =
   }
 });
 
+// TODO: Create sell API here
+app.post('/api/users/:id/sell/:purchaseProductId', [validateToken], async (request, response) => {
+  const { id, purchaseProductId } = request.params;
+  const { quantity } = request.body;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const opts = { session };
+    const user = await UserModel.findById(id);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'User not found' });
+    }
+
+    const purchasedProduct = user.purchased_products.find(
+      (product) => product._id.toString() === purchaseProductId
+    );
+
+    if (!purchasedProduct || purchasedProduct.quantity < 1) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Purchased product not found' });
+    }
+
+    if (purchasedProduct.quantity < quantity) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Not enough quantity' });
+    }
+
+    if (purchasedProduct.status !== 'AVAILABLE') {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(400).json({ message: 'Product is not available for sale' });
+    }
+
+    // Insert community product
+    const newCommunityProduct = new CommunityProductModel({
+      purchased_product_id: purchasedProduct._id,
+      user_id: id,
+      product_id: purchasedProduct.product_id,
+      mining_area_id: purchasedProduct.mining_area_id,
+      status: communityProductStatus.AVAILABLE, 
+      quantity: quantity,
+      price: purchasedProduct.price
+    });
+
+    // Save
+    await newCommunityProduct.save(opts);
+
+    // Create transaction
+    const newTransaction = new TransactionModel({
+      buyer_id: null,
+      seller_id: id,
+      product_id: purchasedProduct.product_id,
+      mining_area_id: purchasedProduct.mining_area_id,
+      quantity: quantity,
+      coins_used: 0,
+      transaction_type: transactionTypes.SELL,
+      is_community: true
+    });
+
+    // Save transaction
+    await newTransaction.save(opts);
+
+    // Update the quantity of the purchased product
+    purchasedProduct.quantity -= quantity;
+
+    // If all quantity is up for sale, update status to FOR_SALE
+    if (purchasedProduct.quantity === 0) {
+      purchasedProduct.status = 'FOR_SALE';
+    }
+
+    await user.save();
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return response.status(200).json({ message: 'Product successfully listed for sale' });
+
+  } catch (error) {
+    console.error('Error selling product:', error);
+    await session.abortTransaction();
+    session.endSession();
+    return response.status(500).json({ message: 'Server error while selling product' });
+  }
+});
+
+// TODO: here to cancel products for sale in community market
+app.post('/api/users/:id/cancel-sell/:communityProductId', [validateToken], async (request, response) => {
+  const { id, communityProductId } = request.params;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const opts = { session };
+
+    // Find the community product to cancel
+    const communityProduct = await CommunityProductModel.findById(communityProductId).session(session);
+    if (!communityProduct || communityProduct.status !== communityProductStatus.AVAILABLE) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Community product not found' });
+    }
+
+    // Check if the community product belongs to the user
+    if (communityProduct.user_id.toString() !== id) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(403).json({ message: 'Unauthorized to cancel this sell' });
+    }
+
+    // Find the corresponding purchased product in the user's profile
+    const user = await UserModel.findById(id).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'User not found' });
+    }
+
+    const purchasedProduct = user.purchased_products.find(
+      (product) => product._id.toString() === communityProduct.purchased_product_id.toString()
+    );
+
+    if (!purchasedProduct) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Corresponding purchased product not found' });
+    }
+
+    // Update the community product status to CANCELLED
+    communityProduct.status = communityProductStatus.CANCELLED;
+    await communityProduct.save(opts);
+
+    // Create a cancelled transaction
+    const cancelledTransaction = new TransactionModel({
+      buyer_id: null,
+      seller_id: id,
+      product_id: communityProduct.product_id,
+      mining_area_id: communityProduct.mining_area_id,
+      quantity: communityProduct.quantity,
+      coins_used: 0,
+      transaction_type: transactionTypes.CANCELLATION,
+      is_community: true
+    });
+
+    await cancelledTransaction.save(opts);
+
+    // Update the purchased product status to AVAILABLE if it was previously FOR_SALE
+    if (purchasedProduct.status === 'FOR_SALE') {
+      purchasedProduct.status = 'AVAILABLE';
+    }
+
+    console.log(purchasedProduct.quantity, communityProduct.quantity);
+    // Update the quantity of the purchased product
+    purchasedProduct.quantity += communityProduct.quantity;
+
+    // Save the updated user data
+    await user.save(opts);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return response.status(200).json({ message: 'Sell cancellation successful' });
+
+  } catch (error) {
+    console.error('Error cancelling sell:', error);
+    await session.abortTransaction();
+    session.endSession();
+    return response.status(500).json({ message: 'Server error while cancelling sell' });
+  }
+});
 
 // private methods here
 function mapToViewModel(users) {

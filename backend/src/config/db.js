@@ -7,7 +7,7 @@ import path from 'path';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const mongodbConnString = `mongodb://${process.env.MONGO_INITDB_HOST}:${process.env.MONGO_INITDB_PORT}`;
+const mongodbConnString = `mongodb://${process.env.MONGO_INITDB_HOST}:${process.env.MONGO_INITDB_PORT}?replicaSet=${process.env.MONGO_RS}`;
 console.log(mongodbConnString);
 
 const connectDB = () => {
