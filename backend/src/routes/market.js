@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose, { Schema } from "mongoose";
 import UserModel from "../models/users.js";
 // import MiningAreaModel from "../models/mining_areas.js";
 // import ProductModel from "../models/products.js";
@@ -40,18 +41,24 @@ app.get("/api/community/sale-items", async (req, res) => {
       },
       {
         $match: { 
-          $or: [
-            { "user.first_name": { $regex: searchRegex } },
-            { "user.last_name": { $regex: searchRegex } },
-            { "product.name": { $regex: searchRegex } },
-            { "product.description": { $regex: searchRegex } },
-            { "mining_area.name": { $regex: searchRegex } },
-            { "mining_area.description": { $regex: searchRegex } }
+          $and: [
+            { "status": communityProductStatus.AVAILABLE },
+            { 
+              $or: [
+                { "user.first_name": { $regex: searchRegex } },
+                { "user.last_name": { $regex: searchRegex } },
+                { "product.name": { $regex: searchRegex } },
+                { "product.description": { $regex: searchRegex } },
+                { "mining_area.name": { $regex: searchRegex } },
+                { "mining_area.description": { $regex: searchRegex } }
+              ]
+            }
           ]
         }
-      },      
+      },       
     ];
 
+    console.log(mainPipeline);
     const countPipeline = [...mainPipeline];
     countPipeline.push({ 
       $group: { _id: null, count: { $sum: 1 } }
@@ -59,7 +66,7 @@ app.get("/api/community/sale-items", async (req, res) => {
     const projectionPipeline = [...mainPipeline];
     projectionPipeline.push({ 
       $project: {
-        _id: 1, 
+        //_id: 1, 
         user_id: 1,
         purchased_product_id: 1,
         "user.first_name": 1,
@@ -71,18 +78,9 @@ app.get("/api/community/sale-items", async (req, res) => {
         quantity: 1,
         price: 1,
         created_at: 1,
-        // user: { 
-        //   first_name: { $arrayElemAt: ["$user.first_name", 0] },
-        //   last_name: { $arrayElemAt: ["$user.last_name", 0] }
-        // },
-        // product: {
-        //   name: { $arrayElemAt: ["$product.name", 0] },
-        //   description: { $arrayElemAt: ["$product.description", 0] }
-        // },
-        // mining_area: {
-        //   name: { $arrayElemAt: ["$mining_area.name", 0] },
-        //   description: { $arrayElemAt: ["$mining_area.description", 0] }
-        // }
+        product_id: 1,
+        mining_area_id: 1,
+        status: 1
       }
     });
 

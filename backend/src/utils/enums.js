@@ -15,4 +15,10 @@ const communityProductStatus = {
     CANCELLED: 'CANCELLED'
 };
 
-export { userRoles, inventoryStatus, communityProductStatus };
+const transactionTypes = {
+    BUY: 'BUY',
+    SELL: 'SELL',
+    CANCELLATION: 'CANCELLATION'
+};
+
+export { userRoles, inventoryStatus, communityProductStatus, transactionTypes };
