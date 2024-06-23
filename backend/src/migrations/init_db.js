@@ -4,7 +4,8 @@ import UserModel from '../models/users.js';
 import ProductModel from '../models/products.js';
 import MiningAreaModel from '../models/mining_areas.js';
 import ExchangeRateModel from '../models/exchange_rates.js';
-import { userRoles } from '../utils/enums.js';
+import CommunityProductModel from "../models/community_products.js";
+import { userRoles, communityProductStatus } from '../utils/enums.js';
 import connectDB from '../config/db.js';
 import { generatePassword } from '../utils/index.js';
 
@@ -400,6 +401,33 @@ const createExchangeRates = async () => {
     }
   };
 
+  const createSampleCommunityProducts = async () => {
+    try {
+        const users = await UserModel.find({ role: userRoles.USER }).populate('purchased_products');
+        for (const user of users) {
+            for (const purchasedProduct of user.purchased_products) {
+                const communityProduct = new CommunityProductModel({
+                    purchased_product_id: purchasedProduct._id,
+                    user_id: user._id,
+                    product_id: purchasedProduct.product_id,
+                    mining_area_id: purchasedProduct.mining_area_id,
+                    status: communityProductStatus.AVAILABLE, 
+                    quantity: purchasedProduct.quantity,
+                    price: purchasedProduct.price,
+                    created_at: new Date()
+                });
+
+                await communityProduct.save();
+            }
+        }
+
+        console.log("Sample community products created successfully.");
+    } catch (error) {
+        console.error("Error creating sample community products:", error);
+    } finally {
+        mongoose.connection.close();
+    }
+};
   
 const initializeDatabase = async () => {
     try {
@@ -408,6 +436,7 @@ const initializeDatabase = async () => {
         await createAdminUser();
         await createSampleUser();
         await createSampleUsers();
+        await createSampleCommunityProducts();
     } catch (error) {
         console.error('Error initializing database:', error);
     } finally {

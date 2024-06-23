@@ -9,4 +9,10 @@ const inventoryStatus = {
     FOR_SALE: 'FOR_SALE'
 };
 
-export { userRoles, inventoryStatus };
+const communityProductStatus = {
+    AVAILABLE: 'AVAILABLE',
+    SOLD: 'SOLD',
+    CANCELLED: 'CANCELLED'
+};
+
+export { userRoles, inventoryStatus, communityProductStatus };
