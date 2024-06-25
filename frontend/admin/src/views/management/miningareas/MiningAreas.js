@@ -222,7 +222,7 @@ const MiningAreaManagement = () => {
                         <CTableDataCell>
                           {miningArea.image && (
                             <div style={{ maxWidth: '50px', maxHeight: '50px', overflow: 'hidden' }}>
-                              <img src={images.find(img => img.filename === miningArea.image)?.url} alt="Thumbnail" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
+                              <img src={'src/assets/images/planets_textures/' + images.find(img => img.filename === miningArea.image)?.url} alt="Thumbnail" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
                             </div>
                           )}
                         </CTableDataCell>

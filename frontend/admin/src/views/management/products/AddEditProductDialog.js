@@ -10,7 +10,7 @@ import {
   CModalHeader
 } from '@coreui/react';
 
-const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
+//const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
 
 const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
   const [formData, setFormData] = useState({
