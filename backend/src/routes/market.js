@@ -9,7 +9,7 @@ import { inventoryStatus, communityProductStatus } from "../utils/enums.js";
 
 const app = express();
 
-app.get("/api/community/sale-items", async (req, res) => {
+app.get("/api/community/sale-items", [validateToken], async (req, res) => {
   try {
     const { search = '', page = 1, limit = 10 } = req.query;
     const searchRegex = new RegExp(search, 'i'); 
