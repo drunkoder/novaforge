@@ -66,11 +66,12 @@ app.get("/api/products/:id", [validateToken], async (req, res) => {
 // Create a new product with an image
 app.post("/api/products", [validateToken], upload.single('image'), async (req, res) => {
   try {
-    console.log(req.body);
-    console.log(req);
+    //console.log(req.body);
+    //console.log(req);
     const { code, name, description } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null; // Store relative path to image
 
+    console.log(code, name, description, req.file.filename)
     // Check if a product with the given code already exists
     const existingProduct = await ProductModel.findOne({ code });
     if (existingProduct) {

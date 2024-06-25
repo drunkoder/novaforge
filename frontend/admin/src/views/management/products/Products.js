@@ -30,7 +30,7 @@ import {
 import { cilTrash, cilPencil, cilPlus } from '@coreui/icons';
 import AddEditProductDialog from './AddEditProductDialog';
 
-const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
+//const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -125,7 +125,12 @@ const ProductManagement = () => {
   const handleEditProduct = async formData => {
     try {
       console.log(formData);
-      const response = await axios.put(`${BASE_URL}/api/products/${selectedProduct._id}`, formData);
+      const response = await axios.put(`${BASE_URL}/api/products/${selectedProduct._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
       if (response.status === 200) {
         fetchProducts();
         showToast('Product updated successfully', 'success');
