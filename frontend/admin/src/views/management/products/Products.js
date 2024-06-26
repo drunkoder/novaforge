@@ -28,41 +28,39 @@ import {
   CToaster
 } from '@coreui/react';
 import { cilTrash, cilPencil, cilPlus } from '@coreui/icons';
-import AddEditMiningAreaDialog from './AddEditMiningAreaDialog';
-import miningAreaImages from '../../../utils/mining_area_images.json';
+import AddEditProductDialog from './AddEditProductDialog';
 
+//const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
 
-const MiningAreaManagement = () => {
-  const [miningAreas, setMiningAreas] = useState([]);
+const ProductManagement = () => {
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [miningAreasPerPage] = useState(10);
+  const [productsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [selectedMiningArea, setSelectedMiningArea] = useState(null);
-  const [images, setImages] = useState([]); 
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '', color: '' });
 
   useEffect(() => {
-    fetchMiningAreas();
-    setImages(miningAreaImages);
+    fetchProducts();
   }, [currentPage]);
 
-  const fetchMiningAreas = async () => {
+  const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/miningareas`, {
+      const response = await axios.get(`${BASE_URL}/api/products`, {
         params: {
           search: searchTerm,
           page: currentPage,
-          limit: miningAreasPerPage,
+          limit: productsPerPage,
         },
       });
-      setMiningAreas(response.data.miningAreas);
+      setProducts(response.data.products);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error fetching mining areas:', error);
+      console.error('Error fetching products:', error);
     }
   };
 
@@ -72,11 +70,11 @@ const MiningAreaManagement = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    fetchMiningAreas();
+    fetchProducts();
   };
 
   const openAddModal = () => {
-    setSelectedMiningArea(null);
+    setSelectedProduct(null);
     setAddModal(true);
   };
 
@@ -84,70 +82,80 @@ const MiningAreaManagement = () => {
     setAddModal(false);
   };
 
-  const openEditModal = miningArea => {
-    setSelectedMiningArea(miningArea);
+  const openEditModal = product => {
+    setSelectedProduct(product);
     setEditModal(true);
   };
 
   const closeEditModal = () => {
-    setSelectedMiningArea(null);
+    setSelectedProduct(null);
     setEditModal(false);
   };
 
-  const openDeleteModal = miningArea => {
-    setSelectedMiningArea(miningArea);
+  const openDeleteModal = product => {
+    setSelectedProduct(product);
     setDeleteModal(true);
   };
 
   const closeDeleteModal = () => {
-    setSelectedMiningArea(null);
+    setSelectedProduct(null);
     setDeleteModal(false);
   };
 
-  const handleAddMiningArea = async formData => {
+  const handleAddProduct = async formData => {
     try {
-      const response = await axios.post(`${BASE_URL}/api/miningareas`, formData);
+      const response = await axios.post(`${BASE_URL}/api/products`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       if (response.status === 200 || response.status === 201) {
-        fetchMiningAreas();
-        showToast('Mining Area added successfully', 'success');
+        fetchProducts();
+        showToast('Product added successfully', 'success');
         closeAddModal();
       } else {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      console.error('Error adding miningArea:', error);
+      console.error('Error adding product:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
   };
 
-  const handleEditMiningArea = async formData => {
+  const handleEditProduct = async formData => {
     try {
-      const response = await axios.put(`${BASE_URL}/api/miningareas/${selectedMiningArea._id}`, formData);
+      console.log(formData);
+      const response = await axios.put(`${BASE_URL}/api/products/${selectedProduct._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
       if (response.status === 200) {
-        fetchMiningAreas();
-        showToast('Mining Area updated successfully', 'success');
+        fetchProducts();
+        showToast('Product updated successfully', 'success');
         closeEditModal();
       } else {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      console.error('Error editing mining area:', error);
+      console.error('Error editing product:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
   };
 
-  const handleDeleteMiningArea = async () => {
+  const handleDeleteProduct = async () => {
     try {
-      const response = await axios.delete(`${BASE_URL}/api/miningareas/${selectedMiningArea._id}`);
+      const response = await axios.delete(`${BASE_URL}/api/products/${selectedProduct._id}`);
       if (response.status === 200) {
-        fetchMiningAreas();
-        showToast('Mining Area deleted successfully', 'success');
+        fetchProducts();
+        showToast('Product deleted successfully', 'success');
         closeDeleteModal();
       } else {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      console.error('Error deleting mining area:', error);
+      console.error('Error deleting product', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
   };
@@ -176,11 +184,11 @@ const MiningAreaManagement = () => {
               <CCardHeader>
                 <CRow className="align-items-center">
                   <CCol xs="4" md="10">
-                    <h4 className="mb-0">Mining Area Management</h4>
+                    <h4 className="mb-0">Product Management</h4>
                   </CCol>
                   <CCol xs="8" md="2" className="text-right">
                     <CButton color="primary" onClick={openAddModal}>
-                      <CIcon icon={cilPlus} size="sm" /> Add MiningArea
+                      <CIcon icon={cilPlus} size="sm" /> Add Product
                     </CButton>
                   </CCol>
                 </CRow>
@@ -206,31 +214,27 @@ const MiningAreaManagement = () => {
                 <CTable striped responsive>
                   <CTableHead>
                     <CTableRow>
+                      <CTableHeaderCell>Code</CTableHeaderCell>
+                      <CTableHeaderCell>Image</CTableHeaderCell>
                       <CTableHeaderCell>Name</CTableHeaderCell>
                       <CTableHeaderCell>Description</CTableHeaderCell>
-                      <CTableHeaderCell>Type</CTableHeaderCell>
-                      <CTableHeaderCell>Image</CTableHeaderCell>
                       <CTableHeaderCell>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {miningAreas.map(miningArea => (
-                      <CTableRow key={miningArea._id}>
-                        <CTableDataCell>{miningArea.name}</CTableDataCell>
-                        <CTableDataCell>{miningArea.description}</CTableDataCell>
-                        <CTableDataCell>{miningArea.type}</CTableDataCell>
+                    {products.map(product => (
+                      <CTableRow key={product._id}>
+                        <CTableDataCell>{product.code}</CTableDataCell>
                         <CTableDataCell>
-                          {miningArea.image && (
-                            <div style={{ maxWidth: '50px', maxHeight: '50px', overflow: 'hidden' }}>
-                              <img src={'src/assets/images/planets_textures/' + images.find(img => img.filename === miningArea.image)?.url} alt="Thumbnail" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
-                            </div>
-                          )}
+                          {product.image && <img src={`${BASE_URL}${product.image}`} alt={product.image} style={{ maxHeight: '100px' }} />}
                         </CTableDataCell>
+                        <CTableDataCell>{product.name}</CTableDataCell>
+                        <CTableDataCell>{product.description}</CTableDataCell>
                         <CTableDataCell>
-                          <CButton color="info" onClick={() => openEditModal(miningArea)} className="m-1 text-white align-items-center">
+                          <CButton color="info" onClick={() => openEditModal(product)} className="m-1 text-white align-items-center">
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
-                          <CButton color="danger" onClick={() => openDeleteModal(miningArea)} className="text-white align-items-center">
+                          <CButton color="danger" onClick={() => openDeleteModal(product)} className="text-white align-items-center">
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
@@ -263,22 +267,27 @@ const MiningAreaManagement = () => {
           </CCol>
         </CRow>
       </CContainer>
-      <AddEditMiningAreaDialog
+      <AddEditProductDialog
         visible={addModal}
         onClose={closeAddModal}
-        onSubmit={handleAddMiningArea}
+        onSubmit={handleAddProduct}
       />
-      <AddEditMiningAreaDialog
-        visible={editModal}
-        onClose={closeEditModal}
-        onSubmit={handleEditMiningArea}
-        miningArea={selectedMiningArea}
-      />
-      <CModal visible={deleteModal} backdrop="static" onClose={closeDeleteModal}>
-        <CModalHeader closeButton>Delete Mining Area</CModalHeader>
-        <CModalBody>Are you sure you want to delete this mining area?</CModalBody>
+      {selectedProduct && (
+        <AddEditProductDialog
+          visible={editModal}
+          onClose={closeEditModal}
+          onSubmit={handleEditProduct}
+          product={selectedProduct}
+         
+        />
+      )}
+      <CModal visible={deleteModal} onClose={closeDeleteModal}>
+        <CModalHeader>
+          <h5>Delete Product</h5>
+        </CModalHeader>
+        <CModalBody>Are you sure you want to delete this product?</CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={handleDeleteMiningArea}>Delete</CButton>
+          <CButton color="danger" onClick={handleDeleteProduct}>Delete</CButton>
           <CButton color="secondary" onClick={closeDeleteModal}>Cancel</CButton>
         </CModalFooter>
       </CModal>
@@ -286,4 +295,4 @@ const MiningAreaManagement = () => {
   );
 };
 
-export default MiningAreaManagement;
+export default ProductManagement;
