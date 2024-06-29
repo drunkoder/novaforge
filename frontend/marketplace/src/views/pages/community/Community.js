@@ -22,22 +22,39 @@ import {
     CCardFooter,
     CFooter,
     CPagination,
-    CPaginationItem
+    CPaginationItem,
+    CModal,
+    CModalHeader,
+    CModalBody,
+    CModalContent,
+    CModalFooter
 } from '@coreui/react';
 import { cilCart, cilLemon } from '@coreui/icons';
 import axios from '../../../axios_interceptor';
+import { getUserFromSession } from "../../../UserSession";
 
 const Community = ({})=>{
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [pageSize] = useState(10);
+    const [pageSize] = useState(9);
+    const [purchaseModal, setPurchaseModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [user, setUser] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', color: '' });
 
+    
     useEffect(() => {
-        fetchCommunityProducts();
-      }, [currentPage]);
+        const loggedInUser = getUserFromSession();
+        setUser(loggedInUser);
+    }, []);
+
+    useEffect(() => {
+        if (user && user.id) {
+            fetchCommunityProducts();
+        }
+    }, [user, currentPage, searchTerm]);
 
     const handleSearchChange = event => {
         setSearchTerm(event.target.value);
@@ -50,7 +67,7 @@ const Community = ({})=>{
     
     const fetchCommunityProducts = async () =>{
           try {
-            const response = await axios.get(`${BASE_URL}/api/community/sale-items`, {
+            const response = await axios.get(`${BASE_URL}/api/community/${user?.id}/sale-items`, {
               params: {
                 search: searchTerm,
                 page: currentPage,
@@ -70,8 +87,30 @@ const Community = ({})=>{
         setCurrentPage(newPage)
     }
 
-    const handleBuy = () =>{
+    const handleBuy = async () => {
+        try {
+            const response = await axios.post(`${BASE_URL}/api/community/${user.id}/buy/${selectedProduct._id}`, { quantity: selectedProduct.quantity });
+            if (response.status === 200) {
+                fetchCommunityProducts();
+                showToast('You have successfully purchase the product!', 'success');
+                closePurchaseModal();
+            } else {
+                throw new Error('Invalid response from server');
+            }
+        } catch (error) {
+            console.error('Error with purchase product:', error);
+            showToast(error.response ? error.response.data.message : error.message, 'danger');
+        }
+    };
 
+    const openPurchaseModal = product => {
+        setSelectedProduct(product);
+        setPurchaseModal(true);
+      };
+    
+    const closePurchaseModal = () => {
+        setSelectedProduct(null);
+        setPurchaseModal(false);
     };
 
     const showToast = (message, color) => {
@@ -118,7 +157,7 @@ const Community = ({})=>{
                     {products?.map(product => (
                         <CCol key={product._id} md="4" className="mb-2">
                             <CCard>
-                                <CCardImage orientation="top" src={product.product.image || 'https://www.eiscolabs.com/cdn/shop/products/cgmlkzyhnsnpubkioc42_800x480.jpg?v=1605118049'} />
+                                <CCardImage orientation="top" src={BASE_URL+product.product.image || 'https://www.eiscolabs.com/cdn/shop/products/cgmlkzyhnsnpubkioc42_800x480.jpg?v=1605118049'} className="community-product-image"/>
                                 <CCardBody>
                                     <CCardTitle className="community-product-name">{product.product.name} 
                                         <CBadge textBgColor="light" className="community-product-badge">{product.mining_area.name}</CBadge>
@@ -131,7 +170,7 @@ const Community = ({})=>{
                                             <CIcon icon={cilLemon} className="me-1" style={{ fontSize: '80px' }} />
                                             {product.price}
                                         </span>
-                                        <CButton color="primary" size="sm" className="mt-3 text-center community-product-btn-buy" onClick={handleBuy}>
+                                        <CButton color="primary" size="sm" className="mt-3 text-center community-product-btn-buy" onClick={() => openPurchaseModal(product)}>
                                             <CIcon icon={cilCart} className="me-1" />
                                             Buy
                                         </CButton>
@@ -140,6 +179,7 @@ const Community = ({})=>{
                                 </CCardBody>
                                 <CCardFooter>
                                     <small className="text-body-secondary"><b>Seller:</b> {product.user.first_name}</small>
+                                    <small className="text-body-secondary float-right"><b>Quantity:</b> {product.quantity}</small>
                                 </CCardFooter>
                             </CCard>
                         </CCol>
@@ -150,6 +190,15 @@ const Community = ({})=>{
                     <CPaginationItem disabled>Page {currentPage} of {totalPages}</CPaginationItem>
                     <CPaginationItem disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>Next</CPaginationItem>
                 </CPagination>
+
+                <CModal visible={purchaseModal} backdrop="static" onClose={closePurchaseModal}>
+                    <CModalHeader closeButton>Purchase Product</CModalHeader>
+                    <CModalBody>You are about to purchase <b>{selectedProduct?.quantity}</b> {selectedProduct?.product?.name} for <b>{selectedProduct?.price}</b> coins from <b>{selectedProduct?.user?.first_name}</b>. Do you wish to proceed?</CModalBody>
+                    <CModalFooter>
+                        <CButton color="warning" onClick={handleBuy}>Buy</CButton>
+                        <CButton color="secondary" onClick={closePurchaseModal}>Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
                 
             </CContainer>
         </div>
