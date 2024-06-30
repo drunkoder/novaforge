@@ -9,4 +9,16 @@ const inventoryStatus = {
     FOR_SALE: 'FOR_SALE'
 };
 
-export { userRoles, inventoryStatus };
+const communityProductStatus = {
+    AVAILABLE: 'AVAILABLE',
+    SOLD: 'SOLD',
+    CANCELLED: 'CANCELLED'
+};
+
+const transactionTypes = {
+    BUY: 'BUY',
+    SELL: 'SELL',
+    CANCELLATION: 'CANCELLATION'
+};
+
+export { userRoles, inventoryStatus, communityProductStatus, transactionTypes };

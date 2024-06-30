@@ -58,7 +58,7 @@ const AppHeader = () => {
             <CNavLink href="/landing-page">Home</CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink href="/my-inventory">My Inventory</CNavLink>
+            <CNavLink href="/inventory">My Inventory</CNavLink>
           </CNavItem>
           <CNavItem>
             <CNavLink href="/community">Community</CNavLink>

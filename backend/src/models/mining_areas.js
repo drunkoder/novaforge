@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const MiningAreaSchema = new Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, index: true },
     type: { type: String, required: true },
     description: { type: String },
     image: { type: String },

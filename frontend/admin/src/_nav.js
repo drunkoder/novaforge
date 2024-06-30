@@ -45,7 +45,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Exchange Rate',
+    name: 'Exchange Rates',
     to: '/exchange-rates',
     icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
   }

@@ -13,7 +13,12 @@ app.get("/api/miningareas", [validateToken], async (req, res) => {
 
     let query = {};
     if (search) {
-        query.name = { $regex: new RegExp(search, 'i') };
+        const searchRegex = new RegExp(search, 'i');
+  query.$or = [
+    { name: { $regex: searchRegex } },
+    { description: { $regex: searchRegex } },
+    //{ 'products.product_id.name': { $regex: searchRegex } }
+  ];
     }
 
     const totalDocuments = await MiningAreaModel.countDocuments(query);

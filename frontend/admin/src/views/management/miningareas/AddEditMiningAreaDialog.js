@@ -122,8 +122,8 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/api/products`);
-      console.log(response.data)
-      return response.data || [];
+      console.log(response.data.products)
+      return response.data.products || [];
     } catch (error) {
       console.error('Error fetching products:', error);
       return [];
@@ -142,6 +142,7 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
       ...formData,
       products: [...formData.products, { name: '', price: '', quantity: '' }]
     });
+
   };
 
   const removeProduct = index => {
@@ -223,7 +224,7 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
             {errors.image && validated && <div className="invalid-feedback">{errors.image}</div>}
             {formData.image && (
               <div style={{ marginTop: '10px', overflow: 'hidden' }}>
-                <img src={images.find(img => img.filename === formData.image)?.url} alt="Thumbnail" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
+                <img src={'src/assets/images/planets_textures/' + images.find(img => img.filename === formData.image)?.url} alt="Thumbnail" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
               </div>
             )}
           </CCol>
