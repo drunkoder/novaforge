@@ -138,7 +138,7 @@ const LandingPage = () => {
     const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
-    console.log("rotation element");
+    
     scene.add(sun);
 
     const planets = [];
