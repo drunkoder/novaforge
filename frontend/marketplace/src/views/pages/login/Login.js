@@ -17,17 +17,25 @@ import {
   CToastClose,
   CToaster,
   CToastHeader,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import axios from 'axios'
 
-const Login = () => {
+const BASE_URL = 'http://localhost:3000'; // replace with your API base URL
 
+const Login = () => {
   const [errors, setErrors] = useState('');
   const [formValid, setFormValid] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', color: '' });
   const [validated, setValidated] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -48,6 +56,7 @@ const Login = () => {
 
   useEffect(() => {
     validateForm();
+    setForgotPasswordEmail(email);
   }, [formData]);
 
   const validateForm = () => {
@@ -103,7 +112,24 @@ const Login = () => {
       }
     }
   };
-  
+
+  const onForgotPasswordSubmit = async () => {
+    try {
+      const res = await axios.post(`${BASE_URL}/api/auth/forgot-password`, {
+        email: forgotPasswordEmail,
+      });
+      if (res.status === 200 || res.status === 201) {
+        showToast('Password reset link sent to your email', 'primary');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+      showToast(err.response ? err.response.data.message : err.message, 'danger');
+    }
+    setModalVisible(false);
+  };
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CToaster position="top-end" className="position-fixed top-0 end-0 p-3">
@@ -116,6 +142,27 @@ const Login = () => {
           </CToast>
         )}
       </CToaster>
+      <CModal alignment="center" visible={modalVisible} onClose={() => setModalVisible(false)}>
+        <CModalHeader closeButton>
+          <CModalTitle>Forgot Password</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CFormInput
+            type="email"
+            placeholder="Enter your email"
+            value={forgotPasswordEmail}
+            onChange={(e) => setForgotPasswordEmail(e.target.value)}
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setModalVisible(false)}>
+            Cancel
+          </CButton>
+          <CButton color="primary" onClick={onForgotPasswordSubmit}>
+            Submit
+          </CButton>
+        </CModalFooter>
+      </CModal>
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={8}>
@@ -161,7 +208,7 @@ const Login = () => {
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
+                        <CButton color="link" className="px-0" onClick={() => setModalVisible(true)}>
                           Forgot password?
                         </CButton>
                       </CCol>
@@ -174,7 +221,7 @@ const Login = () => {
                   <div>
                     <h2>Sign up</h2>
                     <p>
-                    Join Nova Forge, the premier marketplace for buying and selling mined resources from space. Discover the future of space mining and trade with us today.
+                      Join Nova Forge, the premier marketplace for buying and selling mined resources from space. Discover the future of space mining and trade with us today.
                     </p>
                     <Link to="/register">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>

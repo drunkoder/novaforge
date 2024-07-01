@@ -51,7 +51,13 @@ const UserSchema = new Schema({
       enum: ['AVAILABLE', 'SOLD', 'FOR_SALE'],
       default: 'AVAILABLE'
     }
-  }]
+  }],
+ 
+  resetPasswordToken: {type: String,
+  default: '',},
+
+  resetPasswordExpires :{type: Date,
+  default: Date.now}
 });
 
 const UserModel = mongoose.model("users", UserSchema);
