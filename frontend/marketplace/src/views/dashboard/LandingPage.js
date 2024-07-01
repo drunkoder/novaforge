@@ -34,6 +34,8 @@ import {
   CButton
 } from '@coreui/react';
 
+
+
 const LandingPage = () => {
   const mountRef = useRef(null);
   const planetsRef = useRef([]);
@@ -49,21 +51,27 @@ const LandingPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
-  const [imagepath, setImagePath] = useState(null);
+  const [imagePath, setImagePath] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/api/miningareas`);
-        setMiningAreas(response.data.miningAreas);
-        setLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setLoading(false);
-      }
+      const miningAreas = await fetchMiningAreas();
+      setMiningAreas(miningAreas);
+      setLoading(false);
     };
+  
     fetchData();
   }, []);
+
+  const fetchMiningAreas = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/miningareas`);
+      return response.data.miningAreas;
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!miningAreas) return;
@@ -85,10 +93,42 @@ const LandingPage = () => {
     pointLight.position.set(0, 0, 0);
     scene.add(pointLight);
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.minDistance = 10;
-    controls.maxDistance = Math.max(50, miningAreas.length * 10);
-    controlsRef.current = controls;
+    const handleMouseMove = (event) => {
+      const { movementX, movementY } = event;
+      camera.rotation.y -= movementX * 0.002;
+      camera.rotation.x -= movementY * 0.002;
+    };
+
+    const handleKeyDown = (event) => {
+      const speed = 0.5;
+      const direction = new THREE.Vector3();
+      switch (event.key) {
+        case 'w':
+          camera.getWorldDirection(direction);
+          camera.position.addScaledVector(direction, speed);
+          break;
+        case 'a':
+          camera.getWorldDirection(direction);
+          camera.position.addScaledVector(direction.cross(camera.up).normalize(), -speed);
+          break;
+        case 's':
+          camera.getWorldDirection(direction);
+          camera.position.addScaledVector(direction, -speed);
+          break;
+        case 'd':
+          camera.getWorldDirection(direction);
+          camera.position.addScaledVector(direction.cross(camera.up).normalize(), speed);
+          break;
+        case 'q':
+          camera.position.y += speed;
+          break;
+        case 'e':
+          camera.position.y -= speed;
+          break;
+        default:
+          break;
+      }
+    };
 
     const textureLoader = new THREE.TextureLoader();
     textureLoader.setCrossOrigin('anonymous');
@@ -159,6 +199,9 @@ const LandingPage = () => {
     const milkyWay = new THREE.Mesh(milkyWayGeometry, milkyWayMaterial);
     scene.add(milkyWay);
 
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controlsRef.current = controls;
+
     const animate = () => {
       requestAnimationFrame(animate);
 
@@ -186,9 +229,13 @@ const LandingPage = () => {
       renderer.setSize(mountRef.current.offsetWidth, mountRef.current.offsetHeight);
     };
     window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('keydown', handleKeyDown);
       mountRef.current.removeChild(renderer.domElement);
     };
   }, [isFocused, selectedPlanet, miningAreas]);
@@ -199,10 +246,10 @@ const LandingPage = () => {
     const products = await fetchProductData(planet.userData.id);
     const Iresponse = await axios.get(`${BASE_URL}/api/miningareas/${planet.userData.id}`);
     const img = Iresponse.data.image;
-    const imagepath = `src/assets/images/planets_textures/${img}`;
-    
-    setImagePath(imagepath);
-    console.log(imagepath);
+    const imagePath = `src/assets/images/planets_textures/${img}`;
+
+    setImagePath(imagePath);
+    console.log(imagePath);
     setProductData(products);
 
     // Smooth camera movement
