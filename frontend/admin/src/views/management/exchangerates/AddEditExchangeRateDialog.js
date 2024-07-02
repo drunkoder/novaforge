@@ -65,6 +65,10 @@ const AddEditExchangeRateDialog = ({ visible, onClose, onSubmit, exchangeRate })
     if (!formData.coins || isNaN(formData.coins)) {
       errors.coins = 'Coins must be a number';
     }
+
+    if (formData.coins && formData.coins < 1) {
+      errors.coins = 'Coins must be greater than zero.';
+    }
     
     setErrors(errors);
     setFormValid(Object.keys(errors).length === 0);

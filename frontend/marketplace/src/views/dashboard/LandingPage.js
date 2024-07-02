@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CContainer, CRow, CCol } from '@coreui/react';
 import * as THREE from 'three';
 import axios from '../../axios_interceptor';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-
+import gsap from 'gsap';
 import '../../assets/css/landing_page.css';
 import suen from '../../assets/images/planets_textures/2k_sun.jpg';
 import mercury from '../../assets/images/planets_textures/2k_mercury.jpg';
@@ -16,6 +15,25 @@ import uranus from '../../assets/images/planets_textures/2k_uranus.jpg';
 import neptune from '../../assets/images/planets_textures/2k_neptune.jpg';
 import milky from '../../assets/images/planets_textures/8k_stars_milky_way.jpg';
 
+import {
+  CContainer,
+  CRow,
+  CCol,
+  CSpinner,
+  CCard,
+  CCardHeader,
+  CCardBody,
+  CFormInput,
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
+  CPagination,
+  CButton
+} from '@coreui/react';
+
 const LandingPage = () => {
   const mountRef = useRef(null);
   const planetsRef = useRef([]);
@@ -27,14 +45,21 @@ const LandingPage = () => {
   const [miningAreas, setMiningAreas] = useState(null);
   const [productData, setProductData] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+  const [imagepath, setImagePath] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/api/miningareas`);
         setMiningAreas(response.data.miningAreas);
+        setLoading(false);
       } catch (error) {
         setError(error.message);
+        setLoading(false);
       }
     };
     fetchData();
@@ -84,14 +109,18 @@ const LandingPage = () => {
 
       const planetTexture = textureLoader.load(`src/assets/images/planets_textures/${planetImage}`, () => {
         const material = new THREE.MeshBasicMaterial({ map: planetTexture });
+        const blurMaterial = new THREE.MeshBasicMaterial({ color: 0x333333, opacity: 0.5, transparent: true });
         const planet = new THREE.Mesh(geometry, material);
+        const blurOverlay = new THREE.Mesh(geometry, blurMaterial);
 
         const distance = (index + 1) * 10;
         planet.position.x = distance;
+        blurOverlay.position.x = distance;
         planet.userData = { id: _id, name, distance, description, products: data.products };
 
         planets.push(planet);
         scene.add(planet);
+        scene.add(blurOverlay);
 
         const orbitGeometry = new THREE.RingGeometry(distance - 0.1, distance + 0.1, 64);
         const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
@@ -160,24 +189,41 @@ const LandingPage = () => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      mountRef.current.removeChild(renderer.domElement);
+      mountRef.current?.removeChild(renderer.domElement);
     };
   }, [isFocused, selectedPlanet, miningAreas]);
 
   const zoomToPlanet = async (planet) => {
     setSelectedPlanet(planet);
     setIsFocused(true);
-    const products = await fetchProductData(planet.userData.products);
-    showInfo(planet.userData, products);
+    const products = await fetchProductData(planet.userData.id);
+    const Iresponse = await axios.get(`${BASE_URL}/api/miningareas/${planet.userData.id}`);
+    const img = Iresponse.data.image;
+    const imagepath = `src/assets/images/planets_textures/${img}`;
+    
+    setImagePath(imagepath);
+    console.log(imagepath);
+    setProductData(products);
+
+    // Smooth camera movement
+    gsap.to(cameraRef.current.position, {
+      duration: 2,
+      x: planet.position.x + 10,
+      y: planet.position.y + 10,
+      z: planet.position.z + 5,
+      onUpdate: () => {
+        controlsRef.current.target.copy(planet.position);
+      },
+      onComplete: () => {
+        controlsRef.current.update();
+      }
+    });
   };
 
-  const fetchProductData = async (products) => {
+  const fetchProductData = async (planetId) => {
     try {
-      const productData = await Promise.all(products.map(async (product) => {
-        const response = await axios.get(`${BASE_URL}/api/products/${product.product_id}`);
-        return response.data;
-      }));
-      return productData;
+      const response = await axios.get(`${BASE_URL}/api/miningareas/${planetId}/products`);
+      return response.data.products;
     } catch (error) {
       setError(error.message);
     }
@@ -189,23 +235,52 @@ const LandingPage = () => {
     setProductData([]);
     const controls = controlsRef.current;
     const camera = cameraRef.current;
-    camera.position.set(0, 10, 70);
-    controls.target.set(0, 0, 0);
-    controls.update();
-  };
-
-  const showInfo = (data, products) => {
-    const planetInfo = document.getElementById('planet-info');
-    planetInfo.style.display = 'block';
-
-    let productTable = `<table class="table table-white table-hover"><thead><tr><th>Code</th><th>Description</th></tr></thead><tbody>`;
-    products.forEach(product => {
-      productTable += `<tr><td>${product.code}</td><td>${product.description}</td></tr>`;
+    gsap.to(camera.position, {
+      duration: 2,
+      x: 0,
+      y: 10,
+      z: 70,
+      onUpdate: () => {
+        controls.target.set(0, 0, 0);
+      },
+      onComplete: () => {
+        controls.update();
+      }
     });
-    productTable += `</tbody></table>`;
-
-    planetInfo.innerHTML = `<strong>${data.name}</strong><br>${data.description}<br>${productTable}`;
   };
+
+  const filteredProducts = productData.filter(product => 
+    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const currentProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(filteredProducts.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  if (loading) {
+    return (
+      <CContainer className="text-center">
+        <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
+      </CContainer>
+    );
+  }
 
   return (
     <CContainer>
@@ -214,6 +289,7 @@ const LandingPage = () => {
           <div ref={mountRef} className="canvas-container"></div>
         </CCol>
       </CRow>
+
       <div id="planet-table" className="mt-3">
         <table className="table table-dark table-hover">
           <thead>
@@ -228,28 +304,79 @@ const LandingPage = () => {
                 <tr key={index} onClick={() => zoomToPlanet(planetsRef.current[index])}>
                   <td>{planet.name}</td>
                   <td>
-                    <button
+                    <CButton
                       type="button"
-                      className="btn btn-primary"
+                      color="primary"
                       onClick={(e) => {
                         e.stopPropagation();
                         zoomToPlanet(planetsRef.current[index]);
                       }}
                     >
                       Select
-                    </button>
+                    </CButton>
                   </td>
                 </tr>
               ))}
           </tbody>
         </table>
         {isFocused && (
-          <button className="btn btn-secondary mt-3" onClick={resetView}>
+          <CButton className="mt-3" color="secondary" onClick={resetView}>
             Back
-          </button>
+          </CButton>
         )}
       </div>
-      <div id="planet-info" className="mt-3"></div>
+
+      {selectedPlanet && (
+        <CCard style={{ width: '40%', position: 'absolute', right: "58%", bottom: '10%', marginTop: '400px' }}>
+          <CCardHeader>
+            <CFormInput
+              type="text"
+              placeholder="Search by Code and Description"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </CCardHeader>
+          <CCardBody>
+            <strong>{selectedPlanet.userData.name}</strong>
+            <p>{selectedPlanet.userData.description}</p>
+            <CTable hover responsive>
+              <CTableHead>
+                <CTableRow>
+                  <CTableHeaderCell>Code</CTableHeaderCell>
+                  <CTableHeaderCell>Description</CTableHeaderCell>
+                  <CTableHeaderCell>Price</CTableHeaderCell>
+                  <CTableHeaderCell>Quantity</CTableHeaderCell>
+                  <CTableHeaderCell>Action</CTableHeaderCell>
+                </CTableRow>
+              </CTableHead>
+              <CTableBody>
+                {currentProducts.map(product => (
+                  <CTableRow key={product.code}>
+                    <CTableDataCell>{product.code}</CTableDataCell>
+                    <CTableDataCell>{product.description}</CTableDataCell>
+                    <CTableDataCell>{product.price}</CTableDataCell>
+                    <CTableDataCell>{product.quantity}</CTableDataCell>
+                    <CTableDataCell><button type="button" className="btn btn-primary mr-2">Buy</button></CTableDataCell>
+                  </CTableRow>
+                ))}
+              </CTableBody>
+            </CTable>
+            <div className="d-flex justify-content-between mt-3">
+              <CButton color="primary" onClick={handlePrevPage} disabled={currentPage === 1}>
+                Previous
+              </CButton>
+              <CPagination
+                activePage={currentPage}
+                pages={Math.ceil(filteredProducts.length / itemsPerPage)}
+                onActivePageChange={setCurrentPage}
+              />
+              <CButton color="primary" onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredProducts.length / itemsPerPage)}>
+                Next
+              </CButton>
+            </div>
+          </CCardBody>
+        </CCard>
+      )}
     </CContainer>
   );
 };

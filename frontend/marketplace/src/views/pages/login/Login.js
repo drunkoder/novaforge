@@ -101,7 +101,7 @@ const Login = () => {
   
           setTimeout(() => {
             window.location.replace('/');
-          }, 8000);
+          }, 3000);
         } else {
           throw new Error('Invalid response from server');
         }
