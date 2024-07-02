@@ -5,11 +5,10 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import UserModel from "../models/users.js";
-
+import { useHistory } from 'react-router-dom';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -31,8 +30,12 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      console.log('User not found');
-      return res.status(404).json({ message: 'User not found' });
+      return res.send(`
+        <script>
+          alert('User not found');
+          window.location.href = '/forgot-password';
+        </script>
+      `);
     }
 
     // Generate a unique token
@@ -58,42 +61,73 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     transporter.sendMail(mailOptions, (err) => {
       if (err) {
-        console.error('Error sending email:', err);
-        return res.status(500).json({ message: 'Error sending email' });
+        return res.send(`
+          <script>
+            alert('Error sending email');
+            window.location.href = '/forgot-password';
+          </script>
+        `);
       }
 
-      console.log('Password reset link sent:', resetUrl);
-      res.status(200).json({ message: 'Password reset link sent to your email' });
+      res.send(`
+        <script>
+          alert('Password reset link sent to your email');
+        </script>
+        
+      `);
     });
   } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ message: 'Error processing request' });
+    res.send(`
+      <script>
+        alert('Error processing request');
+        window.location.href = '/forgot-password';
+      </script>
+    `);
   }
 });
 
 app.get('/reset-password/:token', (req, res) => {
   const { token } = req.params;
 
-  console.log('Serving reset password form for token:', token);
-
   res.send(`
     <!DOCTYPE html>
     <html>
       <head>
         <title>Reset Password</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@coreui/coreui@3.4.0/dist/css/coreui.min.css" integrity="sha384-gNJdGJtQY8MdGqZ9zwspRtXDB5FY6VV8f3p6EdLtqZ5mW9lKSBkB6a6f35nWPXaM" crossorigin="anonymous">
+        <style>
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+          }
+          .reset-container {
+            max-width: 400px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          }
+        </style>
       </head>
       <body>
-        <h1>Reset Password</h1>
-        <form action="/reset-password/${token}" method="POST">
-          <input type="hidden" name="token" value="${token}" />
-          <label for="password">New Password:</label>
-          <input type="password" name="password" required />
-          <br>
-          <label for="confirmPassword">Confirm Password:</label>
-          <input type="password" name="confirmPassword" required />
-          <br>
-          <button type="submit">Reset Password</button>
-        </form>
+        <div class="reset-container">
+          <h1 class="text-center">Reset Password</h1>
+          <form action="/reset-password/${token}" method="POST">
+            <input type="hidden" name="token" value="${token}" />
+            <div class="form-group">
+              <label for="password">New Password:</label>
+              <input type="password" name="password" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password:</label>
+              <input type="password" name="confirmPassword" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
+          </form>
+        </div>
       </body>
     </html>
   `);
@@ -104,8 +138,12 @@ app.post('/reset-password/:token', async (req, res) => {
   const { password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    console.log('Passwords do not match');
-    return res.status(400).json({ message: 'Passwords do not match' });
+    return res.send(`
+      <script>
+        alert('Passwords do not match');
+        window.location.href = '/reset-password/${token}';
+      </script>
+    `);
   }
 
   try {
@@ -115,8 +153,23 @@ app.post('/reset-password/:token', async (req, res) => {
     });
 
     if (!user) {
-      console.log('Password reset token is invalid or has expired');
-      return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
+      return res.send(`
+        <script>
+          alert('Password reset token is invalid or has expired');
+          window.location.href = '/forgot-password';
+        </script>
+      `);
+    }
+
+    // Check if the new password is the same as the current password
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) {
+      return res.send(`
+        <script>
+          alert('New password cannot be the same as the current password');
+          window.location.href = '/reset-password/${token}';
+        </script>
+      `);
     }
 
     user.password = await bcrypt.hash(password, 10); // Hash the new password
@@ -125,17 +178,20 @@ app.post('/reset-password/:token', async (req, res) => {
 
     await user.save();
 
-    console.log('Password has been reset successfully');
-    // Redirect to the login page after successful password reset
-    res.status(200).json({ message: 'Password has been reset successfully', redirectUrl: '/login' });
+    res.send(`
+      <script>
+        alert('Password has been reset successfully');
+        window.location.href = '/login';
+      </script>
+    `);
   } catch (error) {
-    console.error('Error resetting password:', error);
-    res.status(500).json({ message: 'Error resetting password' });
+    res.send(`
+      <script>
+        alert('Error resetting password');
+        window.location.href = '/reset-password/${token}';
+      </script>
+    `);
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });
 
 export default app;
