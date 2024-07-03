@@ -12,8 +12,12 @@ const app = express();
     
         let query = {};
         if (search) {
-            query.country_name = { $regex: new RegExp(search, 'i') };
-        }
+            const searchRegex = new RegExp(search, 'i');
+            query.$or = [
+                { country_name: { $regex: searchRegex } },
+                { code: { $regex: searchRegex } }
+      ];
+    }
     
         const totalDocuments = await ExchangeRateModel.countDocuments(query);
         const totalPages = Math.ceil(totalDocuments / parseInt(limit));
@@ -74,6 +78,13 @@ const app = express();
                 });
             }
             
+            if (coins < 1) {
+                return res.status(400).json({
+                    error: "Validation error",
+                    message: "Value of coins must be greater than zero.",
+                });
+            }
+
             const exchangeRate = new ExchangeRateModel({ country_name, code, coins });
             await exchangeRate.save();
             
@@ -111,6 +122,14 @@ const app = express();
             if (!updatedExchangeRate) {
                 return res.status(404).json({ message: "Exchange rate not found" });
             }
+
+            if (coins < 1) {
+                return res.status(400).json({
+                    error: "Validation error",
+                    message: "Value of coins must be greater than zero.",
+                });
+            }
+
             return res.status(200).json({
                 message: "Exchange rate updated",
                 exchangeRate: updatedExchangeRate,

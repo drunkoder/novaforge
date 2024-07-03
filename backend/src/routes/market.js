@@ -5,14 +5,17 @@ import UserModel from "../models/users.js";
 // import ProductModel from "../models/products.js";
 import CommunityProductModel from "../models/community_products.js";
 import { validateToken } from "../middlewares/auth.js";
-import { inventoryStatus, communityProductStatus } from "../utils/enums.js";
+import { inventoryStatus, communityProductStatus, transactionTypes } from "../utils/enums.js";
+import TransactionModel from "../models/transactions.js";
 
 const app = express();
 
-app.get("/api/community/sale-items", [validateToken], async (req, res) => {
+app.get("/api/community/:userId/sale-items", [validateToken], async (req, res) => {
   try {
+    const { userId } = req.params;
     const { search = '', page = 1, limit = 10 } = req.query;
     const searchRegex = new RegExp(search, 'i'); 
+    const buyerId = new mongoose.Types.ObjectId(userId);
 
     const mainPipeline = [
       {
@@ -43,6 +46,7 @@ app.get("/api/community/sale-items", [validateToken], async (req, res) => {
         $match: { 
           $and: [
             { "status": communityProductStatus.AVAILABLE },
+            //{ "user._id": { $ne: userId }},
             { 
               $or: [
                 { "user.first_name": { $regex: searchRegex } },
@@ -55,7 +59,12 @@ app.get("/api/community/sale-items", [validateToken], async (req, res) => {
             }
           ]
         }
-      },       
+      },
+      {
+        $match: {
+          "user._id": { $ne:  buyerId} 
+        }
+      }   
     ];
 
     console.log(mainPipeline);
@@ -72,6 +81,7 @@ app.get("/api/community/sale-items", [validateToken], async (req, res) => {
         "user.first_name": 1,
         "user.last_name": 1,
         "product.name": 1,
+        "product.image": 1,
         "product.description": 1,
         "mining_area.name": 1,
         "mining_area.description": 1,
@@ -94,12 +104,13 @@ app.get("/api/community/sale-items", [validateToken], async (req, res) => {
     const formattedProducts = communityProducts.map(product => ({
       ...product,
       user: {
-        first_name: product.user[0].first_name,
-        last_name: product.user[0].last_name
+        first_name: product.user[0]?.first_name,
+        last_name: product.user[0]?.last_name
       },
       product: {
         name: product.product[0].name,
-        description: product.product[0].description
+        description: product.product[0].description,
+        image: product.product[0].image
       },
       mining_area: {
         name: product.mining_area[0].name,
@@ -117,6 +128,127 @@ app.get("/api/community/sale-items", [validateToken], async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error searching community products" });
+  }
+});
+
+app.post('/api/community/:userId/buy/:communityProductId', [validateToken], async (request, response) => {
+  const { userId, communityProductId } = request.params;
+  const { quantity } = request.body;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const opts = { session };
+    const communityProduct = await CommunityProductModel.findById(communityProductId).session(session);
+
+    if (!communityProduct || communityProduct.status !== communityProductStatus.AVAILABLE || communityProduct.quantity < quantity) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Community product not available for purchase' });
+    }
+
+    console.log(userId, communityProduct.user_id.toString());
+    if (userId === communityProduct.user_id.toString()) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'You cannot buy your own product.' });
+    }
+
+    const buyer = await UserModel.findById(userId).session(session);
+
+    if (!buyer) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Buyer not found' });
+    }
+
+
+    const seller = await UserModel.findById(communityProduct.user_id).session(session);
+
+    if (!seller) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Seller not found' });
+    }
+
+    // Calculate total price
+    const totalPrice = communityProduct.price * quantity;
+
+    // Check if buyer has enough coins
+    if (buyer.nova_coin_balance < totalPrice) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(400).json({ message: 'You have insufficient coins' });
+    }
+
+    // Create transaction for buyer
+    const newTransaction = new TransactionModel({
+      buyer_id: userId,
+      seller_id: seller._id,
+      product_id: communityProduct.product_id,
+      mining_area_id: communityProduct.mining_area_id,
+      quantity,
+      coins_used: totalPrice,
+      transaction_type: transactionTypes.BUY,
+      is_community: true
+    });
+
+    await newTransaction.save(opts);
+
+    // Update seller's nova coins
+    seller.nova_coin_balance += totalPrice;
+    await seller.save(opts);
+
+    // Update buyer's nova coins
+    buyer.nova_coin_balance += totalPrice;
+
+    // Update community product quantity
+    communityProduct.quantity -= quantity;
+
+    // Update or add purchased product in buyer's inventory
+    let updated = false;
+    for (let i = 0; i < buyer.purchased_products.length; i++) {
+      if (buyer.purchased_products[i].product_id.equals(communityProduct.product_id) &&
+          buyer.purchased_products[i].mining_area_id.equals(communityProduct.mining_area_id)) {
+        // If product and mining area match, update quantity
+        buyer.purchased_products[i].quantity += quantity;
+        updated = true;
+        break;
+      }
+    }
+
+    // If no matching product and mining area found, add new entry
+    if (!updated) {
+      buyer.purchased_products.push({
+        product_id: communityProduct.product_id,
+        mining_area_id: communityProduct.mining_area_id,
+        price: communityProduct.price,
+        quantity,
+        purchase_date: new Date(),
+        status: inventoryStatus.AVAILABLE
+      });
+    }
+
+    // If no quantity left, update status to SOLD
+    if (communityProduct.quantity === 0) {
+      communityProduct.status = communityProductStatus.SOLD;
+    }
+
+    await communityProduct.save(opts);
+    
+    await buyer.save(opts);
+    
+    await session.commitTransaction();
+    session.endSession();
+
+    return response.status(200).json({ message: 'Product successfully purchased' });
+
+  } catch (error) {
+    console.error('Error buying product:', error);
+    await session.abortTransaction();
+    session.endSession();
+    return response.status(500).json({ message: 'Server error while purchasing product' });
   }
 });
 

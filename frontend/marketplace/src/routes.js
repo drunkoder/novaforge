@@ -15,7 +15,7 @@ const routes = [
   { path: '/community', name: 'Community', element: Community },
   { path: '/my-wallet', name: 'My Wallet', element: UserWallet },
   { path: '/landing-page', name: 'Planetarium', element: LandingPage },
- { path: '/login', name: 'Login', element: Dashboard, exact: true }
+ { path: '/login', name: 'Login', element: LandingPage, exact: true }
 ]
 
 export default routes
