@@ -158,7 +158,9 @@ app.get("/api/miningareas/:id/products", [validateToken], async (req, res) => {
             description: product.product_id.description,
             image: product.product_id.image,
             price: product.price,
-            quantity: product.quantity
+            quantity: product.quantity,
+            product_id: product.product_id._id,
+            mining_area_id: req.params.id
         }));
 
       return res.status(200).json({

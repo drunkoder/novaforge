@@ -17,18 +17,34 @@ const UserWallet = ({ }) => {
   const [toast, setToast] = useState({ show: false, message: '', color: '' });
 
   useEffect(() => {
+    loadUserFromStorage();
+  }, []);
+
+  const loadUserFromStorage = () => {
     const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
+    }else{
+      if (user && user.id) {
+        fetchUserDetails(user.id);
+      }
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (user && user.id) {
-      fetchUserDetails(user.id);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
+  //   if (storedUser) {
+  //     const parsedUser = JSON.parse(storedUser);
+  //     setUser(parsedUser);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   if (user && user.id) {
+  //     fetchUserDetails(user.id);
+  //   }
+  // }, [user]);
 
   const fetchUserDetails = async (userId) => {
     try {
@@ -52,10 +68,10 @@ const UserWallet = ({ }) => {
   const handleAddFundsSubmit = async (formData) => {
     console.log(formData);
     try {
-      const response = await axios.post(`${BASE_URL}/api/users/${user._id}/add-coins`, formData);
+      const response = await axios.post(`${BASE_URL}/api/users/${user._id || user.id}/add-coins`, formData);
       if (response.status === 200 || response.status === 201) {
         showToast('You have successfully added funds!', 'success');
-        setUser(response.data);
+        //setUser(response.data);
         fetchUserDetails(response.data.updatedUser.id);
 
         const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
@@ -87,10 +103,10 @@ const UserWallet = ({ }) => {
   const handleWithdrawFundsSubmit = async (formData) => {
     console.log(formData);
     try {
-      const response = await axios.post(`${BASE_URL}/api/users/${user._id}/withdraw-coins`, formData);
+      const response = await axios.post(`${BASE_URL}/api/users/${user._id || user.id}/withdraw-coins`, formData);
       if (response.status === 200 || response.status === 201) {
         showToast('You have successfully withdrawn your funds!', 'success');
-        setUser(response.data);
+        //setUser(response.data);
         fetchUserDetails(response.data.updatedUser.id);
 
         const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');

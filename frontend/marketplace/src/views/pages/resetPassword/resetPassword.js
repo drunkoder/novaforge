@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, useHistory } from 'react-router-dom';
 import { CForm, CFormInput, CButton, CContainer, CRow, CCol, CCard, CCardBody } from '@coreui/react';
 
-const BASE_URL = 'http://localhost:3001'; // replace with your API base URL
+//const BASE_URL = 'http://localhost:3001'; // replace with your API base URL
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -24,7 +24,7 @@ const ResetPassword = () => {
       const res = await axios.post(`${BASE_URL}/reset-password/${token}`, { password, confirmPassword });
       setMessage(res.data.message);
       if (res.data.redirectUrl) {
-        console.log(history.push(res.data.redirectUrl));
+        console.log(history.push(`${BASE_URL}/login`));
       }
     } catch (error) {
       setMessage(error.response ? error.response.data.message : error.message);

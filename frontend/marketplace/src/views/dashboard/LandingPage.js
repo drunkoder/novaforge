@@ -14,7 +14,8 @@ import saturn from '../../assets/images/planets_textures/2k_saturn.jpg';
 import uranus from '../../assets/images/planets_textures/2k_uranus.jpg';
 import neptune from '../../assets/images/planets_textures/2k_neptune.jpg';
 import milky from '../../assets/images/planets_textures/8k_stars_milky_way.jpg';
-
+import CIcon from "@coreui/icons-react";
+import { cilCart, cilLemon } from '@coreui/icons';
 import {
   CContainer,
   CRow,
@@ -31,8 +32,18 @@ import {
   CTableBody,
   CTableDataCell,
   CPagination,
-  CButton
+  CButton,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CFormLabel,
+  CToaster,
+  CToast,
+  CToastHeader,
+  CToastBody
 } from '@coreui/react';
+import { getUserFromSession, updateUserWalletSession } from '../../UserSession';
 
 const LandingPage = () => {
   const mountRef = useRef(null);
@@ -50,6 +61,20 @@ const LandingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
   const [imagepath, setImagePath] = useState(null);
+  const [purchaseModal, setPurchaseModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [user, setUser] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: '', color: '' });
+
+  const handleChangeQuantity = (e) => {
+      setQuantity(e.target.value);
+  };
+
+  useEffect(() => {
+    const loggedInUser = getUserFromSession();
+    setUser(loggedInUser);
+}, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -274,6 +299,42 @@ const LandingPage = () => {
     }
   };
 
+    const handleBuy = async (quantity) => {
+      if(selectedProduct && selectedProduct.product_id){
+      try {
+          const response = await axios.post(`${BASE_URL}/api/planetarium/${user.id}/buy`, { miningAreaId: selectedProduct.mining_area_id, productId: selectedProduct.product_id, quantity: quantity });
+          if (response.status === 200) {
+              setCurrentPage(1);
+              showToast('You have successfully purchase the product!', 'success');
+              updateUserWalletSession(selectedProduct?.price * quantity);
+              closePurchaseModal();
+          } else {
+              throw new Error('Invalid response from server');
+          }
+      } catch (error) {
+          console.error('Error with purchase product:', error);
+          showToast(error.response ? error.response.data.message : error.message, 'danger');
+      }
+    }
+  };
+
+    const openPurchaseModal = product => {
+      setSelectedProduct(product);
+      setPurchaseModal(true);
+    };
+
+    const closePurchaseModal = () => {
+      setSelectedProduct(null);
+      setPurchaseModal(false);
+  };
+
+  const showToast = (message, color) => {
+    setToast({ show: true, message, color });
+    setTimeout(() => {
+        setToast({ show: false, message: '', color: '' });
+    }, 3000);
+  };
+
   if (loading) {
     return (
       <CContainer className="text-center">
@@ -284,6 +345,14 @@ const LandingPage = () => {
 
   return (
     <CContainer>
+      <CToaster position="top-end" className="position-fixed top-0 end-0 p-3">
+          {toast.show && (
+              <CToast autohide={true} visible={true} color={toast.color} className="text-white align-items-center">
+                  <CToastHeader closeButton>{toast.color === 'success' ? 'Success' : 'Error'}</CToastHeader>
+                  <CToastBody>{toast.message}</CToastBody>
+              </CToast>
+          )}
+      </CToaster>
       <CRow>
         <CCol>
           <div ref={mountRef} className="canvas-container"></div>
@@ -356,7 +425,12 @@ const LandingPage = () => {
                     <CTableDataCell>{product.description}</CTableDataCell>
                     <CTableDataCell>{product.price}</CTableDataCell>
                     <CTableDataCell>{product.quantity}</CTableDataCell>
-                    <CTableDataCell><button type="button" className="btn btn-primary mr-2">Buy</button></CTableDataCell>
+                    <CTableDataCell>
+                      <CButton color="primary" size="sm" className=" mr-2 text-center planetarium-product-btn-buy" onClick={(e) => { e.preventDefault(); openPurchaseModal(product)}}>
+                          <CIcon icon={cilCart} className="me-1" />
+                          Buy
+                      </CButton>
+                    </CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>
@@ -374,6 +448,29 @@ const LandingPage = () => {
                 Next
               </CButton>
             </div>
+
+            <CModal visible={purchaseModal} backdrop="static" onClose={closePurchaseModal}>
+                <CModalHeader closeButton>Purchase Product</CModalHeader>
+                <CModalBody>
+                  <p>You are about to purchase {selectedProduct?.name} for <b>{selectedProduct?.price}</b> coins per piece.</p>
+                  <div className="mb-3">
+                      <CFormLabel htmlFor="quantity">Quantity:</CFormLabel>
+                      <CFormInput
+                          type="number"
+                          id="quantity"
+                          name="quantity"
+                          value={quantity}
+                          onChange={handleChangeQuantity}
+                      />
+                  </div>
+                  <p>Total cost: {selectedProduct?.price * quantity} coins</p>
+                  <p>Do you wish to proceed?</p>
+              </CModalBody>
+                <CModalFooter>
+                    <CButton color="warning" onClick={() => {handleBuy(quantity)}}>Buy</CButton>
+                    <CButton color="secondary" onClick={closePurchaseModal}>Cancel</CButton>
+                </CModalFooter>
+            </CModal>
           </CCardBody>
         </CCard>
       )}

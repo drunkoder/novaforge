@@ -40,6 +40,10 @@ const UserSchema = new Schema({
     type: Number,
     default: 0,
   },
+  is_system: {
+    type: Boolean,
+    default: false
+  },
   purchased_products: [{
     product_id: { type: Schema.Types.ObjectId, ref: 'products' },
     mining_area_id: { type: Schema.Types.ObjectId, ref: 'mining_areas' },
