@@ -1,0 +1,13 @@
+.expandable-row {
+  transition:
+    height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+}
+
+.no-spinner {
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
