@@ -39,7 +39,7 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
       const path = product.image ? product.image : null;
       console.log('Image Path:', path);
       setImagePath(path);
-      setPreviewImage(path);
+      setPreviewImage(BASE_URL + path);
     } else {
       clearForm();
     }

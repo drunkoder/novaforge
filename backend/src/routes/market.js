@@ -1,12 +1,11 @@
 import express from "express";
 import mongoose, { Schema } from "mongoose";
 import UserModel from "../models/users.js";
-// import MiningAreaModel from "../models/mining_areas.js";
-// import ProductModel from "../models/products.js";
 import CommunityProductModel from "../models/community_products.js";
 import { validateToken } from "../middlewares/auth.js";
 import { inventoryStatus, communityProductStatus, transactionTypes } from "../utils/enums.js";
 import TransactionModel from "../models/transactions.js";
+import MiningAreaModel from "../models/mining_areas.js";
 
 const app = express();
 
@@ -201,7 +200,7 @@ app.post('/api/community/:userId/buy/:communityProductId', [validateToken], asyn
     await seller.save(opts);
 
     // Update buyer's nova coins
-    buyer.nova_coin_balance += totalPrice;
+    buyer.nova_coin_balance -= totalPrice;
 
     // Update community product quantity
     communityProduct.quantity -= quantity;
@@ -237,6 +236,140 @@ app.post('/api/community/:userId/buy/:communityProductId', [validateToken], asyn
 
     await communityProduct.save(opts);
     
+    await buyer.save(opts);
+    
+    await session.commitTransaction();
+    session.endSession();
+
+    return response.status(200).json({ message: 'Product successfully purchased' });
+
+  } catch (error) {
+    console.error('Error buying product:', error);
+    await session.abortTransaction();
+    session.endSession();
+    return response.status(500).json({ message: 'Server error while purchasing product' });
+  }
+});
+
+app.post('/api/planetarium/:userId/buy', [validateToken], async (request, response) => {
+  const { userId } = request.params;
+  const { miningAreaId, productId, quantity } = request.body;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const opts = { session };
+    
+    // Check if mining area exists
+    const miningArea = await MiningAreaModel.findById(miningAreaId)
+                      .populate({
+                        path: 'products.product_id',
+                        select: '_id code name description image price'
+                    }).session(session);
+
+    if (!miningArea) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Mining area of the product is non-existent' });
+    }
+
+    const filteredProduct = miningArea.products.filter(product => product.product_id._id.toString() === productId);
+
+    // Check if product exists
+    if (!filteredProduct || filteredProduct.length === 0) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Product does not exist' });
+    }
+
+    const productToBuy = filteredProduct[0];
+    const buyer = await UserModel.findById(userId).session(session);
+
+    if (!buyer) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Buyer not found' });
+    }
+
+
+    const seller = await UserModel.findOne({ is_system: true }).session(session);
+
+    if (!seller) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Seller not found' });
+    }
+
+    // Calculate total price
+    const totalPrice = productToBuy.price * quantity;
+
+    // Check if buyer has enough coins
+    if (buyer.nova_coin_balance < totalPrice) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(400).json({ message: 'You have insufficient coins' });
+    }
+
+    // Create transaction for buyer
+    const newTransaction = new TransactionModel({
+      buyer_id: userId,
+      seller_id: seller._id,
+      product_id: productId,
+      mining_area_id: miningAreaId,
+      quantity,
+      coins_used: totalPrice,
+      transaction_type: transactionTypes.BUY,
+      is_community: false
+    });
+
+    await newTransaction.save(opts);
+
+    // Update buyer's nova coins
+    buyer.nova_coin_balance -= totalPrice;
+
+    // Update product inventory quantity
+    productToBuy.quantity -= quantity;
+
+    var productIdObj = new mongoose.Types.ObjectId(productId);
+    const result = await MiningAreaModel.findOneAndUpdate(
+        { _id: miningAreaId, 'products.product_id': productIdObj },
+        { $set: { 'products.$.quantity': productToBuy.quantity } },
+        { new: true, session }
+    );
+  
+    if (!result) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.status(404).json({ message: 'Mining area or product not found' });
+  }
+
+    // Update or add purchased product in buyer's inventory
+    let updated = false;
+    for (let i = 0; i < buyer.purchased_products.length; i++) {
+      //console.log(buyer.purchased_products[i].product_id._id.toString(), productId);
+      //console.log(buyer.purchased_products[i].mining_area_id._id.toString(), miningAreaId);
+      if (buyer.purchased_products[i].product_id._id.toString() === productId &&
+          buyer.purchased_products[i].mining_area_id._id.toString() === miningAreaId) {
+        // If product and mining area match, update quantity
+        buyer.purchased_products[i].quantity += quantity;
+        updated = true;
+        break;
+      }
+    }
+
+    // If no matching product and mining area found, add new entry
+    if (!updated) {
+      buyer.purchased_products.push({
+        product_id: productId,
+        mining_area_id: miningAreaId,
+        price: productToBuy.price,
+        quantity,
+        purchase_date: new Date(),
+        status: inventoryStatus.AVAILABLE
+      });
+    }
+  
     await buyer.save(opts);
     
     await session.commitTransaction();

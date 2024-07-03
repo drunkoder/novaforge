@@ -5,7 +5,6 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import UserModel from "../models/users.js";
-import { useHistory } from 'react-router-dom';
 dotenv.config();
 
 const app = express();

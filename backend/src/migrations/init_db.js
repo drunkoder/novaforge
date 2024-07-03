@@ -425,7 +425,34 @@ const createExchangeRates = async () => {
     } catch (error) {
         console.error("Error creating sample community products:", error);
     } finally {
-        mongoose.connection.close();
+        //mongoose.connection.close();
+    }
+};
+
+const createNovaDynamicsAsSeller = async () => {
+    try {
+
+        const existingUser = await UserModel.findOne({ is_system: true })
+        if (existingUser) {
+            console.log("User already exists.");
+            return;
+        }
+
+        // Create a new user
+        const hashedPassword = await generatePassword('dynamics@123');
+        const user = new UserModel({
+            email: 'dynamics@example.org',
+            first_name: 'Nova Dynamics',
+            password: hashedPassword,
+            role: userRoles.USER,
+            is_system: true,
+            purchased_products: []
+        });
+
+        await user.save();
+        console.log("User created successfully.");
+    } catch (error) {
+        console.error("Error creating user:", error);
     }
 };
   
@@ -437,6 +464,7 @@ const initializeDatabase = async () => {
         await createSampleUser();
         await createSampleUsers();
         await createSampleCommunityProducts();
+        await createNovaDynamicsAsSeller();
     } catch (error) {
         console.error('Error initializing database:', error);
     } finally {
