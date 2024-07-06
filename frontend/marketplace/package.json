@@ -39,6 +39,7 @@
     "redux": "5.0.1",
     "simplebar-react": "^3.2.4",
     "swr": "^2.2.5",
+    "tailwind": "^4.0.0",
     "three": "^0.165.0"
   },
   "devDependencies": {

@@ -50,6 +50,9 @@ const AppHeaderDropdown = () => {
   const handleMyWallet = () => {
     navigate('/my-wallet', { replace: true });
   };
+  const handleMyProfile = () => {
+    navigate('/My-Account',{replace:true});
+  };
 
   const handlReloadProfile = () => {
     loadUserFromStorage();
@@ -64,7 +67,7 @@ const AppHeaderDropdown = () => {
       </div>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
-        <CDropdownItem href="#">
+        <CDropdownItem onClick={handleMyProfile}>
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>

@@ -4,6 +4,7 @@ import { element, exact } from 'prop-types'
 import MyInventory from './views/pages/myInventory/myInventory'
 import LandingPage from './views/dashboard/LandingPage'
 import Community from './views/pages/community/Community'
+import Myaccount from './views/myAccount/Myaccount'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
@@ -15,7 +16,8 @@ const routes = [
   { path: '/community', name: 'Community', element: Community },
   { path: '/my-wallet', name: 'My Wallet', element: UserWallet },
   { path: '/landing-page', name: 'Planetarium', element: LandingPage },
- { path: '/login', name: 'Login', element: LandingPage, exact: true }
+ { path: '/login', name: 'Login', element: LandingPage, exact: true },
+ { path: '/My-Account', name: 'Myaccount', element: Myaccount}
 ]
 
 export default routes
