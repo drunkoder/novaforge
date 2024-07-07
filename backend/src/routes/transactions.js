@@ -1,32 +1,33 @@
 import express from 'express';
-import TransactionModel from '../models/TransactionModel.js';
+import TransactionModel from '../models/transactions.js';
 import { validateToken } from '../middlewares/auth.js';
+
 import UserModel from '../models/users.js'; 
-import ProductModel from '../models/products.js'; 
+//import ProductModel from '../models/products.js'; 
+
+
+
 import MiningAreaModel from '../models/mining_areas.js';
+import ProductModel from '../models/products.js';
 
 const app = express();
 
 
-
 app.get('/api/transactions', [validateToken], async (req, res) => {
-    try {
-      const transactions = await TransactionModel.find()
-        .populate('buyer_id seller_id product_id mining_area_id');
-  
-      return res.status(200).json(transactions);
-    } catch (error) {
-      return res.status(500).json({
-        error: 'Database error',
-        message: error.message,
-      });
-    }
-  });
-  
+  try {
+    const transactions = await TransactionModel.find().populate('buyer_id', 'name email').populate('product_id', 'name description').populate('mining_area_id','name type image');
+    return res.status(200).json(transactions);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Database error',
+      message: error.message,
+    });
+  }
+});
 
 app.get('/api/transactions/:id', [validateToken], async (req, res) => {
   try {
-    const transaction = await TransactionModel.findById(req.params.id);
+    const transaction = await TransactionModel.findById(req.params.id).populate('buyer_id', 'name email').populate('product_id', 'name description').populate('mining_area_id','name type image');
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
@@ -38,7 +39,6 @@ app.get('/api/transactions/:id', [validateToken], async (req, res) => {
     });
   }
 });
-
 
 app.post('/api/transactions', [validateToken], async (req, res) => {
   try {
