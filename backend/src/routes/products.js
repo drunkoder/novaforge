@@ -48,7 +48,7 @@ app.get("/api/products", [validateToken], async (req, res) => {
 // Get a product by ID
 app.get("/api/products/:id", [validateToken], async (req, res) => {
   try {
-    const product = await ProductModel.findById(req.params.id);
+    const product = await ProductModel.findById(req.params.id).populate('product_id','name');
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }

@@ -24,7 +24,44 @@ app.get('/api/transactions', [validateToken], async (req, res) => {
     });
   }
 });
+app.get('/api/transactions/purchasedproducts', [validateToken], async (req, res) => {
+  try {
+    const { product_ids } = req.query;
 
+    if (!product_ids) {
+      return res.status(400).json({ message: 'Product IDs are required' });
+    }
+
+    const productIdArray = Array.isArray(product_ids) ? product_ids : [product_ids];
+    const transactions = await TransactionModel.find({ product_id: { $in: productIdArray } }).populate('product_id', 'name description');
+  
+    if (transactions.length === 0) {
+      return res.status(404).json({ message: 'No transactions found for these products' });
+    }
+    return res.status(200).json(transactions);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Database error',
+      message: error.message,
+    });
+  }
+});
+
+app.get('/api/transactions/buyer/:buyerId', [validateToken], async (req, res) => {
+  try {
+    const transactions = await TransactionModel.find({ buyer_id: req.params.buyerId }).populate('mining_area_id', 'name').populate('product_id', 'name description');
+  
+    if (transactions.length === 0) {
+      return res.status(404).json({ message: 'No transactions found for this buyer' });
+    }
+    return res.status(200).json(transactions);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Database error',
+      message: error.message,
+    });
+  }
+});
 app.get('/api/transactions/:id', [validateToken], async (req, res) => {
   try {
     const transaction = await TransactionModel.findById(req.params.id).populate('buyer_id', 'name email').populate('product_id', 'name description').populate('mining_area_id','name type image');

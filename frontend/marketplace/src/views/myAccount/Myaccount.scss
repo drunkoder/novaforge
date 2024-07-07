@@ -1,0 +1,89 @@
+.myaccount-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    padding: 2rem;
+    align-items: center;
+  }
+  
+  .content {
+    width: 100%;
+    max-width: 1200px;
+  }
+  
+  
+  .card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card__header {
+    background-color: #0d1317;
+    color: #ffffff;
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-bottom: 1px solid #2980b9;
+  }
+  
+  .card__content {
+    padding: 1.5rem;
+  }
+  
+  .card__field {
+    margin-bottom: 1.5rem;
+  }
+  
+  .card__field-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+  }
+  
+  .card__field-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .product-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  .product-list__item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+  }
+  
+  .product-list__item:last-child {
+    border-bottom: none;
+  }
+  
+  .product-list__label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+  }
+  
+  .product-list__value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
