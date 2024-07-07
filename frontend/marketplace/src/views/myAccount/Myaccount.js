@@ -13,6 +13,8 @@ export default function Myaccount() {
   const [error, setError] = useState(null);
   const [productinfo, setProductinfo] = useState([]);
   const [transactioninfo, setTransactioninfo] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 2;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +36,24 @@ export default function Myaccount() {
     };
 
     fetchData();
-  }, [storedUser.id]); 
+  }, [storedUser.id]);
+
+  // Pagination Logic
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = transactioninfo.slice(indexOfFirstTransaction, indexOfLastTransaction);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(transactioninfo.length / transactionsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <div className="myaccount-container">
@@ -60,9 +79,9 @@ export default function Myaccount() {
         <div id="transactions" className="card">
           <div className="card__header">Transactions</div>
           <div className="card__content">
-            {transactioninfo.length > 0 ? (
+            {currentTransactions.length > 0 ? (
               <dl className="product-list">
-                {transactioninfo.map((transaction) => (
+                {currentTransactions.map((transaction) => (
                   <div key={transaction._id} className="product-list__item">
                     <dt className="product-list__label">Mining Area</dt>
                     <dd className="product-list__value">{transaction.mining_area_id.name}</dd>
@@ -80,6 +99,11 @@ export default function Myaccount() {
             ) : (
               <p>No transactions found.</p>
             )}
+          </div>
+          <div className="pagination">
+            <button id="b1" onClick={handlePrevPage} disabled={currentPage === 1}>Previous</button>
+            <span>Page {currentPage}</span>
+            <button id = "b1" onClick={handleNextPage} disabled={currentPage === Math.ceil(transactioninfo.length / transactionsPerPage)}>Next</button>
           </div>
         </div>
       </div>
