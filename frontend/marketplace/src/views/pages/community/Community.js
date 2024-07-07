@@ -158,7 +158,7 @@ const Community = ({})=>{
                     {products?.map(product => (
                         <CCol key={product._id} md="4" className="mb-2">
                             <CCard>
-                                <CCardImage orientation="top" src={BASE_URL+product.product.image || 'https://www.eiscolabs.com/cdn/shop/products/cgmlkzyhnsnpubkioc42_800x480.jpg?v=1605118049'} className="community-product-image"/>
+                                <CCardImage orientation="top" src={product.product.image ? BASE_URL+product.product.image : 'https://www.eiscolabs.com/cdn/shop/products/cgmlkzyhnsnpubkioc42_800x480.jpg?v=1605118049'} className="community-product-image"/>
                                 <CCardBody>
                                     <CCardTitle className="community-product-name">{product.product.name} 
                                         <CBadge textBgColor="light" className="community-product-badge">{product.mining_area.name}</CBadge>
@@ -188,8 +188,8 @@ const Community = ({})=>{
                 </CRow>
                 <CPagination align="center">
                     <CPaginationItem disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>Previous</CPaginationItem>
-                    <CPaginationItem disabled>Page {currentPage} of {totalPages}</CPaginationItem>
-                    <CPaginationItem disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>Next</CPaginationItem>
+                    <CPaginationItem disabled>Page {currentPage} of {totalPages < 1 ? 1 : totalPages}</CPaginationItem>
+                    <CPaginationItem disabled={currentPage === totalPages || totalPages === 0} onClick={() => handlePageChange(currentPage + 1)}>Next</CPaginationItem>
                 </CPagination>
 
                 <CModal visible={purchaseModal} backdrop="static" onClose={closePurchaseModal}>
