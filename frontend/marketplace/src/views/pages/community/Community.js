@@ -31,7 +31,7 @@ import {
 } from '@coreui/react';
 import { cilCart, cilLemon } from '@coreui/icons';
 import axios from '../../../axios_interceptor';
-import { getUserFromSession } from "../../../UserSession";
+import { getUserFromSession, updateUserWalletSession } from "../../../UserSession";
 
 const Community = ({})=>{
     const [products, setProducts] = useState([]);
@@ -94,6 +94,7 @@ const Community = ({})=>{
                 fetchCommunityProducts();
                 showToast('You have successfully purchase the product!', 'success');
                 closePurchaseModal();
+                updateUserWalletSession(selectedProduct?.price * selectedProduct.quantity);
             } else {
                 throw new Error('Invalid response from server');
             }
