@@ -53,8 +53,8 @@ const Register = () => {
     }
     if (!formData.password.trim()) {
       errors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+    }  else if (!/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/.test(formData.password)) {
+      errors.password = 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character';
     }
     if (!formData.first_name.trim()) {
       errors.first_name = 'First Name is required';
@@ -131,6 +131,29 @@ const Register = () => {
                   <h1>Register</h1>
                   <p className="text-body-secondary">Create your account</p>
                   <CInputGroup className="mb-3">
+                    <CInputGroupText><CIcon icon={cilUser} /></CInputGroupText>
+                    <CFormInput
+                      placeholder="First Name"
+                      autoComplete="first_name"
+                      name="first_name"
+                      value={first_name}
+                      onChange={onChange}
+                      invalid={!!errors.first_name && validated}
+                    />
+                  
+                  {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
+                  </CInputGroup>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText><CIcon icon={cilUser} /></CInputGroupText>
+                    <CFormInput
+                      placeholder="Last Name"
+                      autoComplete="last_name"
+                      name="last_name"
+                      value={last_name}
+                      onChange={onChange}
+                    />
+                  </CInputGroup>
+                  <CInputGroup className="mb-3">
                     <CInputGroupText>@</CInputGroupText>
                     <CFormInput
                       placeholder="Email"
@@ -163,7 +186,7 @@ const Register = () => {
                     </CInputGroupText>
                     <CFormInput
                       type="password"
-                      placeholder="Repeat password"
+                      placeholder="Confirm password"
                       autoComplete="new-password"
                       name="confirmPassword"
                       value={confirmPassword}
@@ -172,35 +195,14 @@ const Register = () => {
                     />
                     {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                   </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText><CIcon icon={cilUser} /></CInputGroupText>
-                    <CFormInput
-                      placeholder="First Name"
-                      autoComplete="first_name"
-                      name="first_name"
-                      value={first_name}
-                      onChange={onChange}
-                      invalid={!!errors.first_name && validated}
-                    />
-                  </CInputGroup>
-                  {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText><CIcon icon={cilUser} /></CInputGroupText>
-                    <CFormInput
-                      placeholder="Last Name"
-                      autoComplete="last_name"
-                      name="last_name"
-                      value={last_name}
-                      onChange={onChange}
-                    />
-                  </CInputGroup>
+                  
                   <div className="d-grid">
                     <CButton type="submit" color="success">Create Account</CButton>
                   </div>
                   <div className="d-grid">
                     <p className="text-body-secondary text-center mt-3">Already have an account? 
-                      <CButton color="link" className="px-0" href="/login">
-                        Login
+                      <CButton color="link" className="px-0" href="/login" style={{textDecoration:"none",fontWeight:"500"}}>
+                        &nbsp;Login
                       </CButton>
                     </p>
                   </div>

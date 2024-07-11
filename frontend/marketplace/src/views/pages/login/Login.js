@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   CButton,
   CCard,
@@ -14,23 +14,20 @@ import {
   CRow,
   CToast,
   CToastBody,
-  CToastClose,
-  CToaster,
   CToastHeader,
+  CToaster,
   CModal,
   CModalBody,
   CModalFooter,
   CModalHeader,
   CModalTitle,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-import axios from 'axios'
-
-const BASE_URL = 'http://localhost:3000'; // replace with your API base URL
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked, cilUser } from '@coreui/icons';
+import axios from 'axios';
 
 const Login = () => {
-  const [errors, setErrors] = useState('');
+  const [errors, setErrors] = useState({});
   const [formValid, setFormValid] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', color: '' });
   const [validated, setValidated] = useState(false);
@@ -40,24 +37,22 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    stayLoggedIn: false
+    stayLoggedIn: false,
   });
 
   const { email, password, stayLoggedIn } = formData;
 
-  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const showToast = (message, color) => {
-    setToast({ visible: true, message, color });
-    setTimeout(() => {
-      setToast({ visible: false, message: '', color: '' });
-    }, 3000);
-  };
-
   useEffect(() => {
     validateForm();
-    setForgotPasswordEmail(email);
   }, [formData]);
+
+  const onChange = e => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === 'email' && !modalVisible) {
+      setForgotPasswordEmail(value);
+    }
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -68,10 +63,17 @@ const Login = () => {
     }
     if (!formData.password.trim()) {
       errors.password = 'Password is required';
-    } 
+    }
 
     setErrors(errors);
     setFormValid(Object.keys(errors).length === 0);
+  };
+
+  const showToast = (message, color) => {
+    setToast({ visible: true, message, color });
+    setTimeout(() => {
+      setToast({ visible: false, message: '', color: '' });
+    }, 3000);
   };
 
   const onSubmit = async e => {
@@ -81,15 +83,14 @@ const Login = () => {
       try {
         const res = await axios.post(`${BASE_URL}/api/auth/login`, {
           email,
-          password
+          password,
         });
         if (res.status === 200 || res.status === 201) {
           const user = res.data.user;
 
-          console.log(`user id = ${user.id}`);
-          if (stayLoggedIn) { 
+          if (stayLoggedIn) {
             localStorage.setItem('token', res.data.token);
-            localStorage.setItem('user', JSON.stringify(user)); 
+            localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('user_id', user.id);
           } else {
             sessionStorage.setItem('token', res.data.token);
@@ -97,37 +98,76 @@ const Login = () => {
             localStorage.setItem('user_id', user.id);
           }
 
-          showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
-  
+          showToast(res.data.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
+
           setTimeout(() => {
             window.location.replace('/');
           }, 3000);
+
+          // Clear form data and errors after successful login
+          setFormData({
+            email: '',
+            password: '',
+            stayLoggedIn: false,
+          });
+          setErrors({});
+          setValidated(false);
         } else {
           throw new Error('Invalid response from server');
         }
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
         showToast(err.response ? err.response.data.message : err.message, 'danger');
-        
+        // Clear form data and errors after unsuccessful login
+        setFormData({
+          email: '',
+          password: '',
+          stayLoggedIn: false,
+        });
+        setErrors({});
+        setValidated(false);
       }
     }
   };
 
   const onForgotPasswordSubmit = async () => {
-    try {
-      const res = await axios.post(`${BASE_URL}/api/auth/forgot-password`, {
-        email: forgotPasswordEmail,
-      });
-      if (res.status === 200 || res.status === 201) {
-        showToast('Password reset link sent to your email', 'primary');
-      } else {
-        throw new Error('Invalid response from server');
-      }
-    } catch (err) {
-      console.error(err.response ? err.response.data : err.message);
-      showToast(err.response ? err.response.data.message : err.message, 'danger');
+    const errors = {};
+    if (!forgotPasswordEmail.trim()) {
+      errors.forgotPasswordEmail = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(forgotPasswordEmail)) {
+      errors.forgotPasswordEmail = 'Email is invalid';
     }
-    setModalVisible(false);
+    console.log(errors);
+    setErrors(errors);
+    setValidated(true);
+
+    if (Object.keys(errors).length === 0) {
+      try {
+        const res = await axios.post(`${BASE_URL}/api/auth/forgot-password`, {
+          email: forgotPasswordEmail,
+        });
+
+        if (res.status === 200 || res.status === 201) {
+          showToast('Password reset link sent to your email', 'primary');
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        showToast(err.response.data.message, 'danger');
+      }
+
+      setModalVisible(false);
+    }
+  };
+
+  const ModalVisible = visible => {
+    if (!visible) {
+      setForgotPasswordEmail(email);
+    } else if (email) {
+      setForgotPasswordEmail(email);
+    }
+    setModalVisible(visible);
   };
 
   return (
@@ -142,7 +182,7 @@ const Login = () => {
           </CToast>
         )}
       </CToaster>
-      <CModal alignment="center" visible={modalVisible} onClose={() => setModalVisible(false)}>
+      <CModal alignment="center" visible={modalVisible} onClose={() => ModalVisible(false)}>
         <CModalHeader closeButton>
           <CModalTitle>Forgot Password</CModalTitle>
         </CModalHeader>
@@ -151,11 +191,13 @@ const Login = () => {
             type="email"
             placeholder="Enter your email"
             value={forgotPasswordEmail}
-            onChange={(e) => setForgotPasswordEmail(e.target.value)}
+            onChange={e => setForgotPasswordEmail(e.target.value)}
+            invalid={!!errors.forgotPasswordEmail && validated}
           />
+          {errors.forgotPasswordEmail && <div className="invalid-feedback">{errors.forgotPasswordEmail}</div>}
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setModalVisible(false)}>
+          <CButton color="secondary" onClick={() => ModalVisible(false)}>
             Cancel
           </CButton>
           <CButton color="primary" onClick={onForgotPasswordSubmit}>
@@ -208,7 +250,7 @@ const Login = () => {
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0" onClick={() => setModalVisible(true)}>
+                        <CButton color="link" className="px-0" onClick={() => ModalVisible(true)} style={{textDecoration:"none",fontWeight:"500"}}>
                           Forgot password?
                         </CButton>
                       </CCol>
@@ -236,7 +278,7 @@ const Login = () => {
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

@@ -20,6 +20,14 @@ const UserSchema = new Schema({
   created_by: {
     type: String
   },
+  address: {
+    type: String,
+    default:"",
+  },
+  phone:{
+    type:String, 
+    default:"",
+  },
   created_at: {
     type: Date,
     default: Date.now

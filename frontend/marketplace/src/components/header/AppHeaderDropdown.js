@@ -35,11 +35,18 @@ const AppHeaderDropdown = () => {
 
   const loadUserFromStorage = () => {
     const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
+   console.log(storedUser);
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
     }
   };
+
+  const handleProfile=()=>{
+    navigate('/my-account',{replace:true});
+  }
+
+
 
   const handleLogout = () =>{
       localStorage.clear();
@@ -64,7 +71,7 @@ const AppHeaderDropdown = () => {
       </div>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
-        <CDropdownItem href="#">
+        <CDropdownItem onClick={handleProfile}>
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>
