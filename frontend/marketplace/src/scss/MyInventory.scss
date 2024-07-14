@@ -1,13 +1,15 @@
 .expandable-row {
-  transition:
-    height 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
+  transition: max-height 0.5s ease-in-out;
+  overflow: hidden;
 }
 
-.no-spinner {
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  }
+.smooth-expand {
+  transition: all 0.5s ease;
+}
+
+.internal-table {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

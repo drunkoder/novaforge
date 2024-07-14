@@ -361,10 +361,10 @@ app.post("/api/users/:id/withdraw-coins", [validateToken], async (request, respo
   }
 });
 
-// TODO: My Inventory APIs
+// My Inventory APIs
 app.get('/api/users/:id/inventory', [validateToken], async (request, response) => {
   const { id } = request.params;
-  const { status, search, page = 1, limit = 3 } = request.query;
+  const { status, search, page = 1, limit = 5 } = request.query;
 
   if (!id) {
     return response.status(400).json({
@@ -424,18 +424,137 @@ app.get('/api/users/:id/inventory', [validateToken], async (request, response) =
   }
 });
 
-app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken], async (req, res) => {
+// app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken], async (req, res) => {
+//   try {
+//     const { id, purchaseProductId } = req.params;
+//     const { search = '', page = 1, limit = 10 } = req.query;
+//     const searchRegex = new RegExp(search, 'i'); 
+
+//     const pId = new mongoose.Types.ObjectId(purchaseProductId);
+//     const uId = new mongoose.Types.ObjectId(id);
+
+//     const mainPipeline = [
+//       {
+//         $lookup: { 
+//           from: "users",
+//           localField: "user_id",
+//           foreignField: "_id",
+//           as: "user"
+//         }
+//       },
+//       {
+//         $lookup: {
+//           from: "products",
+//           localField: "product_id",
+//           foreignField: "_id",
+//           as: "product"
+//         }
+//       },
+//       {
+//         $lookup: { 
+//           from: "mining_areas",
+//           localField: "mining_area_id",
+//           foreignField: "_id",
+//           as: "mining_area"
+//         }
+//       },
+//       {
+//         $match: { 
+//           $and: [
+//             { "purchased_product_id": pId },
+//             { "user_id": uId },
+//             { 
+//               $or: [
+//                 { "user.first_name": { $regex: searchRegex } },
+//                 { "user.last_name": { $regex: searchRegex } },
+//                 { "product.name": { $regex: searchRegex } },
+//                 { "product.description": { $regex: searchRegex } },
+//                 { "mining_area.name": { $regex: searchRegex } },
+//                 { "mining_area.description": { $regex: searchRegex } }
+//               ]
+//             }
+//           ]
+//         }
+//       },       
+//     ];
+
+//     const countPipeline = [...mainPipeline];
+//     countPipeline.push({ 
+//       $group: { _id: null, count: { $sum: 1 } }
+//     });
+
+//     const projectionPipeline = [...mainPipeline];
+//     projectionPipeline.push({ 
+//       $project: {
+//         //_id: 1, 
+//         user_id: 1,
+//         purchased_product_id: 1,
+//         "user.first_name": 1,
+//         "user.last_name": 1,
+//         "product.name": 1,
+//         "product.description": 1,
+//         "mining_area.name": 1,
+//         "mining_area.description": 1,
+//         quantity: 1,
+//         price: 1,
+//         created_at: 1,
+//         product_id: 1,
+//         mining_area_id: 1,
+//         status: 1
+//       }
+//     });
+
+    
+//     const totalDocs = await CommunityProductModel.aggregate(countPipeline);
+//     console.log(totalDocs);
+//     const totalPages = Math.ceil(totalDocs.length ? totalDocs[0].count / parseInt(limit) : 0);
+
+//     console.log(projectionPipeline);
+//     const communityProducts = await CommunityProductModel.aggregate(projectionPipeline)
+//     .skip((parseInt(page) - 1) * parseInt(limit))
+//     .limit(parseInt(limit));
+    
+//     const formattedProducts = communityProducts.map(product => ({
+//       ...product,
+//       user: {
+//         first_name: product.user[0].first_name,
+//         last_name: product.user[0].last_name
+//       },
+//       product: {
+//         name: product.product[0].name,
+//         description: product.product[0].description
+//       },
+//       mining_area: {
+//         name: product.mining_area[0].name,
+//         description: product.mining_area[0].description
+//       }
+//     }));
+
+//     console.log(formattedProducts);
+//     return res.status(200).json({
+//       "products": formattedProducts,
+//       totalPages,
+//       currentPage: parseInt(page),
+//       totalDocuments: totalDocs.length ? totalDocs[0].count : 0
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({ error: "Error searching community products" });
+//   }
+// });
+
+//  community products 
+app.get("/api/users/:id/inventory/:purchaseProductId?/community", [validateToken], async (req, res) => {
   try {
     const { id, purchaseProductId } = req.params;
-    const { search = '', page = 1, limit = 10 } = req.query;
-    const searchRegex = new RegExp(search, 'i'); 
+    const { search = '', page = 1, limit = 10, status = '' } = req.query;
+    const searchRegex = new RegExp(search, 'i');
 
-    const pId = new mongoose.Types.ObjectId(purchaseProductId);
     const uId = new mongoose.Types.ObjectId(id);
 
     const mainPipeline = [
       {
-        $lookup: { 
+        $lookup: {
           from: "users",
           localField: "user_id",
           foreignField: "_id",
@@ -451,7 +570,7 @@ app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken]
         }
       },
       {
-        $lookup: { 
+        $lookup: {
           from: "mining_areas",
           localField: "mining_area_id",
           foreignField: "_id",
@@ -459,11 +578,10 @@ app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken]
         }
       },
       {
-        $match: { 
+        $match: {
           $and: [
-            { "purchased_product_id": pId },
             { "user_id": uId },
-            { 
+            {
               $or: [
                 { "user.first_name": { $regex: searchRegex } },
                 { "user.last_name": { $regex: searchRegex } },
@@ -475,18 +593,34 @@ app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken]
             }
           ]
         }
-      },       
+      }
     ];
 
+    if (purchaseProductId) {
+      const pId = new mongoose.Types.ObjectId(purchaseProductId);
+      mainPipeline[3].$match.$and.push({ "purchased_product_id": pId });
+    }
+
+    if (status) {
+      mainPipeline[3].$match.$and.push({ "status": status });
+    }
+
+    // sorting stage to the pipeline
+    mainPipeline.push({ $sort: { created_at: -1 } });
+
     const countPipeline = [...mainPipeline];
-    countPipeline.push({ 
-      $group: { _id: null, count: { $sum: 1 } }
+    countPipeline.push({
+      $count: "count"
     });
 
+    // total number of documents that match the criteria
+    const totalDocsResult = await CommunityProductModel.aggregate(countPipeline);
+    const totalDocs = totalDocsResult.length ? totalDocsResult[0].count : 0;
+    const totalPages = Math.ceil(totalDocs / parseInt(limit));
+
     const projectionPipeline = [...mainPipeline];
-    projectionPipeline.push({ 
+    projectionPipeline.push({
       $project: {
-        //_id: 1, 
         user_id: 1,
         purchased_product_id: 1,
         "user.first_name": 1,
@@ -504,16 +638,10 @@ app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken]
       }
     });
 
-    
-    const totalDocs = await CommunityProductModel.aggregate(countPipeline);
-    console.log(totalDocs);
-    const totalPages = Math.ceil(totalDocs.length ? totalDocs[0].count / parseInt(limit) : 0);
-
-    console.log(projectionPipeline);
     const communityProducts = await CommunityProductModel.aggregate(projectionPipeline)
-    .skip((parseInt(page) - 1) * parseInt(limit))
-    .limit(parseInt(limit));
-    
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit));
+
     const formattedProducts = communityProducts.map(product => ({
       ...product,
       user: {
@@ -530,12 +658,11 @@ app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken]
       }
     }));
 
-    console.log(formattedProducts);
     return res.status(200).json({
-      "products": formattedProducts,
+      products: formattedProducts,
       totalPages,
       currentPage: parseInt(page),
-      totalDocuments: totalDocs.length ? totalDocs[0].count : 0
+      totalDocuments: totalDocs
     });
   } catch (error) {
     console.log(error);
@@ -543,7 +670,7 @@ app.get("/api/users/:id/inventory/:purchaseProductId/community", [validateToken]
   }
 });
 
-// TODO: Create sell API here
+// sell API here
 app.post('/api/users/:id/sell/:purchaseProductId', [validateToken], async (request, response) => {
   const { id, purchaseProductId } = request.params;
   const { quantity } = request.body;
@@ -634,7 +761,7 @@ app.post('/api/users/:id/sell/:purchaseProductId', [validateToken], async (reque
   }
 });
 
-// TODO: here to cancel products for sale in community market
+// here to cancel products for sale in community market
 app.post('/api/users/:id/cancel-sell/:communityProductId', [validateToken], async (request, response) => {
   const { id, communityProductId } = request.params;
 
