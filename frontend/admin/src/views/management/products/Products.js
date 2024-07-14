@@ -30,7 +30,7 @@ import {
 import { cilTrash, cilPencil, cilPlus } from '@coreui/icons';
 import AddEditProductDialog from './AddEditProductDialog';
 
-//const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
+
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);

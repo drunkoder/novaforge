@@ -1,14 +1,16 @@
 import express from "express";
 import mongoose, { Schema } from "mongoose";
 import UserModel from "../models/users.js";
+
 import ExchangeRateModel from "../models/exchange_rates.js";
 import { generatePassword } from "../utils/index.js";
 import { validateToken } from "../middlewares/auth.js";
 import { communityProductStatus, transactionTypes } from "../utils/enums.js";
 import CommunityProductModel from "../models/community_products.js";
 import TransactionModel from "../models/transactions.js";
-
+import bcrypt from 'bcrypt';
 const app = express();
+
 
 // Get user by id
 app.get("/api/users/:id", [validateToken], (request, response) => {
@@ -216,9 +218,8 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
   const body = request.body;
   
   if (!id || !body) {
-    // Bad request
     return response.status(400).json({
-      error: "bad request",
+      error: "Bad request",
       message: "No ID or body provided",
     });
   }
@@ -231,23 +232,44 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
     });
   }
 
-  const password = await generatePassword(body.password);
-  const newBody = { ...body, password };
-  
-  newBody.updated_by = request.user.id,
-  newBody.updated_at = new Date();
+  const user = await UserModel.findById(id);
+  if (!user) {
+    return response.status(404).json({
+      error: "User not found",
+      message: "User with provided ID not found",
+    });
+  }
 
-  UserModel.findByIdAndUpdate(id, newBody, { new: true })
-    .then((user) => {
-      if (!user) {
-        return response.status(404).json({
-          error: "User not found",
-          message: "User with provided ID not found",
-        });
-      }
+  let updateFields = { ...body };
+
+  // Check if password is provided and update it securely
+  if (body.password) {
+    const isSamePassword = await bcrypt.compare(body.password, user.password);
+    if (isSamePassword) {
+      return response.status(400).json({
+        error: "Password already in use",
+        message: "The new password cannot be the same as the current password",
+      });
+    }
+    try {
+      const hashedPassword = await bcrypt.hash(body.password, 10);
+      updateFields.password = hashedPassword;
+    } catch (error) {
+      return response.status(400).json({
+        error: "Error generating password hash",
+        message: error.message,
+      });
+    }
+  }
+
+  updateFields.updated_by = request.user.id;
+  updateFields.updated_at = new Date();
+
+  UserModel.findByIdAndUpdate(id, updateFields, { new: true })
+    .then((updatedUser) => {
       return response.status(200).json({
         message: "User updated successfully",
-        user: user,
+        user: updatedUser,
       });
     })
     .catch((error) => {
