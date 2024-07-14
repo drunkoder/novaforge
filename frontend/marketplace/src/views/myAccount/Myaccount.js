@@ -3,17 +3,48 @@ import "./Myaccount.scss";
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 
+import {
+  CContainer,
+  CRow,
+  CCol,
+  CSpinner,
+  CCard,
+  CCardHeader,
+  CCardBody,
+  CFormInput,
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
+  CPagination,
+  CButton,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CFormLabel,
+  CToaster,
+  CToast,
+  CToastHeader,
+  CToastBody
+} from '@coreui/react';
+
+
 import { getUserFromSession, updateUserWalletSession } from '../../UserSession';
 
 export default function Myaccount() {
   const userStorage = sessionStorage.getItem('user') || localStorage.getItem('user');
   const storedUser = JSON.parse(userStorage);
-
+ 
   const [novacoin, setNovacoin] = useState(parseFloat(storedUser.nova_coin_balance || 0).toFixed(2));
   const [error, setError] = useState(null);
+  const [searchTerm,setsearchterm] = useState('');
   const [productinfo, setProductinfo] = useState([]);
   const [transactioninfo, setTransactioninfo] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [prop,setprop] = useState(['block']);
   const transactionsPerPage = 2;
 
   useEffect(() => {
@@ -38,13 +69,27 @@ export default function Myaccount() {
     fetchData();
   }, [storedUser.id]);
 
-  // Pagination Logic
+  const filteredTransactions = transactioninfo.filter(transaction =>
+     transaction.product_id.name.toLowerCase().includes(searchTerm.toLowerCase()));
+ 
   const indexOfLastTransaction = currentPage * transactionsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
-  const currentTransactions = transactioninfo.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  const currentTransactions = filteredTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  const handleSearchChange=(e)=>{
+    setsearchterm(e.target.value);
+    
+    setCurrentPage(1);
+
+  }
+
+  const showtransactions = () => {
+    setprop(prop === 'none' ? 'block' : 'none');
+  };
+
+
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(transactioninfo.length / transactionsPerPage)) {
+    if (currentPage < Math.ceil(filteredTransactions.length / transactionsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -54,7 +99,7 @@ export default function Myaccount() {
       setCurrentPage(currentPage - 1);
     }
   };
-
+  
   return (
     <div className="myaccount-container">
       <div className="content">
@@ -73,12 +118,20 @@ export default function Myaccount() {
               <div className="card__field-label">AVAILABLE credit</div>
               <div className="card__field-value">{novacoin}</div>
             </div>
+          <button id="b2" onClick={showtransactions} >show transactions</button>
           </div>
         </div>
 
-        <div id="transactions" className="card">
+        <div id="transactions" style={{ display:prop }}  className="card">
           <div className="card__header">Transactions</div>
-          <div className="card__content">
+          <CFormInput
+            type="text"
+            placeholder="Search Product"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+
+           <div className="card__content">
             {currentTransactions.length > 0 ? (
               <dl className="product-list">
                 {currentTransactions.map((transaction) => (
@@ -89,6 +142,8 @@ export default function Myaccount() {
                     <dd className="product-list__value">{transaction.product_id.name}</dd>
                     <dt className="product-list__label">Quantity</dt>
                     <dd className="product-list__value">{transaction.quantity}</dd>
+                    <dt className="product-list__label">Tranaction Type</dt>
+                    <dd className="product-list__value">{transaction.transaction_type}</dd>
                     <dt className="product-list__label">Coins Used</dt>
                     <dd className="product-list__value">{transaction.coins_used}</dd>
                     <dt className="product-list__label">Purchase date</dt>
@@ -103,7 +158,7 @@ export default function Myaccount() {
           <div className="pagination">
             <button id="b1" onClick={handlePrevPage} disabled={currentPage === 1}>Previous</button>
             <span>Page {currentPage}</span>
-            <button id = "b1" onClick={handleNextPage} disabled={currentPage === Math.ceil(transactioninfo.length / transactionsPerPage)}>Next</button>
+            <button id = "b1" onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredTransactions.length / transactionsPerPage)}>Next</button>
           </div>
         </div>
       </div>

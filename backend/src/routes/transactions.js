@@ -15,7 +15,7 @@ const app = express();
 
 app.get('/api/transactions', [validateToken], async (req, res) => {
   try {
-    const transactions = await TransactionModel.find().populate('buyer_id', 'name email').populate('product_id', 'name description').populate('mining_area_id','name type image');
+    const transactions = await TransactionModel.find().populate('buyer_id', 'name email').populate('seller_id','name').populate('product_id', 'name description').populate('mining_area_id','name type image');
     return res.status(200).json(transactions);
   } catch (error) {
     return res.status(500).json({

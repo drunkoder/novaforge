@@ -6,7 +6,9 @@
     padding: 2rem;
     align-items: center;
   }
-  
+  #tranactions{
+    display: none;
+  }
   .content {
     width: 100%;
     max-width: 1200px;
@@ -17,6 +19,15 @@
     gap: 1.5rem;
     text-decoration: none;
     
+  }
+  #b2{
+    font-family: sans-serif;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 4px;
+    color:#f5f5f5;
+    background-color: #000000;
+
   }
   
   #b1{
@@ -41,6 +52,7 @@
   }
   
   .card {
+    //display: none;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
