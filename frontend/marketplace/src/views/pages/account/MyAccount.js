@@ -21,10 +21,17 @@ import {
   CToastBody,
   CForm,
   CFormInput,
-  CFormLabel
+  CFormLabel,
+  CCardTitle,
+  CTabs,
+  CTabList,
+  CTab,
+  CTabContent,
+  CTabPanel 
 } from '@coreui/react';
 import EditAccount from './EditAccount';
 import { format } from 'date-fns';
+import UserWallet from './UserWallet';
 
 
 
@@ -34,7 +41,7 @@ const MyAccount = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const transactionsPerPage = 2;
-  const [prop,setprop] = useState(['none']);
+  const [prop,setprop] = useState(['block']);
   const [novacoin, setNovacoin] = useState(parseFloat(storedUser.nova_coin_balance || 0).toFixed(2));
   const [userInfo, setUserInfo] = useState({});
   const [editModal, setEditModal] = useState(false);
@@ -158,7 +165,7 @@ const MyAccount = () => {
   };
 
   return (
-    <section style={{ backgroundColor: '#eee' }}>
+    <section>
       <CToaster position="top-end" className="position-fixed top-0 end-0 p-3">
         {toast.show && (
           <CToast autohide={true} visible={true} color={toast.color} className="text-white align-items-center">
@@ -167,154 +174,172 @@ const MyAccount = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer className="py-5">
+      <CContainer className="py-5 px-5">
         <CRow>
-          <CCol lg="4">
-            <CCard className="mb-4">
-              <CCardBody className="text-center">
-                <CCardImage
-                  src="https://raw.githubusercontent.com/twbs/icons/main/icons/person.svg"
-                  alt="avatar"
-                  className="rounded-circle"
-                  style={{ width: '150px' }}
-                />
-                <p className="text-muted mb-1">{userInfo.first_name} {userInfo.last_name}</p>
-                <p className="text-muted mb-4">{userInfo.address}</p>
-                <div className="d-flex justify-content-center mb-2">
-                  <CButton color="primary" onClick={openEditModal}>Edit Profile</CButton>
-                </div>
-                <div className="d-flex justify-content-center mb-2">
-                  <CButton href="./my-wallet" color="primary">My Wallet</CButton>
-                </div>
-                <div className="d-flex justify-content-center mb-2">
-                  <CButton onClick={showtransactions} color="primary">Transaction History</CButton>
-                </div>
-               
-                
-              </CCardBody>
-            </CCard>
-          </CCol>
-          <CCol lg="8">
-            <CCard className="mb-4">
-              <CCardBody>
-                <CRow>
-                  <CCol sm="3">
-                    <CCardText>First Name</CCardText>
-                  </CCol>
-                  <CCol sm="9">
-                    <CCardText className="text-muted">{userInfo.first_name} {userInfo.last_name}</CCardText>
-                  </CCol>
-                </CRow>
-                <hr />
-                <CRow>
-                  <CCol sm="3">
-                    <CCardText>Email</CCardText>
-                  </CCol>
-                  <CCol sm="9">
-                    <CCardText className="text-muted">{userInfo.email}</CCardText>
-                  </CCol>
-                </CRow>
-                <hr />
-                <CRow>
-                  <CCol sm="3">
-                    <CCardText>Mobile</CCardText>
-                  </CCol>
-                  <CCol sm="9">
-                    <CCardText className="text-muted">{userInfo.phone || '--------------'}</CCardText>
-                  </CCol>
-                </CRow>
-                <hr />
-                <CRow>
-                  <CCol sm="3">
-                    <CCardText>Address</CCardText>
-                  </CCol>
-                  <CCol sm="9">
-                    <CCardText className="text-muted">{userInfo.address || '--------------'}</CCardText>
-                  </CCol>
-                </CRow>
-              </CCardBody>
-            </CCard>
-            <CCard className="mb-4">
-              <CCardBody>
-                <CRow>
-                  <CForm className="row g-3">
-                    <CRow>
-                      <CCol md={3}>
-                        <CFormLabel>New Password</CFormLabel>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput
-                          type="password"
-                          placeholder="New Password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                        />
-                      </CCol>
-                    </CRow>
-                    <hr />
-                    <CRow>
-                      <CCol md={3}>
-                        <CFormLabel>Confirm New Password</CFormLabel>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput
-                          type="password"
-                          placeholder="Confirm New Password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                      </CCol>
-                    </CRow>
-                    <hr />
-                    <CRow>
-                      <CCol sm="6">
-                        <div className="d-flex justify-content-left mb-2">
-                          <CButton color="primary" onClick={handleChangePassword}>Change Password</CButton>
-                          <CButton color="secondary" style={{display:'none'}} className="ms-1" onClick={closeEditModal}>Cancel</CButton>
-                        </div>
-                      </CCol>
-                    </CRow>
-                  </CForm>
-                </CRow>
-              </CCardBody>
-            </CCard>
-
-            <CCard id="transactions" style={{ display:prop }} className="mb-4">
-              <CCardBody>
-              <CFormInput
-            type="text"
-            placeholder="Search Product By name"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-                <CTable>
-                  <CTableHead>
+          <CCard>
+            <CCardBody>
+              <CRow>
+                <CCol lg="4">
+                  <CCard className="mb-4 my-account-photo-section">
+                    <CCardBody className="text-center img-section">
+                      <CCardImage
+                        src="https://raw.githubusercontent.com/twbs/icons/main/icons/person.svg"
+                        alt="avatar"
+                        className="rounded-circle"
+                        style={{ width: '75%' }}
+                      />
+                      <p className="text-muted mb-1">{userInfo.first_name} {userInfo.last_name}</p>
+                      <p className="text-muted mb-4">{userInfo.address}</p>
+                      <div className="d-flex justify-content-center mb-2">
+                        <CButton color="primary" onClick={openEditModal}>Edit Profile</CButton>
+                      </div>
                     
-                    <CTableRow>
-                      <CTableHeaderCell scope="col">Product Name</CTableHeaderCell>
-                         <CTableHeaderCell scope="col">Mining Area</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Quantity</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Coins Used</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Transaction Type</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Purchase Time </CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>
-                    {currentTransactions.map((transaction) => (
-                      <CTableRow key={transaction._id}>
-                         <CTableDataCell>{transaction.product_id.name}</CTableDataCell>
-                         <CTableDataCell>{transaction.mining_area_id.name}</CTableDataCell>
-                        <CTableDataCell>{transaction.quantity}</CTableDataCell>
-                        <CTableDataCell>{transaction.coins_used}</CTableDataCell>
-                        <CTableDataCell>{transaction.transaction_type}</CTableDataCell>
-                        <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy')}</CTableDataCell>
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
-              </CCardBody>
-            </CCard>
-          </CCol>
+                      
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+                <CCol lg="8">
+                  <CCard className="mb-4">
+                    <CCardBody>
+                      <CRow>
+                        <CCol sm="3">
+                          <CCardText>First Name</CCardText>
+                        </CCol>
+                        <CCol sm="9">
+                          <CCardText className="text-muted">{userInfo.first_name} {userInfo.last_name}</CCardText>
+                        </CCol>
+                      </CRow>
+                      <hr />
+                      <CRow>
+                        <CCol sm="3">
+                          <CCardText>Email</CCardText>
+                        </CCol>
+                        <CCol sm="9">
+                          <CCardText className="text-muted">{userInfo.email}</CCardText>
+                        </CCol>
+                      </CRow>
+                      <hr />
+                      <CRow>
+                        <CCol sm="3">
+                          <CCardText>Mobile</CCardText>
+                        </CCol>
+                        <CCol sm="9">
+                          <CCardText className="text-muted">{userInfo.phone || '--------------'}</CCardText>
+                        </CCol>
+                      </CRow>
+                      <hr />
+                      <CRow>
+                        <CCol sm="3">
+                          <CCardText>Address</CCardText>
+                        </CCol>
+                        <CCol sm="9">
+                          <CCardText className="text-muted">{userInfo.address || '--------------'}</CCardText>
+                        </CCol>
+                      </CRow>
+                    </CCardBody>
+                  </CCard>
+                  <CCard className="mb-4">
+                    <CCardBody>
+                      <CRow>
+                        <CForm className="row g-3">
+                          <CRow>
+                            <CCol md={3}>
+                              <CFormLabel>New Password</CFormLabel>
+                            </CCol>
+                            <CCol md={6}>
+                              <CFormInput
+                                type="password"
+                                placeholder="New Password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                              />
+                            </CCol>
+                          </CRow>
+                          <hr />
+                          <CRow>
+                            <CCol md={3}>
+                              <CFormLabel>Confirm New Password</CFormLabel>
+                            </CCol>
+                            <CCol md={6}>
+                              <CFormInput
+                                type="password"
+                                placeholder="Confirm New Password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                              />
+                            </CCol>
+                          </CRow>
+                          <hr />
+                          <CRow>
+                            <CCol sm="6">
+                              <div className="d-flex justify-content-left mb-2">
+                                <CButton color="primary" onClick={handleChangePassword}>Change Password</CButton>
+                                <CButton color="secondary" style={{display:'none'}} className="ms-1" onClick={closeEditModal}>Cancel</CButton>
+                              </div>
+                            </CCol>
+                          </CRow>
+                        </CForm>
+                      </CRow>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+            </CCardBody>
+          </CCard>
+        </CRow>
+        <CRow className='mt-2'>
+        <CCard style={{ display:prop }}>
+        <CCardBody>
+          <CTabs activeItemKey={1}>
+            <CTabList variant="underline-border">
+              <CTab aria-controls="transaction-tab-pane" itemKey={1}>Transaction History</CTab>
+              <CTab aria-controls="my-wallet-tab-pane" itemKey={2}>My Wallet</CTab>
+            </CTabList>
+            <CTabContent>
+              <CTabPanel className="py-3" aria-labelledby="transaction-tab-pane" itemKey={1}>
+              <CCard id="transactions" style={{ display:prop }} className="mb-4">
+                    <CCardBody>
+                    <CFormInput
+                  type="text"
+                  placeholder="Search Product By name"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+                      <CTable>
+                        <CTableHead>
+                          
+                          <CTableRow>
+                            <CTableHeaderCell scope="col">Product Name</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Mining Area</CTableHeaderCell>
+                            <CTableHeaderCell scope="col">Quantity</CTableHeaderCell>
+                            <CTableHeaderCell scope="col">Coins Used</CTableHeaderCell>
+                            <CTableHeaderCell scope="col">Transaction Type</CTableHeaderCell>
+                            <CTableHeaderCell scope="col">Purchase Time </CTableHeaderCell>
+                          </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                          {currentTransactions.map((transaction) => (
+                            <CTableRow key={transaction._id}>
+                              <CTableDataCell>{transaction.product_id.name}</CTableDataCell>
+                              <CTableDataCell>{transaction.mining_area_id.name}</CTableDataCell>
+                              <CTableDataCell>{transaction.quantity}</CTableDataCell>
+                              <CTableDataCell>{transaction.coins_used}</CTableDataCell>
+                              <CTableDataCell>{transaction.transaction_type}</CTableDataCell>
+                              <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy')}</CTableDataCell>
+                            </CTableRow>
+                          ))}
+                        </CTableBody>
+                      </CTable>
+                    </CCardBody>
+                  </CCard>
+              </CTabPanel>
+              <CTabPanel className="py-3" aria-labelledby="my-wallet-tab-pane" itemKey={2}>
+                <UserWallet hideTitle={true}></UserWallet>
+              </CTabPanel>
+            </CTabContent>
+          </CTabs>
+          </CCardBody>
+          </CCard>
         </CRow>
       </CContainer>
       <EditAccount

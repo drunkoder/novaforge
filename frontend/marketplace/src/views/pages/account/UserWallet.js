@@ -10,7 +10,7 @@ import { cilPlus, cilMinus, cilLemon } from '@coreui/icons';
 import AddFundsDialog from './AddFundsDialog';
 import WithdrawFundsDialog from './WithrdawFundsDialog';
 
-const UserWallet = ({ }) => {
+const UserWallet = ({ hideTitle }) => {
   const [user, setUser] = useState(null);
   const [showAddFundsDialog, setShowAddFundsDialog] = useState(false);
   const [showWithdrawFundsDialog, setShowWithdrawFundsDialog] = useState(false);
@@ -150,7 +150,7 @@ const UserWallet = ({ }) => {
         <CCol>
           <CCard>
             <CCardBody>
-              <h1>My Wallet</h1>
+              {!hideTitle && (<h1>My Wallet</h1>)}
               {user && (
                 <CCallout color="info">
                   <div className="d-flex align-items-center">

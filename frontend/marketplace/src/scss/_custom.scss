@@ -25,3 +25,15 @@
   .float-right{
     float:right;
   }
+
+  .my-account-photo-section{
+    height: 95%;
+  }
+
+  .my-account-photo-section .img-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
