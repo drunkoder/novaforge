@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const TimelinePlanetSelector = ({ planets, selectedPlanet, onDotClick, showTimelineClick, getPlanets }) => {
+const TimelinePlanetSelector = ({ planets, selectedPlanet, onDotClick, showTimeline }) => {
 
-  const [showTimeline, setShowTimeline] = useState(false);
+  //const [showTimeline, setShowTimeline] = useState(false);
 
-  const toggleTimeline = () => {
-      setShowTimeline(!showTimeline);
-      showTimelineClick(!showTimeline);
-  };
+  // const toggleTimeline = () => {
+  //     setShowTimeline(!showTimeline);
+  //     showTimelineClick(!showTimeline);
+  // };
 
   useEffect(() => {
 }, [planets]);
@@ -15,9 +15,9 @@ const TimelinePlanetSelector = ({ planets, selectedPlanet, onDotClick, showTimel
   return (
     
     <div className="main">
-      <button className="fab-button" onClick={toggleTimeline}>
+      {/* <button className="fab-button" onClick={toggleTimeline}>
           {showTimeline ? 'x' : '+'}
-        </button>
+        </button> */}
       {showTimeline && planets && (
       <div className="timeline">
         <div className="box">

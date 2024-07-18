@@ -75,7 +75,9 @@ const LandingPage = () => {
   const [toast, setToast] = useState({ show: false, message: '', color: '' });
   const [planetTimeline, setPlanetTimeline] = useState(null);
   const [selectedDot, setSelectedDot] = useState(0); 
-  
+  const [rerenderSelector, setRerenderSelector] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
+
   //const [planetsTimelineRef, setPlanetsTimelineRef] = useState([]); 
 
   useEffect(() => {
@@ -90,10 +92,17 @@ const LandingPage = () => {
   };
 
   const handleShowTimelineClick = (show) => {
-    if(!show){
-      resetView();
+    setShowTimeline(prev => !prev); 
+    if (!showTimeline) {
+      const newTimeline = [...planetsTimelineRef.current];
+      planetsTimelineRef.current = newTimeline;
+      setRerenderSelector(prev => !prev);
+    } else {
+      if(!show){
+        resetView();
+      }
     }
-    
+
   };
 
   const getPlanets = () => {
@@ -579,6 +588,7 @@ const LandingPage = () => {
     const closePurchaseModal = () => {
       setSelectedProduct(null);
       setPurchaseModal(false);
+      setQuantity(1);
   };
 
   const showToast = (message, color) => {
@@ -738,7 +748,10 @@ const LandingPage = () => {
     </CContainer>
       <div id="planet-table" className="mt-3">
         {/* <PlanetSelector startPlanet={2000} planetCount={100} /> */}
-        <TimelinePlanetSelector planets={planetsTimelineRef.current} selectedPlanet={selectedPlanet} onDotClick={handleDotClick} showTimelineClick={handleShowTimelineClick} getPlanets={getPlanets} />
+        <button className="fab-button" onClick={handleShowTimelineClick}>
+          {showTimeline ? 'x' : '+'}
+        </button>
+        <TimelinePlanetSelector key={rerenderSelector} planets={planetsTimelineRef.current} selectedPlanet={selectedPlanet} onDotClick={handleDotClick} showTimeline={showTimeline} />
       </div></>
   );
 };
