@@ -125,7 +125,7 @@ const UserWallet = ({ }) => {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      console.error('Error withdrawing your fund:', error);
+      console.error('Error withdrawing your funds:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
 
@@ -168,13 +168,14 @@ const UserWallet = ({ }) => {
                 </CCallout>
               )}
 
+
               <CButton color="primary" size="lg" className="mt-3" onClick={handleAddFunds}>
                 <CIcon icon={cilPlus} className="me-1" />
                 Add Funds
               </CButton>
               <CButton color="secondary" size="lg" className="mt-3 ms-2" onClick={handleWithdraw}>
                 <CIcon icon={cilMinus} className="me-1" />
-                Withdraw
+                Withdraw 
               </CButton>
 
               <AddFundsDialog
