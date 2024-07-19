@@ -10,7 +10,7 @@ import { cilPlus, cilMinus, cilLemon } from '@coreui/icons';
 import AddFundsDialog from './AddFundsDialog';
 import WithdrawFundsDialog from './WithrdawFundsDialog';
 
-const UserWallet = ({ hideTitle }) => {
+const UserWallet = ({ }) => {
   const [user, setUser] = useState(null);
   const [showAddFundsDialog, setShowAddFundsDialog] = useState(false);
   const [showWithdrawFundsDialog, setShowWithdrawFundsDialog] = useState(false);
@@ -68,7 +68,8 @@ const UserWallet = ({ hideTitle }) => {
   const handleAddFundsSubmit = async (formData) => {
     console.log(formData);
     try {
-      const response = await axios.post(`${BASE_URL}/api/users/${user._id || user.id}/add-coins`, formData);
+      const response = await axios.post(`${BASE_URL}/api/users/${user?._id || user?.id || formData.userId}/add-coins`, formData);
+     
       if (response.status === 200 || response.status === 201) {
         showToast('You have successfully added funds!', 'success');
         //setUser(response.data);
@@ -81,12 +82,16 @@ const UserWallet = ({ hideTitle }) => {
         const updatedUserStr = JSON.stringify(updatedUser);
         sessionStorage.setItem('user', updatedUserStr); 
         localStorage.setItem('user', updatedUserStr); 
+
+
+        return response.data.session_id;
       } else {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
       console.error('Error adding your fund:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+    return null;
     }
 
     setShowAddFundsDialog(false);
@@ -150,7 +155,7 @@ const UserWallet = ({ hideTitle }) => {
         <CCol>
           <CCard>
             <CCardBody>
-              {!hideTitle && (<h1>My Wallet</h1>)}
+              <h1>My Wallet</h1>
               {user && (
                 <CCallout color="info">
                   <div className="d-flex align-items-center">
