@@ -16,9 +16,11 @@ import transpotation from '../../assets/images/phases/transportation.jpg'
 import utilization from '../../assets/images/phases/utilization.webp'
 import economics from '../../assets/images/homepage/economics.mp4'
 
-import { logo } from 'src/assets/brand/logo'
-import CIcon from '@coreui/icons-react'
+// import { logo } from 'src/assets/brand/logo'
+// import CIcon from '@coreui/icons-react'
 import { Link } from 'react-router-dom'
+import { Link as ScrollLink } from 'react-scroll'
+
 
 function HeroSection() {
   const handleGetStarted = () => {
@@ -79,7 +81,9 @@ function Mission() {
           beyond.
           <br />
           <br />
-           <Link to="conteact-us">Join us </Link>as we journey into the cosmos, unlocking new potentials and redefining what is
+          <ScrollLink className='joinUs' to="contact-us" smooth={true} duration={500}>
+              Join Us 
+            </ScrollLink> as we journey into the cosmos, unlocking new potentials and redefining what is
           possible. Welcome to Nova Dynamics, where the future is within our reach.
           <br />
           <br />
