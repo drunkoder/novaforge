@@ -126,17 +126,17 @@ body {
         }
       }
       
-      @keyframes glowing {
-        0% {
-          box-shadow: 0 0 10px #ff8b1f, 0 0 2px #ff8b1f, 0 0 15px #ff8b1f;
-        }
-        50% {
-          box-shadow: 0 0 20px #ff3d00, 0 0 5px #ff3d00, 0 0 30px #ff3d00;
-        }
-        100% {
-          box-shadow: 0 0 10px #ff8b1f, 0 0 2px #ff8b1f, 0 0 15px #ff8b1f;
-        }
-      }
+    //   @keyframes glowing {
+    //     0% {
+    //       box-shadow: 0 0 10px #ff8b1f, 0 0 2px #ff8b1f, 0 0 15px #ff8b1f;
+    //     }
+    //     50% {
+    //       box-shadow: 0 0 20px #ff3d00, 0 0 5px #ff3d00, 0 0 30px #ff3d00;
+    //     }
+    //     100% {
+    //       box-shadow: 0 0 10px #ff8b1f, 0 0 2px #ff8b1f, 0 0 15px #ff8b1f;
+    //     }
+    //   }
       
       @keyframes gradientMove {
         0% {
