@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 import LandingPage from './views/dashboard/LandingPage'
+import Homepage from './views/pages/homepage/homepage'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -50,6 +51,7 @@ const App = () => {
         }
       >
         <Routes>
+          <Route exact path="/" name=" Homepage" element={<Homepage />} />
           <Route exact path="/login" name="Login Page" element={<Login setStayLoggedIn={setStayLoggedIn} setEmail={setEmail} />} />
           <Route exact path="/register" name="Register Page" element={<Register />} />
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
