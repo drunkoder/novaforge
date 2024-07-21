@@ -284,9 +284,9 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
 // buy nova coin
 app.post("/api/users/:id/add-coins", [validateToken], async (request, response) => {
   const { id } = request.params;
-  const { exchangeRateId, amount } = request.body;
+  const { exchangeRateId, amount, external, noOfCoins,userId } = request.body;
 
-  if (!id || !exchangeRateId || !amount) {
+  if (!id || (!exchangeRateId && !external) || (!amount && !external)) {
     return response.status(400).json({
       error: "bad request",
       message: "Missing required parameters",
@@ -303,18 +303,23 @@ app.post("/api/users/:id/add-coins", [validateToken], async (request, response) 
       });
     }
 
-    // Find exchange rate by ID
-    const exchangeRate = await ExchangeRateModel.findById(exchangeRateId);
-    if (!exchangeRate) {
-      return response.status(404).json({
-        error: "Exchange rate not found",
-        message: "Exchange rate with the provided ID not available",
-      });
+    let coinsToAdd = 0;
+    if(!external){
+      // Find exchange rate by ID
+      const exchangeRate = await ExchangeRateModel.findById(exchangeRateId);
+      if (!exchangeRate) {
+        return response.status(404).json({
+          error: "Exchange rate not found",
+          message: "Exchange rate with the provided ID not available",
+        });
+      }
+
+      // Calculate amount of coins based on exchange rate
+      coinsToAdd = amount / exchangeRate.coins;
+    }else{
+      coinsToAdd = noOfCoins;
     }
-
-    // Calculate amount of coins based on exchange rate
-    const coinsToAdd = amount / exchangeRate.coins;
-
+    
     // Update nova_coin_balance
     user.nova_coin_balance += coinsToAdd;
     await user.save();

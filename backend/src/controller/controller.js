@@ -7,6 +7,7 @@ import exchangeRates from "../routes/exchangeRates.js";
 import market from "../routes/market.js";
 import forgotPassword from "../routes/forgotPassword.js"
 import transactions from "../routes/transactions.js";
+import stripe from "../routes/Stripe.js";
 const app = express();
 
 app.use(auth);
@@ -17,4 +18,5 @@ app.use(exchangeRates);
 app.use(market);
 app.use(forgotPassword);
 app.use(transactions);
+app.use(stripe);
 export default app;
