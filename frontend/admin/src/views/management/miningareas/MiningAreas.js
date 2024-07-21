@@ -122,20 +122,27 @@ const MiningAreaManagement = () => {
 
   const handleEditMiningArea = async formData => {
     try {
-      const response = await axios.put(`${BASE_URL}/api/miningareas/${selectedMiningArea._id}`, formData);
-      if (response.status === 200) {
-        fetchMiningAreas();
-        showToast('Mining Area updated successfully', 'success');
-        closeEditModal();
-      } else {
-        throw new Error('Invalid response from server');
-      }
-    } catch (error) {
-      console.error('Error editing mining area:', error);
-      showToast(error.response ? error.response.data.message : error.message, 'danger');
-    }
-  };
+        const response = await axios.put(`${BASE_URL}/api/miningareas/${selectedMiningArea._id}`, formData);
 
+        if (response.status === 200) {
+            // Handle the case where no changes were made
+            if (response.data.message === "No changes made") {
+                showToast('No changes were made to the Mining Area', 'danger');
+            } else {
+                fetchMiningAreas();
+                showToast('Mining Area updated successfully', 'success');
+            }
+            closeEditModal();
+        } else {
+            throw new Error('Invalid response from server');
+        }
+    } catch (error) {
+        console.error('Error editing mining area:', error);
+        showToast(error.response ? error.response.data.message : error.message, 'danger');
+    }
+};
+
+  
   const handleDeleteMiningArea = async () => {
     try {
       const response = await axios.delete(`${BASE_URL}/api/miningareas/${selectedMiningArea._id}`);

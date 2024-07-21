@@ -87,7 +87,8 @@ const Login = () => {
         });
         if (res.status === 200 || res.status === 201) {
           const user = res.data.user;
-
+          
+          console.log(user);
           if (stayLoggedIn) {
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(user));

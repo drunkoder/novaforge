@@ -190,7 +190,7 @@ const ExchangeRateManagement = () => {
                       <CFormInput
                         type="text"
                         id="search"
-                        placeholder="Enter keyword..."
+                        placeholder="Enter country or code to search here..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                       />

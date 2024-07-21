@@ -30,8 +30,6 @@ import {
 import { cilTrash, cilPencil, cilPlus } from '@coreui/icons';
 import AddEditProductDialog from './AddEditProductDialog';
 
-
-
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -124,16 +122,19 @@ const ProductManagement = () => {
 
   const handleEditProduct = async formData => {
     try {
-      console.log(formData);
       const response = await axios.put(`${BASE_URL}/api/products/${selectedProduct._id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
+
       if (response.status === 200) {
-        fetchProducts();
-        showToast('Product updated successfully', 'success');
+        if (response.data.message === "No changes made") {
+          showToast('No changes were made to the product', 'danger');
+        } else {
+          fetchProducts();
+          showToast('Product updated successfully', 'success');
+        }
         closeEditModal();
       } else {
         throw new Error('Invalid response from server');
@@ -155,10 +156,18 @@ const ProductManagement = () => {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      console.error('Error deleting product', error);
-      showToast(error.response ? error.response.data.message : error.message, 'danger');
+      console.error('Error deleting product:', error);
+  
+      // Handle the case where the product is in use
+      if (error.response && error.response.status === 400) {
+        showToast(error.response.data.message, 'danger');
+      } else {
+        showToast(error.response ? error.response.data.message : error.message, 'danger');
+      }
     }
   };
+  
+  
 
   const showToast = (message, color) => {
     setToast({ show: true, message, color });
@@ -201,7 +210,7 @@ const ProductManagement = () => {
                       <CFormInput
                         type="text"
                         id="search"
-                        placeholder="Enter keyword..."
+                        placeholder="Enter product name..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                       />
@@ -234,7 +243,12 @@ const ProductManagement = () => {
                           <CButton color="info" onClick={() => openEditModal(product)} className="m-1 text-white align-items-center">
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
-                          <CButton color="danger" onClick={() => openDeleteModal(product)} className="text-white align-items-center">
+                          <CButton
+                            color="danger"
+                            onClick={() => openDeleteModal(product)}
+                            className="text-white align-items-center"
+                            disabled={product.inUse} // Disable if the product is in use
+                          >
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
@@ -278,7 +292,6 @@ const ProductManagement = () => {
           onClose={closeEditModal}
           onSubmit={handleEditProduct}
           product={selectedProduct}
-         
         />
       )}
       <CModal visible={deleteModal} onClose={closeDeleteModal}>

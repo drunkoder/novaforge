@@ -22,11 +22,11 @@ const UserSchema = new Schema({
   },
   address: {
     type: String,
-    default:"",
+    default: "",
   },
-  phone:{
-    type:String, 
-    default:"",
+  phone: {
+    type: String,
+    default: "",
   },
   created_at: {
     type: Date,
@@ -50,7 +50,7 @@ const UserSchema = new Schema({
   },
   is_system: {
     type: Boolean,
-    default: false
+    default: true
   },
   purchased_products: [{
     product_id: { type: Schema.Types.ObjectId, ref: 'products' },
@@ -64,12 +64,18 @@ const UserSchema = new Schema({
       default: 'AVAILABLE'
     }
   }],
- 
-  resetPasswordToken: {type: String,
-  default: '',},
-
-  resetPasswordExpires :{type: Date,
-  default: Date.now}
+  resetPasswordToken: {
+    type: String,
+    default: '',
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: Date.now
+  },
+  is_active: {
+    type: Boolean,
+    default: true
+  }
 });
 
 const UserModel = mongoose.model("users", UserSchema);

@@ -4,8 +4,6 @@ import {
   CCol,
   CForm,
   CFormInput,
-  CFormLabel,
-  CFormSelect,
   CModal,
   CModalBody,
   CModalFooter,
@@ -50,7 +48,7 @@ const AddEditExchangeRateDialog = ({ visible, onClose, onSubmit, exchangeRate })
       code: '',
       coins: 0,
     });
-  }
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -60,26 +58,38 @@ const AddEditExchangeRateDialog = ({ visible, onClose, onSubmit, exchangeRate })
 
     if (!formData.code.trim()) {
       errors.code = 'Code is required';
+    } else if (formData.code.trim().length !== 3) {
+      errors.code = 'Code must be exactly 3 characters';
+    } else if (!/^[A-Za-z]{3}$/.test(formData.code.trim())) {
+      errors.code = 'Code must contain only alphabets';
     }
 
     if (!formData.coins || isNaN(formData.coins)) {
       errors.coins = 'Coins must be a number';
-    }
-
-    if (formData.coins && formData.coins < 1) {
+    } else if (formData.coins < 1) {
       errors.coins = 'Coins must be greater than zero.';
+    } else if (!/^\d+(\.\d{1,2})?$/.test(formData.coins)) {
+      errors.coins = 'Coins must have at most 2 decimal places';
     }
     
     setErrors(errors);
     setFormValid(Object.keys(errors).length === 0);
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setValidated(true);
     if (formValid) {
-      onSubmit(formData);
-      clearForm();
+      const formattedData = {
+        ...formData,
+        country_name: formData.country_name.charAt(0).toUpperCase() + formData.country_name.slice(1).toLowerCase(),
+        code: formData.code.toUpperCase(),
+        coins: parseFloat(formData.coins).toFixed(2),
+      };
+      const result = await onSubmit(formattedData);
+      if (result && result.success) {
+        clearForm();
+      }
     }
   };
 

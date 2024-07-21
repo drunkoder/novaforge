@@ -82,6 +82,10 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
       errors.image = 'Image is required';
     }
 
+    if (!formData.description.trim()) {
+      errors.description = 'Description is required';
+    }
+
     // Validate products
     formData.products.forEach((product, index) => {
 

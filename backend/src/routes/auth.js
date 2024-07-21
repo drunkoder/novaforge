@@ -11,7 +11,7 @@ app.post('/api/auth/login', async (req, res) => {
   const { email, password, admin } = req.body;
 
   try {
-    const user = await UserModel.findOne({ email: email });
+    const user = await UserModel.findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid Credentials' });
@@ -23,7 +23,11 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid Credentials' });
     }
 
-    if(admin && user.role !== userRoles.ADMIN){
+    if (!user.is_active) {
+      return res.status(403).json({ message: 'Invalid Credentials' });
+    }
+
+    if (admin && user.role !== userRoles.ADMIN) {
       return res.status(400).json({ message: 'Access Denied' });
     }
 
@@ -37,10 +41,9 @@ app.post('/api/auth/login', async (req, res) => {
       nova_coin_balance: user.nova_coin_balance
     };
 
-    console.log(process.env.JWT_SEED);
     const token = jwt.sign(newUser, process.env.JWT_SEED);
 
-    res.json({ message: "Login successful", user: newUser, token});
+    res.json({ message: "Login successful", user: newUser, token });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

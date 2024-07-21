@@ -2,7 +2,7 @@ import express from "express";
 import MiningAreaModel from "../models/mining_areas.js";
 import MiningAreaProductModel from "../models/mining_area_products.js";
 import { validateToken } from "../middlewares/auth.js";
-
+import UserModel from "../models/users.js";
 const app = express();
 
 // Gets all but paginated and searchable by name
@@ -77,44 +77,100 @@ app.post("/api/miningareas", [validateToken], async (req, res) => {
   }
 });
 
-// Update
-app.put("/api/miningareas/:id", [validateToken], async (req, res) => {
-  try {
-      const { name, type, description, image, products } = req.body;
-      const updatedMiningArea = await MiningAreaModel.findByIdAndUpdate(req.params.id, { name, type, description, image, products }, { new: true });
-      if (!updatedMiningArea) {
-          return res.status(404).json({ message: "Mining area not found" });
+//update
+// Helper function for deep comparison of arrays
+const deepEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) return false;
+  
+    const sortedArr1 = [...arr1].sort((a, b) => a.product_id.toString().localeCompare(b.product_id.toString()));
+    const sortedArr2 = [...arr2].sort((a, b) => a.product_id.toString().localeCompare(b.product_id.toString()));
+  
+    return sortedArr1.every((item, index) => 
+      item.product_id.toString() === sortedArr2[index].product_id.toString() &&
+      item.price === sortedArr2[index].price &&
+      item.quantity === sortedArr2[index].quantity
+    );
+  };
+  
+  app.put("/api/miningareas/:id", [validateToken], async (req, res) => {
+      try {
+          const { name, type, description, image, products } = req.body;
+  
+          // Find the existing mining area
+          const existingMiningArea = await MiningAreaModel.findById(req.params.id);
+          if (!existingMiningArea) {
+              return res.status(404).json({ message: "Mining area not found" });
+          }
+  
+          // Log for debugging
+          console.log('Existing Mining Area Products:', existingMiningArea.products);
+          console.log('New Products:', products);
+  
+          // Check if the data has changed
+          const isSameData = 
+              existingMiningArea.name === name &&
+              existingMiningArea.type === type &&
+              existingMiningArea.description === description &&
+              existingMiningArea.image === image &&
+              deepEqual(existingMiningArea.products, products);
+             
+          console.log('Is Same Data:', isSameData);
+  
+          if (isSameData) {
+              return res.status(200).json({ message: "No changes made" });
+          }
+  
+          // Update the mining area if changes are detected
+          const updatedMiningArea = await MiningAreaModel.findByIdAndUpdate(
+              req.params.id,
+              { name, type, description, image, products },
+              { new: true, runValidators: true }
+          );
+  
+          return res.status(200).json({
+              message: "Mining area updated",
+              miningArea: updatedMiningArea,
+          });
+  
+      } catch (error) {
+          console.error('Error updating mining area:', error);
+          return res.status(500).json({
+              error: "Database error",
+              message: error.message,
+          });
       }
-      return res.status(200).json({
-          message: "Mining area updated",
-          miningArea: updatedMiningArea,
-      });
-  } catch (error) {
-      return res.status(500).json({
-          error: "Database error",
-          message: error.message,
-      });
-  }
-});
+  });
+  
+
+ 
 
 // Delete
 app.delete("/api/miningareas/:id", [validateToken], async (req, res) => {
-  try {
+    try {
+      // Check if the mining area is referenced in any user's purchased products
+      const userWithMiningArea = await UserModel.findOne({ "purchased_products.mining_area_id": req.params.id });
+      
+      if (userWithMiningArea) {
+        return res.status(400).json({ message: "Cannot delete this mining area because it is already in use" });
+      }
+      
+      // Proceed with deletion if no references are found
       const deletedMiningArea = await MiningAreaModel.findByIdAndDelete(req.params.id);
       if (!deletedMiningArea) {
-          return res.status(404).json({ message: "Mining area not found" });
+        return res.status(404).json({ message: "Mining area not found" });
       }
+      
       // Delete associated mining area products
       await MiningAreaProductModel.deleteMany({ miningArea: req.params.id });
       return res.status(200).json({ message: "Mining area deleted" });
-  } catch (error) {
+    } catch (error) {
       return res.status(500).json({
-          error: "Database error",
-          message: error.message,
+        error: "Database error",
+        message: error.message,
       });
-  }
-});
-
+    }
+  });
+   
 // Get products of a mining area
 app.get("/api/miningareas/:id/products", [validateToken], async (req, res) => {
   try {

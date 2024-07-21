@@ -30,43 +30,34 @@ import {
   CTabPanel
 } from '@coreui/react';
 import EditAccount from './EditAccount';
-import { format } from 'date-fns';
-import UserWallet from './UserWallet';
 
 const MyAccount = () => {
-  const userStorage = sessionStorage.getItem('user') || localStorage.getItem('user');
-  const storedUser = JSON.parse(userStorage);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const transactionsPerPage = 2;
-  const [prop, setprop] = useState('block');
-  const [novacoin, setNovacoin] = useState(parseFloat(storedUser.nova_coin_balance || 0).toFixed(2));
-  const [userInfo, setUserInfo] = useState({});
-  const [editModal, setEditModal] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: '', color: '' });
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [transactionInfo, setTransactionInfo] = useState([]);
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-
-  useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    if (userId) {
-      fetchUserInfo(userId);
-    } else {
-      console.error('No user ID found in local storage');
-    }
-  }, []);
-
-  const fetchUserInfo = async (userId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/api/users/${userId}`);
-      setUserInfo(response.data);
-    } catch (error) {
-      handleError(error);
-    }
-  };
+    const [userInfo, setUserInfo] = useState({});
+    const [editModal, setEditModal] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '', color: '' });
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  
+    useEffect(() => {
+      const userId = sessionStorage.getItem('user_id');
+      console.log('Fetched user ID from local storage:', userId);
+      if (userId) {
+        fetchUserInfo(userId);
+      } else {
+        console.error('No user ID found in local storage');
+      }
+    }, []);
+  
+    const fetchUserInfo = async (userId) => {
+      try {
+        const response = await axios.get(`${BASE_URL}/api/users/${userId}`);
+        setUserInfo(response.data);
+      } catch (error) {
+        handleError(error);
+      }
+    };
 
   const handleError = (error) => {
     if (error.response) {
@@ -139,7 +130,10 @@ const MyAccount = () => {
     try {
       const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, { password: newPassword });
       if (response.status === 200) {
+        setNewPassword('');
+        setConfirmPassword('');
         fetchUserInfo(userInfo._id);
+        
         showToast('Password updated successfully', 'success');
       } else {
         throw new Error('Invalid response from server');
@@ -148,6 +142,8 @@ const MyAccount = () => {
       console.error('Error changing password:', error);
       // Handle backend error response
       if (error.response && error.response.data) {
+        setNewPassword('');
+        setConfirmPassword('');
         if (error.response.data.error === 'Password already in use') {
           showToast('The new password cannot be the same as the current password', 'danger');
         } else {
@@ -166,33 +162,10 @@ const MyAccount = () => {
       setToast({ show: false, message: '', color: '' });
     }, 3000);
   };
+  
+ 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const transactionResponse = await axios.get(`${BASE_URL}/api/transactions/buyer/${storedUser.id}`);
-        const productResponse = transactionResponse.data;
-        setTransactionInfo(productResponse);
-        console.log(productResponse);
-      } catch (error) {
-        console.error('Error fetching transaction data:', error);
-      }
-    };
-
-    fetchData();
-  }, [storedUser.id]);
-
-  const showtransactions = () => {
-    setprop(prop === 'none' ? 'block' : 'none');
-  };
-
-  const filteredTransactions = transactionInfo.filter(transaction =>
-    transaction.product_id.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const indexOfLastTransaction = currentPage * transactionsPerPage;
-  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
-  const currentTransactions = filteredTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -328,59 +301,7 @@ const MyAccount = () => {
             </CCardBody>
           </CCard>
         </CRow>
-        <CRow className='mt-2'>
-          <CCard style={{ display: prop }}>
-            <CCardBody>
-              <CTabs activeItemKey={1}>
-                <CTabList variant="underline-border">
-                  <CTab aria-controls="transaction-tab-pane" itemKey={1}>Transaction History</CTab>
-                  <CTab aria-controls="my-wallet-tab-pane" itemKey={2}>My Wallet</CTab>
-                </CTabList>
-                <CTabContent>
-                  <CTabPanel className="py-3" aria-labelledby="transaction-tab-pane" itemKey={1}>
-                    <CCard id="transactions" style={{ display: prop }} className="mb-4">
-                      <CCardBody>
-                        <CFormInput
-                          type="text"
-                          placeholder="Search Product By name"
-                          value={searchTerm}
-                          onChange={handleSearchChange}
-                        />
-                        <CTable>
-                          <CTableHead>
-                            <CTableRow>
-                              <CTableHeaderCell scope="col">Product Name</CTableHeaderCell>
-                              <CTableHeaderCell scope="col">Mining Area</CTableHeaderCell>
-                              <CTableHeaderCell scope="col">Quantity</CTableHeaderCell>
-                              <CTableHeaderCell scope="col">Coins Used</CTableHeaderCell>
-                              <CTableHeaderCell scope="col">Transaction Type</CTableHeaderCell>
-                              <CTableHeaderCell scope="col">Purchase Time</CTableHeaderCell>
-                            </CTableRow>
-                          </CTableHead>
-                          <CTableBody>
-                            {currentTransactions.map((transaction) => (
-                              <CTableRow key={transaction._id}>
-                                <CTableDataCell>{transaction.product_id.name}</CTableDataCell>
-                                <CTableDataCell>{transaction.mining_area_id.name}</CTableDataCell>
-                                <CTableDataCell>{transaction.quantity}</CTableDataCell>
-                                <CTableDataCell>{transaction.coins_used}</CTableDataCell>
-                                <CTableDataCell>{transaction.transaction_type}</CTableDataCell>
-                                <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy')}</CTableDataCell>
-                              </CTableRow>
-                            ))}
-                          </CTableBody>
-                        </CTable>
-                      </CCardBody>
-                    </CCard>
-                  </CTabPanel>
-                  <CTabPanel className="py-3" aria-labelledby="my-wallet-tab-pane" itemKey={2}>
-                    <UserWallet hideTitle={true} />
-                  </CTabPanel>
-                </CTabContent>
-              </CTabs>
-            </CCardBody>
-          </CCard>
-        </CRow>
+        
       </CContainer>
       <EditAccount
         visible={editModal}

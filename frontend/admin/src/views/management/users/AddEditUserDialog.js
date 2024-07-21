@@ -4,7 +4,6 @@ import {
   CCol,
   CForm,
   CFormInput,
-  CFormLabel,
   CFormSelect,
   CModal,
   CModalBody,
@@ -34,23 +33,31 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
         role: user.role || 'User'
       });
     } else {
-      setFormData({
-        email: '',
-        password: '',
-        first_name: '',
-        last_name: '',
-        role: 'User'
-      });
+      resetForm();
     }
   }, [user]);
 
   useEffect(() => {
+    setValidated(false);
     validateForm();
   }, [formData]);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const resetForm = () => {
+    setFormData({
+      email: '',
+      password: '',
+      first_name: '',
+      last_name: '',
+      role: 'User'
+    });
+    setErrors({});
+    setFormValid(false);
+    setValidated(false);
   };
 
   const validateForm = () => {
@@ -77,6 +84,9 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
     setValidated(true);
     if (formValid) {
       onSubmit(formData);
+     
+      resetForm();
+      
     }
   };
 
@@ -126,7 +136,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
             <CFormInput
               id="last_name"
               name="last_name"
-              value={formData.last_name && validated}
+              value={formData.last_name}
               onChange={handleChange}
               label="Last Name"
             />
@@ -146,7 +156,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
         </CForm>
       </CModalBody>
       <CModalFooter>
-        <CButton color="primary" onClick={handleSubmit} disabled={!formValid}>
+        <CButton color="primary" onClick={handleSubmit} >
           {user ? 'Save' : 'Add'}
         </CButton>
         <CButton color="secondary" onClick={onClose}>Cancel</CButton>
