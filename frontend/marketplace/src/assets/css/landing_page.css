@@ -32,8 +32,9 @@ canvas {
 #planet-table {
   position: fixed;
   top: calc(var(--cui-header-height) + 20px);
-  right: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  right: 430px;
+  /* background: rgba(255, 255, 255, 0.8); */
+  /* background: rgb(52 52 52 / 80%); */
   padding: 10px;
   border-radius: 5px;
   font-family: Arial, sans-serif;
@@ -89,4 +90,25 @@ canvas {
   height: calc(100vh - 3rem - 1px);
   overflow: hidden;
   min-height: 85vh !important;
+}
+
+.canvas-container canvas{
+  width: 100% !important;
+  height: calc(100% - calc(3rem + 1px)) !important;
+}
+
+.planetarium-products-table{
+    width: 50vw;
+    position: fixed;
+    bottom: 10%;
+    overflow: auto;
+    left: 10px;
+    
+    @media (max-width: 1280px) {
+			max-height: 55vh !important;
+		}
+
+		@media (max-width: 768px) {
+			height: 40vh !important;
+		}
 }

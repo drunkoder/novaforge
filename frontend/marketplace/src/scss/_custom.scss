@@ -1,39 +1,419 @@
 // Here you can add other styles
-.community-product-badge{
-    float: right;
-    font-weight: 100;
+.community-product-badge {
+	float: right;
+	font-weight: 100;
+}
+
+.community-product-btn-buy {
+	float: right
+}
+
+.community-product-price {
+	float: left;
+	font-size: large;
+	font-weight: 600;
+}
+
+.community-product-name {
+	font-weight: 600;
+}
+
+.community-product-image {
+	height: 230px;
+}
+
+.float-right {
+	float: right;
+}
+
+.my-account-photo-section {
+	height: 95%;
+}
+
+.my-account-photo-section .img-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+.planetarium-panning-cursor {
+	cursor: grab;
+}
+
+.planet {
+	transition: border-color 0.3s ease;
+}
+
+.planet:hover {
+	border: 2px solid red;
+	cursor: pointer;
+}
+
+
+.scrollArea {
+	overflow-y: scroll;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scrollArea::-webkit-scrollbar {
+	display: none;
+}
+
+// .wrapper {
+//   margin-top: 50px;
+//   margin-bottom: 50px;
+//   padding-left: 50px;
+//   padding-right: 50px;
+// }
+
+.wrapperCoverTop,
+.wrapperCoverBottom {
+	z-index: 1;
+	position: absolute;
+	width: 100%;
+	height: 50px;
+	left: 0;
+	pointer-events: none;
+}
+
+.wrapperCoverTop {
+	top: 0;
+	background-image: linear-gradient(var(--background-color), transparent);
+}
+
+.wrapperCoverBottom {
+	bottom: 0;
+	background-image: linear-gradient(transparent, var(--background-color));
+}
+
+.planetButton {
+	position: relative;
+	width: 50px;
+	height: 15px;
+	cursor: pointer;
+	display: flex;
+	border: none;
+	align-items: center;
+	justify-content: center;
+	background-color: transparent;
+	padding: 0;
+}
+
+.planetText {
+	position: absolute;
+	font-size: small;
+	transform: translateX(calc(var(--text-side) * 100%)) scale(0);
+	color: var(--secondary-color);
+	transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.1s 0.1s;
+	opacity: 0;
+}
+
+.planetButton:hover+.planetButton>.planetText,
+.planetButton:has(+ .planetButton:hover)>.planetText {
+	transform: translateX(calc(var(--text-side) * 125%)) scale(0);
+}
+
+.planetButton:hover+.planetButton.active>.planetText,
+.planetButton:has(+ .planetButton:hover).active>.planetText {
+	transform: translateX(calc(var(--text-side) * 125%)) scale(1);
+	opacity: 1;
+}
+
+.planetButton.active>.planetText {
+	color: var(--primary-color);
+	transform: translateX(calc(var(--text-side) * 100%));
+	opacity: 1;
+	font-weight: bold;
+}
+
+.planetButton:hover>.planetText {
+	transform: translateX(calc(var(--text-side) * 150%));
+	opacity: 1;
+}
+
+.planetButton:hover+.planetButton>.strip,
+.planetButton:has(+ .planetButton:hover)>.strip {
+	width: 30px;
+	height: 3px;
+}
+
+.strip {
+	background-color: var(--secondary-color);
+	width: 15px;
+	height: 1px;
+	transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
+	border-radius: 999px;
+}
+
+.planetButton:hover>.strip {
+	width: 40px;
+	height: 4px;
+}
+
+.planetButton.active>.strip {
+	background-color: var(--primary-color);
+}
+
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #FFFFFF;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1; 
+}
+
+.fab-button {
+  position: fixed;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #FF768E;
+  color: #FFFFFF;
+  font-size: 24px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.fab-button:hover {
+  transform: scale(1.1);
+}
+
+
+.timeline {
+
+	width: 310px;
+    /* height: 80vh; */
+    // background: rgba(236, 241, 245, 0.1411764706);
+	background: rgb(236 241 245 / 1%);
+    mix-blend-mode: normal;
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    margin-top: 70px;
+    box-shadow: 0px 20px 53px -30px rgba(95, 102, 173, 0.566816);
+    border-radius: 10px;
+    margin-left: 100px;
+
+  .dot {
+    width: 14px;
+    height: 14px;
+    background: #D1D6E6;
+    border-radius: 7px;
+    cursor: pointer;
+    float: left;
+  }
+  
+  .dot.active {
+    background-color: #FF768E !important;
+  }
+  
+  .line {
+    height: 40px;
+    width: 2px;
+    background: #D1D6E6;
+    margin-left: 5.3px;
   }
 
-  .community-product-btn-buy{
-    float:right
+  .planet-name{
+    padding-right: 10px;
+    margin-right: 10px;
+    left: 30px;
+    position: relative;
   }
 
-  .community-product-price{
-    float:left;
-    font-size: large;
-    font-weight: 600;
-  }
+	h3 {
+		font-family: Open Sans;
+		font-style: normal;
+		font-weight: bold;
+		font-size: 22px;
+		line-height: 30px;
+		color: #FFFFFF;
+		margin-left: 66px;
+		margin-top: 40px;
 
-  .community-product-name{
-    font-weight: 600;
-  }
 
-  .community-product-image{
-    height: 230px;
-  }
+	}
 
-  .float-right{
-    float:right;
-  }
+	label {
 
-  .my-account-photo-section{
-    height: 95%;
-  }
+		font-family: Open Sans;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 16px;
+		line-height: 22px;
+		/* identical to box height */
+		margin-left: 66px;
+		margin-top: 10px;
 
-  .my-account-photo-section .img-section{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
+		color: #FFFFFF;
+
+	}
+
+	.box {
+		// width: 100%;
+		// height: 100%;
+		//background: #fbfcfd;
+		// margin-top: 99.5px;
+		//max-height: 85vh;
+		//overflow: auto;
+		//padding-top: 20px;
+		// background: #fbfcfd;
+		overflow: auto;
+		padding-top: 20px;
+		/* height: 100vh; */
+		/* margin-bottom: 100px; */
+		/* padding-bottom: 100px; */
+		backdrop-filter: blur(15px);
+		color: white;
+		height: 60vh;
+		font-size: 13px;
+		scrollbar-width: none;
+		-ms-overflow-style: none; 
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+		
+		@media (max-width: 1280px) {
+			max-height: 55vh !important;
+		}
+
+		@media (max-width: 768px) {
+			max-height: 55vh !important;
+		}
+		
+		@media (max-width: 576px) {
+			max-height: 45vh !important; 
+		}
+
+		.container {
+
+			width: 100%;
+			height: 357px;
+			display: flex;
+
+			.lines {
+				margin-left: 15px;
+				margin-top: 6px;
+
+
+				.dot {
+					width: 14px;
+					height: 14px;
+					background: #D1D6E6;
+					border-radius: 7px;
+				}
+
+				.line {
+					height: 40px;
+					width: 2px;
+					background: #D1D6E6;
+					margin-left: 5.3px;
+				}
+			}
+
+			.cards {
+
+				margin-left: 12px;
+				transform: translateY(-50px);
+
+				.card {
+					width: 249px;
+					height: 93px;
+					padding-top: 25px;
+					background: #FFFFFF;
+					box-shadow: 0 2px 2px 0 #eeeeee40;
+					border-radius: 10px;
+
+					box-shadow: 0px 16px 15px -10px rgba(105, 96, 215, 0.0944602);
+					margin-bottom: 10px;
+
+					&.mid {
+
+						height: 71px;
+					}
+
+					h4 {
+
+						font-family: Open Sans;
+						font-style: normal;
+						font-weight: bold;
+						font-size: 14px;
+						line-height: 19px;
+						margin-left: 25px;
+						margin-bottom: 5px;
+
+
+						color: #2B2862;
+
+					}
+
+					p {
+
+						font-family: Open Sans;
+						font-style: normal;
+						font-weight: normal;
+						font-size: 16px;
+						line-height: 22px;
+
+						color: #2B2862;
+						margin-left: 25px;
+					}
+				}
+			}
+
+		}
+
+		.bottom {
+			width: 100%;
+			height: 107px;
+			background: #fff;
+			box-shadow: 0 0 2px #eeeeee50;
+			padding-top: 45px;
+
+			.btn {
+				width: 249px;
+				height: 62px;
+				background: #FFFFFF40;
+				mix-blend-mode: normal;
+				cursor: pointer;
+				border: 1px solid #8260D780;
+				border-radius: 5px;
+
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-family: Open Sans;
+				font-style: normal;
+				font-weight: bold;
+				font-size: 14px;
+				line-height: 19px;
+				color: #2B2862;
+
+				margin-left: 53px;
+				transition: 0.3s;
+				background: #2B2862;
+				color: #fff;
+				border-color: #2B2862;
+
+				&:hover {
+					transform: scale(1.03)
+				}
+			}
+		}
+	}
+}
+
