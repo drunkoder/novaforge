@@ -5,73 +5,53 @@ body {
     background: #000000;
     color: #fff;
     overflow-x: hidden;
-}
-
-.App {
+  }
+  
+  .App {
     text-align: center;
-}
-
-/* Infinite stars background */
-@keyframes move-twink-back {
-    from {transform: translateY(0);}
-    to {transform: translateY(-1000px);}
-}
-
-@keyframes move-twink-front {
-    from {transform: translateY(0);}
-    to {transform: translateY(-2000px);}
-}
-
-.stars {
+  }
+  
+  /* Infinite stars background */
+  @keyframes move-twink-back {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-1000px);
+    }
+  }
+  
+  @keyframes move-twink-front {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-2000px);
+    }
+  }
+  
+  .stars {
     position: absolute;
     width: 1px;
     height: 1px;
     background: transparent;
-    box-shadow: 
-      100px 200px #fff, 150px 300px #fff, 200px 250px #fff, 250px 300px #fff, 
-      300px 350px #fff, 350px 400px #fff, 400px 450px #fff, 450px 500px #fff, 
-      500px 550px #fff, 550px 600px #fff, 600px 650px #fff, 650px 700px #fff, 
-      700px 750px #fff, 750px 800px #fff, 800px 850px #fff, 850px 900px #fff, 
-      900px 950px #fff, 950px 1000px #fff, 1000px 1050px #fff, 1050px 1100px #fff,
-      1100px 1150px #fff, 1150px 1200px #fff, 1200px 1250px #fff, 1250px 1300px #fff, 
-      1300px 1350px #fff, 1350px 1400px #fff, 1400px 1450px #fff, 1450px 1500px #fff, 
-      1500px 1550px #fff, 1550px 1600px #fff, 1600px 1650px #fff, 1650px 1700px #fff, 
-      1700px 1750px #fff, 1750px 1800px #fff, 1800px 1850px #fff, 1850px 1900px #fff, 
-      1900px 1950px #fff, 1950px 2000px #fff, 2000px 2050px #fff, 2050px 2100px #fff, 
-      2100px 2150px #fff, 2150px 2200px #fff, 2200px 2250px #fff, 2250px 2300px #fff, 
-      2300px 2350px #fff, 2350px 2400px #fff, 2400px 2450px #fff, 2450px 2500px #fff, 
-      2500px 2550px #fff, 2550px 2600px #fff, 2600px 2650px #fff, 2650px 2700px #fff, 
-      2700px 2750px #fff, 2750px 2800px #fff, 2800px 2850px #fff, 2850px 2900px #fff;
+    box-shadow: 100px 200px #fff, 150px 300px #fff, 200px 250px #fff, 250px 300px #fff, 300px 350px #fff, 350px 400px #fff, 400px 450px #fff, 450px 500px #fff, 500px 550px #fff, 550px 600px #fff, 600px 650px #fff, 650px 700px #fff, 700px 750px #fff, 750px 800px #fff, 800px 850px #fff, 850px 900px #fff, 900px 950px #fff, 950px 1000px #fff, 1000px 1050px #fff, 1050px 1100px #fff, 1100px 1150px #fff, 1150px 1200px #fff, 1200px 1250px #fff, 1250px 1300px #fff, 1300px 1350px #fff, 1350px 1400px #fff, 1400px 1450px #fff, 1450px 1500px #fff, 1500px 1550px #fff, 1550px 1600px #fff, 1600px 1650px #fff, 1650px 1700px #fff, 1700px 1750px #fff, 1750px 1800px #fff, 1800px 1850px #fff, 1850px 1900px #fff, 1900px 1950px #fff, 1950px 2000px #fff, 2000px 2050px #fff, 2050px 2100px #fff, 2100px 2150px #fff, 2150px 2200px #fff, 2200px 2250px #fff, 2250px 2300px #fff, 2300px 2350px #fff, 2350px 2400px #fff, 2400px 2450px #fff, 2450px 2500px #fff, 2500px 2550px #fff, 2550px 2600px #fff, 2600px 2650px #fff, 2650px 2700px #fff, 2700px 2750px #fff, 2750px 2800px #fff, 2800px 2850px #fff, 2850px 2900px #fff;
     animation: move-twink-back 20s linear infinite;
-}
-
-.stars:after {
+  }
+  
+  .stars:after {
     content: ' ';
     position: absolute;
     top: 2000px;
     width: 1px;
     height: 1px;
     background: transparent;
-    box-shadow: 
-      100px 200px #fff, 150px 300px #fff, 200px 250px #fff, 250px 300px #fff, 
-      300px 350px #fff, 350px 400px #fff, 400px 450px #fff, 450px 500px #fff, 
-      500px 550px #fff, 550px 600px #fff, 600px 650px #fff, 650px 700px #fff, 
-      700px 750px #fff, 750px 800px #fff, 800px 850px #fff, 850px 900px #fff, 
-      900px 950px #fff, 950px 1000px #fff, 1000px 1050px #fff, 1050px 1100px #fff,
-      1100px 1150px #fff, 1150px 1200px #fff, 1200px 1250px #fff, 1250px 1300px #fff, 
-      1300px 1350px #fff, 1350px 1400px #fff, 1400px 1450px #fff, 1450px 1500px #fff, 
-      1500px 1550px #fff, 1550px 1600px #fff, 1600px 1650px #fff, 1650px 1700px #fff, 
-      1700px 1750px #fff, 1750px 1800px #fff, 1800px 1850px #fff, 1850px 1900px #fff, 
-      1900px 1950px #fff, 1950px 2000px #fff, 2000px 2050px #fff, 2050px 2100px #fff, 
-      2100px 2150px #fff, 2150px 2200px #fff, 2200px 2250px #fff, 2250px 2300px #fff, 
-      2300px 2350px #fff, 2350px 2400px #fff, 2400px 2450px #fff, 2450px 2500px #fff, 
-      2500px 2550px #fff, 2550px 2600px #fff, 2600px 2650px #fff, 2650px 2700px #fff, 
-      2700px 2750px #fff, 2750px 2800px #fff, 2800px 2850px #fff, 2850px 2900px #fff;
+    box-shadow: 100px 200px #fff, 150px 300px #fff, 200px 250px #fff, 250px 300px #fff, 300px 350px #fff, 350px 400px #fff, 400px 450px #fff, 450px 500px #fff, 500px 550px #fff, 550px 600px #fff, 600px 650px #fff, 650px 700px #fff, 700px 750px #fff, 750px 800px #fff, 800px 850px #fff, 850px 900px #fff, 900px 950px #fff, 950px 1000px #fff, 1000px 1050px #fff, 1050px 1100px #fff, 1100px 1150px #fff, 1150px 1200px #fff, 1200px 1250px #fff, 1250px 1300px #fff, 1300px 1350px #fff, 1350px 1400px #fff, 1400px 1450px #fff, 1450px 1500px #fff, 1500px 1550px #fff, 1550px 1600px #fff, 1600px 1650px #fff, 1650px 1700px #fff, 1700px 1750px #fff, 1750px 1800px #fff, 1800px 1850px #fff, 1850px 1900px #fff, 1900px 1950px #fff, 1950px 2000px #fff, 2000px 2050px #fff, 2050px 2100px #fff, 2100px 2150px #fff, 2150px 2200px #fff, 2200px 2250px #fff, 2250px 2300px #fff, 2300px 2350px #fff, 2350px 2400px #fff, 2400px 2450px #fff, 2450px 2500px #fff, 2500px 2550px #fff, 2550px 2600px #fff, 2600px 2650px #fff, 2650px 2700px #fff, 2700px 2750px #fff, 2750px 2800px #fff, 2800px 2850px #fff, 2850px 2900px #fff;
     animation: move-twink-front 80s linear infinite;
-}
-
-/* Hero section styles */
-.hero-section {
+  }
+  
+  /* Hero section styles */
+  .hero-section {
     background: url('../assets/images/homepage/heroSection.jpg') no-repeat center center/cover;
     height: 100vh;
     display: flex;
@@ -80,191 +60,170 @@ body {
     align-items: center;
     text-align: center;
     padding: 20px;
-
+  
     h2 {
-        font-size: 3rem;
-        margin-bottom: 20px;
+      font-size: 3rem;
+      margin-bottom: 20px;
     }
-
+  
     p {
-        font-size: 1.5rem;
-        margin-bottom: 40px;
+      font-size: 1.5rem;
+      margin-bottom: 40px;
     }
-
+  
     .cta-button {
-        background: transparent;
-        color: #fff;
-        padding: 10px 20px;
+      background: transparent;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s ease-out;
+      position: relative;
+      z-index: 0;
+      overflow: hidden;
+      font-weight: bolder;
+      color: #be4600;
+  
+      &:before {
+        position: absolute;
         border: none;
-        border-radius: 10px;
-        font-size: 2rem;
-        cursor: pointer;
-        transition: background 0.3s, transform 0.3s ease-out;
-        position: relative;
-        z-index: 0;
-        overflow: hidden;
-        font-weight: bolder;
-        color: #be4600;
-      
+        background-size: 100% 100%;
+        z-index: -1;
+        transition: opacity 0.3s;
+        opacity: 0;
+      }
+  
+      &:hover {
+        transform: translateY(-2px);
+        animation: glowing 20s linear infinite;
+  
         &:before {
-          position: absolute;
-          border: none;
-          background-size: 100% 100%;
-          z-index: -1;
-          transition: opacity 0.3s;
-          opacity: 0;
-        }
-      
-        &:hover {
-          transform: translateY(-2px);
-          animation: glowing 20s linear infinite;
-      
-          &:before {
-            opacity: 1;
-            animation: gradientMove 5s ease infinite;
-          }
+          opacity: 1;
+          animation: gradientMove 5s ease infinite;
         }
       }
-      
-    //   @keyframes glowing {
-    //     0% {
-    //       box-shadow: 0 0 10px #ff8b1f, 0 0 2px #ff8b1f, 0 0 15px #ff8b1f;
-    //     }
-    //     50% {
-    //       box-shadow: 0 0 20px #ff3d00, 0 0 5px #ff3d00, 0 0 30px #ff3d00;
-    //     }
-    //     100% {
-    //       box-shadow: 0 0 10px #ff8b1f, 0 0 2px #ff8b1f, 0 0 15px #ff8b1f;
-    //     }
-    //   }
-      
-      @keyframes gradientMove {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
+    }
+  
+    @keyframes gradientMove {
+      0% {
+        background-position: 0% 50%;
       }
-      
-}
-
-/* Mission section styles */
-.mission-section {
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  }
+  
+  /* Mission section styles */
+  .mission-section {
     padding: 60px 20px;
     background: black;
-
-    & {
-        h2 {
-            font-size: 2.7rem;
-            margin-bottom: 20px;
-            font-weight: bolder;
-            font-family:'Times New Roman', Times, serif;
-            color: #cf6400;
-        }
-
-        p {
-            font-size: 1.5rem;
-            line-height: 1.5;
-            max-width: 800px;
-            margin: 0 auto;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-        }
-
-        .joinUs {
-            color: #be4600;
-            text-decoration: none;
-            cursor: pointer;
-
-        }
+  
+    h2 {
+      font-size: 2.7rem;
+      margin-bottom: 20px;
+      font-weight: bolder;
+      font-family: 'Times New Roman', Times, serif;
+      color: #cf6400;
     }
-}
-
-/* Phases section styles */
-.phases-section {
+  
+    p {
+      font-size: 1.5rem;
+      line-height: 1.5;
+      max-width: 800px;
+      margin: 0 auto;
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+  
+    .joinUs {
+      color: #be4600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  }
+  
+  /* Phases section styles */
+  .phases-section {
     padding: 60px 20px;
     background-color: black;
-    // background: #1c1c1c url('../assets/images/homepage/missionSection.jpg');
-
-    & {
-        h2 {
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-            color: #cf6400;
-        }
-
-        .phases-container {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-        }
-
-        .phase {
-            padding: 30px;
-            border-radius: 15px;
-            width: 30%;
-            min-width: 250px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
-            text-align: center justify;
-
-            &:hover {
-                transform: scale(1.05);
-            }
-
-            h3 {
-                font-size: 1.5rem;
-                margin-bottom: 10px;
-            }
-
-            p {
-                font-size: 1rem;
-            }
-
-            img {
-                display: inline-flex;
-                width: 400px;
-                height: auto;
-                border-radius: 10px;
-                margin-bottom: 10px;
-            }
-        }
+  
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #cf6400;
     }
-}
-
-/* Economics section styles */
-.economics-section {
+  
+    .phases-container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+  
+    .phase {
+      padding: 30px;
+      border-radius: 15px;
+      width: 30%;
+      min-width: 250px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s;
+      text-align: center;
+  
+      &:hover {
+        transform: scale(1.05);
+      }
+  
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+  
+      p {
+        font-size: 1rem;
+      }
+  
+      img {
+        display: inline-flex;
+        width: 400px;
+        height: auto;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+    }
+  }
+  
+  /* Economics section styles */
+  .economics-section {
     padding: 60px 20px;
     background: #000000;
-
-    & {
-        h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            font-weight: bolder;
-        }
-
-        video {
-            width: 500px;
-            float: left;
-            padding: 20px;
-            margin-left: 40px;
-            pointer-events: none;
-
-        }
-
-        p {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 1.1rem;
-            line-height: 1;
-            max-width: 90%;
-            margin: 0 auto;
-            padding: 10px;
-            text-align: justify;
-            letter-spacing: 1px;
-        }
+  
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      font-weight: bolder;
     }
-}
+  
+    video {
+      width: 500px;
+      float: left;
+      padding: 20px;
+      margin-left: 40px;
+      pointer-events: none;
+    }
+  
+    p {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 1.1rem;
+      line-height: 1;
+      max-width: 90%;
+      margin: 0 auto;
+      padding: 10px;
+      text-align: justify;
+      letter-spacing: 1px;
+    }
+  }
+  
