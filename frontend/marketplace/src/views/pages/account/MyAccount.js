@@ -36,15 +36,13 @@ import { format } from 'date-fns';
 import UserWallet from './UserWallet';
 import { getUserFromSession } from '../../../UserSession';
 
-
-
 const MyAccount = () => {
   const userStorage = sessionStorage.getItem('user') || localStorage.getItem('user');
   const storedUser = JSON.parse(userStorage);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const transactionsPerPage = 5;
-  const [prop,setprop] = useState(['block']);
+  const [prop, setprop] = useState('block');
   const [novacoin, setNovacoin] = useState(parseFloat(storedUser.nova_coin_balance || 0).toFixed(2));
   const [userInfo, setUserInfo] = useState({});
   const [editModal, setEditModal] = useState(false);
@@ -53,7 +51,9 @@ const MyAccount = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [transactionInfo, setTransactionInfo] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
-  
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
 
   const getUserInfo = () => {
     const loggedInUser = getUserFromSession();
@@ -122,7 +122,18 @@ const MyAccount = () => {
     try {
       const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, formData);
       if (response.status === 200) {
-        showToast('Account updated successfully', 'success');
+
+        if (responseData.message === "No changes made") {
+          showToast('No changes were made to user information', 'danger');
+          // Optionally, update the form fields with existing user data
+          setUserInfo(prevUserInfo => ({
+            ...prevUserInfo,
+            ...formData  // Assuming formData contains the edited user data
+          }));
+        } else {
+          fetchUserInfo(userInfo._id); // Fetch updated user info
+          showToast('Account updated successfully', 'success');
+        }
       } else {
         throw new Error('Invalid response from server');
       }
@@ -136,11 +147,25 @@ const MyAccount = () => {
   };
 
   const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      showToast('Passwords do not match', 'danger');
+    setPasswordError('');
+    setConfirmPasswordError('');
+  
+    if (!newPassword) {
+      setPasswordError('New password is required');
       return;
     }
-
+    if (!confirmPassword) {
+      setConfirmPasswordError('Confirm password is required');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      return;
+    }
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(newPassword)) {
+      setPasswordError('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character');
+      return;
+    } 
     try {
       const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, { password: newPassword, is_change_password: true });
       if (response.status === 200) {
@@ -151,10 +176,12 @@ const MyAccount = () => {
       }
     } catch (error) {
       console.error('Error changing password:', error);
+      // Handle backend error response
       showToast(error.response ? error.response.data.message : error.message, 'danger');
       getUserInfo();
     }
   };
+  
 
   const showToast = (message, color) => {
     setToast({ show: true, message, color });
@@ -228,8 +255,6 @@ const MyAccount = () => {
                       <div className="d-flex justify-content-center mb-2">
                         <CButton color="primary" onClick={openEditModal}>Edit Profile</CButton>
                       </div>
-                    
-                      
                     </CCardBody>
                   </CCard>
                 </CCol>
@@ -278,37 +303,45 @@ const MyAccount = () => {
                       <CRow>
                         <CForm className="row g-3">
                           <CRow>
-                            <CCol md={3}>
+                            <CCol md={4}>
                               <CFormLabel>New Password</CFormLabel>
                             </CCol>
-                            <CCol md={6}>
+                            <CCol md={8}>
                               <CFormInput
                                 type="password"
                                 placeholder="New Password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                               />
+                              {passwordError && <p className="text-danger">{passwordError}</p>}
                             </CCol>
                           </CRow>
                           <hr />
                           <CRow>
-                            <CCol md={3}>
+                            <CCol md={4}>
                               <CFormLabel>Confirm New Password</CFormLabel>
                             </CCol>
-                            <CCol md={6}>
+                            <CCol md={8}>
                               <CFormInput
                                 type="password"
                                 placeholder="Confirm New Password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                               />
+                              {confirmPasswordError && <p className="text-danger">{confirmPasswordError}</p>}
                             </CCol>
                           </CRow>
                           <hr />
                           <CRow>
                             <CCol sm="6">
                               <div className="d-flex justify-content-left mb-2">
-                                <CButton color="primary" onClick={handleChangePassword}>Change Password</CButton>
+                                <CButton
+                                  color="primary"
+                                  onClick={handleChangePassword}
+                                  
+                                >
+                                  Change Password
+                                </CButton>
                                 <CButton color="secondary" style={{display:'none'}} className="ms-1" onClick={closeEditModal}>Cancel</CButton>
                               </div>
                             </CCol>
@@ -323,50 +356,49 @@ const MyAccount = () => {
           </CCard>
         </CRow>
         <CRow className='mt-2 transactions-history-container'>
-        <CCard style={{ display:prop }}>
-        <CCardBody>
-          <CTabs activeItemKey={1}>
-            <CTabList variant="underline-border">
-              <CTab aria-controls="transaction-tab-pane" itemKey={1}>Transaction History</CTab>
-              <CTab aria-controls="my-wallet-tab-pane" itemKey={2}>My Wallet</CTab>
-            </CTabList>
-            <CTabContent>
-              <CTabPanel className="py-3" aria-labelledby="transaction-tab-pane" itemKey={1}>
-              <CCard id="transactions" style={{ display:prop }} className="mb-4">
-                    <CCardBody>
-                    <CFormInput
-                  type="text"
-                  placeholder="Search Product By name"
-                  value={searchTerm}
+          <CCard style={{ display: prop }}>
+            <CCardBody>
+              <CTabs activeItemKey={1}>
+                <CTabList variant="underline-border">
+                  <CTab aria-controls="transaction-tab-pane" itemKey={1}>Transaction History</CTab>
+                  <CTab aria-controls="my-wallet-tab-pane" itemKey={2}>My Wallet</CTab>
+                </CTabList>
+                <CTabContent>
+                  <CTabPanel className="py-3" aria-labelledby="transaction-tab-pane" itemKey={1}>
+                    <CCard id="transactions" style={{ display: prop }} className="mb-4">
+                      <CCardBody>
+                        <CFormInput
+                          type="text"
+                          placeholder="Search Product By name"
+                          value={searchTerm}
                   onChange={handleSearchChange} className='search'
-                />
+                        />
                     <CRow>
                       <CCol>
                       <CTable responsive>
-                        <CTableHead>
-                          
-                          <CTableRow>
-                            <CTableHeaderCell scope="col">Product Name</CTableHeaderCell>
+                          <CTableHead>
+                            <CTableRow>
+                              <CTableHeaderCell scope="col">Product Name</CTableHeaderCell>
                               <CTableHeaderCell scope="col">Mining Area</CTableHeaderCell>
-                            <CTableHeaderCell scope="col">Quantity</CTableHeaderCell>
-                            <CTableHeaderCell scope="col">Coins Used</CTableHeaderCell>
-                            <CTableHeaderCell scope="col">Transaction Type</CTableHeaderCell>
-                            <CTableHeaderCell scope="col">Purchase Time </CTableHeaderCell>
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          {transactionInfo?.map((transaction) => (
-                            <CTableRow key={transaction._id}>
-                              <CTableDataCell>{transaction.product_id.name}</CTableDataCell>
-                              <CTableDataCell>{transaction.mining_area_id.name}</CTableDataCell>
-                              <CTableDataCell>{transaction.quantity}</CTableDataCell>
-                              <CTableDataCell>{transaction.coins_used}</CTableDataCell>
-                              <CTableDataCell>{transaction.transaction_type}</CTableDataCell>
-                              <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy H:mm:a')}</CTableDataCell>
+                              <CTableHeaderCell scope="col">Quantity</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Coins Used</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Transaction Type</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Purchase Time</CTableHeaderCell>
                             </CTableRow>
-                          ))}
-                        </CTableBody>
-                      </CTable>
+                          </CTableHead>
+                          <CTableBody>
+                          {transactionInfo?.map((transaction) => (
+                              <CTableRow key={transaction._id}>
+                                <CTableDataCell>{transaction.product_id.name}</CTableDataCell>
+                                <CTableDataCell>{transaction.mining_area_id.name}</CTableDataCell>
+                                <CTableDataCell>{transaction.quantity}</CTableDataCell>
+                                <CTableDataCell>{transaction.coins_used}</CTableDataCell>
+                                <CTableDataCell>{transaction.transaction_type}</CTableDataCell>
+                              <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy H:mm:a')}</CTableDataCell>
+                              </CTableRow>
+                            ))}
+                          </CTableBody>
+                        </CTable>
                       </CCol>
                       </CRow>
                       <CRow className="justify-content-between align-items-center mt-3">
@@ -418,15 +450,15 @@ const MyAccount = () => {
                             Next
                           </CPaginationItem>
                         </CPagination> */}
-                    </CCardBody>
-                  </CCard>
-              </CTabPanel>
-              <CTabPanel className="py-3" aria-labelledby="my-wallet-tab-pane" itemKey={2}>
-                <UserWallet hideTitle={true}></UserWallet>
-              </CTabPanel>
-            </CTabContent>
-          </CTabs>
-          </CCardBody>
+                      </CCardBody>
+                    </CCard>
+                  </CTabPanel>
+                  <CTabPanel className="py-3" aria-labelledby="my-wallet-tab-pane" itemKey={2}>
+                    <UserWallet hideTitle={true} />
+                  </CTabPanel>
+                </CTabContent>
+              </CTabs>
+            </CCardBody>
           </CCard>
         </CRow>
       </CContainer>

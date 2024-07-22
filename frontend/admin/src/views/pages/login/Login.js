@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   CButton,
   CCard,
@@ -17,13 +17,12 @@ import {
   CToastClose,
   CToaster,
   CToastHeader,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-import axios from 'axios'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked, cilUser } from '@coreui/icons';
+import axios from 'axios';
 
 const Login = () => {
-
   const [errors, setErrors] = useState('');
   const [formValid, setFormValid] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', color: '' });
@@ -32,12 +31,12 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    stayLoggedIn: false
+    stayLoggedIn: false,
   });
 
   const { email, password, stayLoggedIn } = formData;
 
-  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const showToast = (message, color) => {
     setToast({ visible: true, message, color });
@@ -59,13 +58,13 @@ const Login = () => {
     }
     if (!formData.password.trim()) {
       errors.password = 'Password is required';
-    } 
+    }
 
     setErrors(errors);
     setFormValid(Object.keys(errors).length === 0);
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setValidated(true);
     if (formValid) {
@@ -74,18 +73,21 @@ const Login = () => {
         const res = await axios.post(`${BASE_URL}/api/auth/login`, {
           email,
           password,
-          admin
+          admin,
         });
         if (res.status === 200 || res.status === 201) {
-          if (stayLoggedIn) { 
+          const user = res.data.user;
+          if (stayLoggedIn) {
             localStorage.setItem('token', res.data.token);
-            localStorage.setItem('user', JSON.stringify(res.data.user));
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('user_id', user.id);
           } else {
             sessionStorage.setItem('token', res.data.token);
-            sessionStorage.setItem('user', JSON.stringify(res.data.user));
+            sessionStorage.setItem('user', JSON.stringify(user));
+            sessionStorage.setItem('user_id', user.id);
           }
-          
-          showToast(res?.data?.user ? 'Welcome ' + res.data.user.email : 'Welcome', 'primary');
+
+          showToast(user ? 'Welcome ' + user.email : 'Welcome', 'primary');
 
           setTimeout(() => {
             window.location.replace('/');
@@ -96,11 +98,10 @@ const Login = () => {
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
         showToast(err.response ? err.response.data.message : err.message, 'danger');
-        
       }
     }
   };
-  
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CToaster position="top-end" className="position-fixed top-0 end-0 p-3">
@@ -120,8 +121,8 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={onSubmit}>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
+                    <h1 className="d-flex justify-content-center">Login</h1>
+                    <p className="text-body-secondary d-flex justify-content-center">Sign In to your account</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
@@ -152,14 +153,9 @@ const Login = () => {
                       {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </CInputGroup>
                     <CRow>
-                      <CCol xs={6}>
+                      <CCol xs={12} className="d-flex justify-content-center">
                         <CButton type="submit" color="primary" className="px-4">
                           Login
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
                         </CButton>
                       </CCol>
                     </CRow>
@@ -171,7 +167,7 @@ const Login = () => {
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

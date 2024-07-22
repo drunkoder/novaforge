@@ -1,0 +1,61 @@
+/* AppSidebar.css */
+@keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  @keyframes pop {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .space-theme-sidebar {
+    background-color: #000000; /* Black background */
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  
+  .space-theme-sidebar .c-sidebar-nav .c-nav-item .c-nav-link {
+    color: #ffffff;
+    background-color: transparent;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .space-theme-sidebar .c-sidebar-nav .c-nav-item .c-nav-link:hover {
+    background-color: #2c2c54;
+    animation: pop 0.5s ease-in-out;
+  }
+  
+  .space-theme-sidebar .c-sidebar-nav .c-nav-item .c-nav-link.active {
+    background-color: #3a3a73;
+    color: #ffffff;
+    animation: pop 0.5s ease-in-out;
+  }
+  
+  .space-theme-header,
+  .space-theme-footer {
+    background-color: #23233a;
+  }
+  
+  .space-theme-brand {
+    filter: brightness(0) invert(1);
+  }
+  
+  .space-theme-close-button,
+  .space-theme-toggler {
+    color: #ffffff;
+  }
+  

@@ -10,7 +10,7 @@ import {
   CModalHeader
 } from '@coreui/react';
 
-//const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
+// const BASE_URL = 'http://localhost:3000';  // Adjust this according to your setup
 
 const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
   const [formData, setFormData] = useState({
@@ -27,9 +27,6 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
 
   useEffect(() => {
     if (product) {
-      console.log('Product:', product);
-      console.log('Product Image:', product.image);
-      console.log('BASE_URL:', BASE_URL);
       setFormData({
         code: product.code || '',
         name: product.name || '',
@@ -37,9 +34,8 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
         image: product.image || '',
       });
       const path = product.image ? product.image : null;
-      console.log('Image Path:', path);
       setImagePath(path);
-      setPreviewImage(BASE_URL + path);
+      setPreviewImage(path ? BASE_URL + path : null);
     } else {
       clearForm();
     }
@@ -68,6 +64,8 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
     }
     if (!formData.name.trim()) {
       errors.name = 'Name is required';
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
+      errors.name = 'Name should be alphabetic';
     }
     if (!formData.description.trim()) {
       errors.description = 'Description is required';
@@ -79,12 +77,20 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'image') {
-      const imageFile = files[0]; // Get the first file from the array
-      setFormData((prev) => ({
-        ...prev,
-        image: imageFile, // Store the image file itself
-      }));
-      setPreviewImage(URL.createObjectURL(imageFile)); // Show preview of the new image
+      const imageFile = files[0];
+      if (imageFile) {
+        setFormData((prev) => ({
+          ...prev,
+          image: imageFile,
+        }));
+        setPreviewImage(URL.createObjectURL(imageFile));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          image: '',
+        }));
+        setPreviewImage(null);
+      }
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -98,15 +104,14 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
     setValidated(true);
     if (formValid) {
       const data = new FormData();
-      data.append('code', formData.code);
+      data.append('code', formData.code.toUpperCase()); // Convert code to uppercase
       data.append('name', formData.name);
       data.append('description', formData.description);
       if (formData.image instanceof File) {
-        data.append('image', formData.image); // Append the image file
+        data.append('image', formData.image);
       } else {
-        data.append('image', formData.image); // Append the image path as a string (existing image path)
+        data.append('image', formData.image); // Use default alternate text if no image
       }
-      
       onSubmit(data);
       clearForm();
     }

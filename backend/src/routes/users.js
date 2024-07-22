@@ -74,6 +74,7 @@ app.get("/api/users", [validateToken], async (request, response) => {
 
     const userVM = mapToViewModel(users);
 
+
     return response.status(200).json({
       users: userVM,
       totalPages,
@@ -98,14 +99,14 @@ app.post("/api/users", [validateToken], async (request, response) => {
       message: "No body provided",
     });
   }
-
+  
   const emailTaken = await isEmailTaken(body.email);
-  if (emailTaken) {
-    return response.status(400).json({
-      error: "Email already exists",
-      message: "The email is already in use",
-    });
-  }
+if (emailTaken) {
+  return response.status(400).json({
+    error: "Email already exists",
+    message: "The email is already in use",
+  });
+}
   
   const password = await generatePassword(body.password);
   const newBody = { ...body, password };
@@ -211,12 +212,11 @@ app.delete("/api/users/:id", [validateToken], (request, response) => {
       });
     });
 });
-
-// Update
+//update 
 app.put("/api/users/:id", [validateToken], async (request, response) => {
   const { id } = request.params;
   const body = request.body;
-  
+
   if (!id || !body) {
     return response.status(400).json({
       error: "Bad request",
@@ -240,12 +240,14 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
     });
   }
 
-  let updateFields = { ...body };
+  // Initialize updateFields with current user data
+  let updateFields = {};
 
   // Check if password is provided and update it securely
   if (body.is_change_password) {
     if(body.password){
       const isSamePassword = await bcrypt.compare(body.password, user.password);
+
       if (isSamePassword) {
         return response.status(400).json({
           error: "Password already in use",
@@ -267,13 +269,44 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
         message: "Password is required",
       });
     }
-  }
+    }
+  
 
+  // Update other fields if they are different from the current user data
+  let hasChanges = false;
+  Object.keys(body).forEach(key => {
+    if (key !== "password") {
+      // Log values for debugging
+      
+
+      // Ensure both sides are of the same type and format
+      if (body[key] !== user[key]) {
+        updateFields[key] = body[key];
+        hasChanges = true;
+      }
+    }
+  });
+
+  // Always update the updated_by and updated_at fields
   updateFields.updated_by = request.user.id;
   updateFields.updated_at = new Date();
 
+  // Check if any changes were detected
+  if (!hasChanges && Object.keys(updateFields).length === 2) { // 2 for updated_by and updated_at
+    return response.status(200).json({
+      message: "No changes made",
+      user: user, // Return the original user data
+    });
+  }
+
   UserModel.findByIdAndUpdate(id, updateFields, { new: true })
     .then((updatedUser) => {
+      if (!updatedUser) {
+        return response.status(404).json({
+          error: "Update failed",
+          message: "User not found or update failed",
+        });
+      }
       return response.status(200).json({
         message: "User updated successfully",
         user: updatedUser,
@@ -286,6 +319,7 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
       });
     });
 });
+
 
 
 // buy nova coin
@@ -889,7 +923,8 @@ function mapToViewModel(users) {
     first_name: user.first_name,
     last_name: user.last_name,
     friendly_name: `${user.first_name} ${user.last_name}`,
-    role: user.role
+    role: user.role,
+    is_active:user.is_active
   }));
 }
 
@@ -908,15 +943,19 @@ function mapUserToViewModel(user) {
 
 async function isEmailTaken(email, userId = null) {
   try {
-    const query = { email: email };
+    // Create a case-insensitive regex pattern for the email
+    
+    const query = { email: { $regex: new RegExp(`^${email}$`, 'i') } };
+  
     if (userId) {
       query._id = { $ne: userId };
     }
+
     const existingUser = await UserModel.findOne(query);
     return !!existingUser;
   } catch (error) {
     console.error("Error checking email:", error.message);
-    return true;
+    return true; // Assuming true means error or email is taken
   }
 }
 

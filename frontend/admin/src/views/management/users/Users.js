@@ -27,10 +27,8 @@ import {
   CToastHeader,
   CToaster
 } from '@coreui/react';
-import { cilTrash, cilPencil, cilPlus } from '@coreui/icons';
+import { cilTrash, cilPencil, cilPlus, cilUser, cilUserX } from '@coreui/icons';
 import AddEditUserDialog from './AddEditUserDialog';
-
-
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -118,13 +116,25 @@ const UserManagement = () => {
     }
   };
 
-  const handleEditUser = async formData => {
+  const handleEditUser = async (formData) => {
     try {
       const response = await axios.put(`${BASE_URL}/api/users/${selectedUser.id}`, formData);
+  
       if (response.status === 200) {
-        fetchUsers();
-        showToast('User updated successfully', 'success');
-        closeEditModal();
+        const responseData = response.data;
+  
+        if (responseData.message === "No changes made") {
+          showToast('No changes were made to user information', 'danger');
+          // Update the form fields with existing user data
+          setSelectedUser(prevUser => ({
+            ...prevUser,
+            ...formData // Assuming formData contains the edited user data
+          }));
+        } else {
+          fetchUsers(); // Assuming this function fetches updated user list
+          showToast('User updated successfully', 'success');
+          closeEditModal();
+        }
       } else {
         throw new Error('Invalid response from server');
       }
@@ -133,6 +143,8 @@ const UserManagement = () => {
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
   };
+  
+  
 
   const handleDeleteUser = async () => {
     try {
@@ -146,6 +158,22 @@ const UserManagement = () => {
       }
     } catch (error) {
       console.error('Error deleting user:', error);
+      showToast(error.response ? error.response.data.message : error.message, 'danger');
+    }
+  };
+
+  const handleStatusToggle = async (user) => {
+    try {
+      const updatedStatus = !user.is_active;
+      const response = await axios.put(`${BASE_URL}/api/users/${user.id}`, { is_active: updatedStatus });
+      if (response.status === 200) {
+        fetchUsers();
+        showToast('User status updated successfully', 'success');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
   };
@@ -191,7 +219,7 @@ const UserManagement = () => {
                       <CFormInput
                         type="text"
                         id="search"
-                        placeholder="Enter keyword..."
+                        placeholder="Search user by name or email"
                         value={searchTerm}
                         onChange={handleSearchChange}
                       />
@@ -208,6 +236,7 @@ const UserManagement = () => {
                       <CTableHeaderCell>First Name</CTableHeaderCell>
                       <CTableHeaderCell>Last Name</CTableHeaderCell>
                       <CTableHeaderCell>Role</CTableHeaderCell>
+                      <CTableHeaderCell>Status</CTableHeaderCell>
                       <CTableHeaderCell>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
@@ -216,13 +245,22 @@ const UserManagement = () => {
                       <CTableRow key={user.id}>
                         <CTableDataCell>{user.email}</CTableDataCell>
                         <CTableDataCell>{user.first_name}</CTableDataCell>
-                        <CTableDataCell>{user.last_name}</CTableDataCell>
+                        <CTableDataCell>{user.last_name || '------'}</CTableDataCell>
                         <CTableDataCell>{user.role}</CTableDataCell>
+                        <CTableDataCell> 
+                          <CIcon
+                            icon={user.is_active ? cilUser : cilUserX}
+                            size="lg"
+                            className={user.is_active ? 'icon-active' : 'icon-inactive'}
+                            style={{ color: user.is_active ? 'green' : 'red', cursor: 'pointer' }}
+                            onClick={() => handleStatusToggle(user)}
+                          />
+                        </CTableDataCell>
                         <CTableDataCell>
-                          <CButton color="info" onClick={() => openEditModal(user)} className="m-1 text-white align-items-center">
+                          <CButton color="info" onClick={() => openEditModal(user)} className="m-1 text-white align-items-center" disabled={user.is_active===false}>
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
-                          <CButton color="danger" onClick={() => openDeleteModal(user)} className="text-white align-items-center">
+                          <CButton color="danger" onClick={() => openDeleteModal(user)} className="text-white align-items-center" disabled={user.is_active===true}>
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
