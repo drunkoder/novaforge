@@ -132,7 +132,12 @@ const Community = ({})=>{
                 )}
             </CToaster>
             <CContainer>
-                <h1>Community Marketplace</h1>
+                <CRow className="mt-4">
+                    <CCol className="community-marketplace-header">
+                        <h1>Community Marketplace</h1>
+                    </CCol>
+                </CRow>
+                
                 <CRow>
                     <CCol>
                         <CForm className="mb-3">
@@ -145,6 +150,7 @@ const Community = ({})=>{
                                     placeholder="Start searching a product, area, or seller..."
                                     value={searchTerm}
                                     onChange={handleSearchChange}
+                                    className="commmunity-marketplace-search"
                                 />
                                 </CCol>
                                 <CCol md="6" className="d-flex align-items-end">
@@ -154,7 +160,7 @@ const Community = ({})=>{
                         </CForm>
                     </CCol>
                 </CRow>
-                <CRow className="align-items-start">
+                <CRow className="align-items-start commmunity-marketplace-row">
                     {products?.map(product => (
                         <CCol key={product._id} md="4" className="mb-2">
                             <CCard>
@@ -163,7 +169,7 @@ const Community = ({})=>{
                                     <CCardTitle className="community-product-name">{product.product.name} 
                                         <CBadge textBgColor="light" className="community-product-badge">{product.mining_area.name}</CBadge>
                                     </CCardTitle>
-                                    <CCardText>
+                                    <CCardText className="community-product-desc">
                                         {product.product.description}
                                     </CCardText>
                                     <CCardText>
@@ -179,17 +185,17 @@ const Community = ({})=>{
                                     
                                 </CCardBody>
                                 <CCardFooter>
-                                    <small className="text-body-secondary"><b>Seller:</b> {product.user.first_name}</small>
-                                    <small className="text-body-secondary float-right"><b>Quantity:</b> {product.quantity}</small>
+                                    <small className="text-body-secondary community-seller"><b>Seller:</b> <span>{product.user.first_name}</span></small>
+                                    <small className="text-body-secondary community-seller float-right"><b>Quantity:</b> <span> {product.quantity}</span></small>
                                 </CCardFooter>
                             </CCard>
                         </CCol>
                     ))}
                 </CRow>
-                <CPagination align="center">
-                    <CPaginationItem disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>Previous</CPaginationItem>
-                    <CPaginationItem disabled>Page {currentPage} of {totalPages < 1 ? 1 : totalPages}</CPaginationItem>
-                    <CPaginationItem disabled={currentPage === totalPages || totalPages === 0} onClick={() => handlePageChange(currentPage + 1)}>Next</CPaginationItem>
+                <CPagination align="center" className="community-marketplace-pagination">
+                    <CPaginationItem className="pages" disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>&lt;</CPaginationItem>
+                    <CPaginationItem disabled className="mt-1 page-text">Page {currentPage} of {totalPages < 1 ? 1 : totalPages}</CPaginationItem>
+                    <CPaginationItem className="pages" disabled={currentPage === totalPages || totalPages === 0} onClick={() => handlePageChange(currentPage + 1)}>&gt;</CPaginationItem>
                 </CPagination>
 
                 <CModal visible={purchaseModal} backdrop="static" onClose={closePurchaseModal}>

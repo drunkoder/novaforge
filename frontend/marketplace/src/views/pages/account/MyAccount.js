@@ -27,11 +27,14 @@ import {
   CTabList,
   CTab,
   CTabContent,
-  CTabPanel 
+  CTabPanel ,
+  CPagination,
+  CPaginationItem
 } from '@coreui/react';
 import EditAccount from './EditAccount';
 import { format } from 'date-fns';
 import UserWallet from './UserWallet';
+import { getUserFromSession } from '../../../UserSession';
 
 
 
@@ -40,7 +43,7 @@ const MyAccount = () => {
   const storedUser = JSON.parse(userStorage);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const transactionsPerPage = 2;
+  const transactionsPerPage = 5;
   const [prop,setprop] = useState(['block']);
   const [novacoin, setNovacoin] = useState(parseFloat(storedUser.nova_coin_balance || 0).toFixed(2));
   const [userInfo, setUserInfo] = useState({});
@@ -49,15 +52,25 @@ const MyAccount = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [transactionInfo, setTransactionInfo] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   
-  useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    if (userId) {
-      fetchUserInfo(userId);
+
+  const getUserInfo = () => {
+    const loggedInUser = getUserFromSession();
+    if (loggedInUser.id) {
+      fetchUserInfo(loggedInUser.id);
     } else {
       console.error('No user ID found in local storage');
     }
+  };
+
+  useEffect(() => {
+    getUserInfo();
   }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [currentPage, searchTerm]);
 
   const fetchUserInfo = async (userId) => {
     try {
@@ -65,6 +78,22 @@ const MyAccount = () => {
       setUserInfo(response.data);
     } catch (error) {
       handleError(error);
+    }
+  };
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/transactions/user/${storedUser.id}`, {
+        params: {
+          search: searchTerm,
+          page: currentPage,
+          limit: transactionsPerPage
+        }
+      });
+      setTransactionInfo(response.data.transactions);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching transaction data:', error);
     }
   };
 
@@ -93,16 +122,17 @@ const MyAccount = () => {
     try {
       const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, formData);
       if (response.status === 200) {
-        fetchUserInfo(userInfo._id);
         showToast('Account updated successfully', 'success');
-        closeEditModal();
       } else {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      console.error('Error editing account:', error);
+      // console.error('Error editing account:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
+    
+    fetchUserInfo(userInfo._id);
+    closeEditModal();
   };
 
   const handleChangePassword = async () => {
@@ -112,7 +142,7 @@ const MyAccount = () => {
     }
 
     try {
-      const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, { password: newPassword });
+      const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, { password: newPassword, is_change_password: true });
       if (response.status === 200) {
         fetchUserInfo(userInfo._id);
         showToast('Password updated successfully', 'success');
@@ -122,6 +152,7 @@ const MyAccount = () => {
     } catch (error) {
       console.error('Error changing password:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      getUserInfo();
     }
   };
 
@@ -132,36 +163,40 @@ const MyAccount = () => {
     }, 3000);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const transactionResponse = await axios.get(`${BASE_URL}/api/transactions/buyer/${storedUser.id}`);
-        const productResponse = transactionResponse.data;
-        setTransactionInfo(productResponse);
-        console.log(productResponse);
-      } catch (error) {
-        console.error('Error fetching transaction data:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const transactionResponse = await axios.get(`${BASE_URL}/api/transactions/user/${storedUser.id}`);
+  //       const productResponse = transactionResponse.data;
+  //       setTransactionInfo(productResponse);
+  //       console.log(productResponse);
+  //     } catch (error) {
+  //       console.error('Error fetching transaction data:', error);
+  //     }
+  //   };
 
-    fetchData();
-  }, [storedUser.id]);
+  //   fetchData();
+  // }, [storedUser.id]);
 
   const showtransactions = () => {
     setprop(prop === 'none' ? 'block' : 'none');
   };
 
-  const filteredTransactions = transactionInfo.filter(transaction =>
-    transaction.product_id.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredTransactions = transactionInfo.filter(transaction =>
+  //   transaction.product_id.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const indexOfLastTransaction = currentPage * transactionsPerPage;
-  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
-  const currentTransactions = filteredTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  // const indexOfLastTransaction = currentPage * transactionsPerPage;
+  // const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  // const currentTransactions = filteredTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -174,21 +209,21 @@ const MyAccount = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer className="py-5 px-5">
+      <CContainer className="py-5 px-5 my-account-page-container">
         <CRow>
-          <CCard>
+          <CCard className='my-account-container'>
             <CCardBody>
               <CRow>
                 <CCol lg="4">
                   <CCard className="mb-4 my-account-photo-section">
                     <CCardBody className="text-center img-section">
                       <CCardImage
-                        src="https://raw.githubusercontent.com/twbs/icons/main/icons/person.svg"
+                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
                         alt="avatar"
                         className="rounded-circle"
                         style={{ width: '75%' }}
                       />
-                      <p className="text-muted mb-1">{userInfo.first_name} {userInfo.last_name}</p>
+                      <p className="text-muted mb-1 mt-2 name">{userInfo.first_name} {userInfo.last_name}</p>
                       <p className="text-muted mb-4">{userInfo.address}</p>
                       <div className="d-flex justify-content-center mb-2">
                         <CButton color="primary" onClick={openEditModal}>Edit Profile</CButton>
@@ -198,7 +233,7 @@ const MyAccount = () => {
                     </CCardBody>
                   </CCard>
                 </CCol>
-                <CCol lg="8">
+                <CCol lg="8 detail-section">
                   <CCard className="mb-4">
                     <CCardBody>
                       <CRow>
@@ -287,7 +322,7 @@ const MyAccount = () => {
             </CCardBody>
           </CCard>
         </CRow>
-        <CRow className='mt-2'>
+        <CRow className='mt-2 transactions-history-container'>
         <CCard style={{ display:prop }}>
         <CCardBody>
           <CTabs activeItemKey={1}>
@@ -303,9 +338,11 @@ const MyAccount = () => {
                   type="text"
                   placeholder="Search Product By name"
                   value={searchTerm}
-                  onChange={handleSearchChange}
+                  onChange={handleSearchChange} className='search'
                 />
-                      <CTable>
+                    <CRow>
+                      <CCol>
+                      <CTable responsive>
                         <CTableHead>
                           
                           <CTableRow>
@@ -318,18 +355,69 @@ const MyAccount = () => {
                           </CTableRow>
                         </CTableHead>
                         <CTableBody>
-                          {currentTransactions.map((transaction) => (
+                          {transactionInfo?.map((transaction) => (
                             <CTableRow key={transaction._id}>
                               <CTableDataCell>{transaction.product_id.name}</CTableDataCell>
                               <CTableDataCell>{transaction.mining_area_id.name}</CTableDataCell>
                               <CTableDataCell>{transaction.quantity}</CTableDataCell>
                               <CTableDataCell>{transaction.coins_used}</CTableDataCell>
                               <CTableDataCell>{transaction.transaction_type}</CTableDataCell>
-                              <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy')}</CTableDataCell>
+                              <CTableDataCell>{format(new Date(transaction.created_at), 'MMMM dd, yyyy H:mm:a')}</CTableDataCell>
                             </CTableRow>
                           ))}
                         </CTableBody>
                       </CTable>
+                      </CCol>
+                      </CRow>
+                      <CRow className="justify-content-between align-items-center mt-3">
+                        <CCol sm={4}>
+                          <CButton
+                            color="primary"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                          >
+                            Previous
+                          </CButton>
+                        </CCol>
+                        <CCol sm={4} className='text-center'>
+                          <span className="mx-2 text-white">
+                            Page {currentPage} of {totalPages < 1 ? 1 : totalPages}
+                          </span>
+                        </CCol>
+                        <CCol sm={4} className='text-end'>
+                          
+                        <CButton
+                            color="primary"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={totalPages < 1 || currentPage === totalPages}
+                          >
+                            Next
+                          </CButton>
+                        </CCol>
+                      </CRow>
+                      {/* <CPagination className="mt-3">
+                          <CPaginationItem
+                            disabled={currentPage === 1}
+                            onClick={() => handlePageChange(currentPage - 1)}
+                          >
+                            Previous
+                          </CPaginationItem>
+                          {[...Array(totalPages).keys()].map((page) => (
+                            <CPaginationItem
+                              key={page + 1}
+                              active={page + 1 === currentPage}
+                              onClick={() => handlePageChange(page + 1)}
+                            >
+                              {page + 1}
+                            </CPaginationItem>
+                          ))}
+                          <CPaginationItem
+                            disabled={currentPage === totalPages || !totalPages || totalPages < 1}
+                            onClick={() => handlePageChange(currentPage + 1)}
+                          >
+                            Next
+                          </CPaginationItem>
+                        </CPagination> */}
                     </CCardBody>
                   </CCard>
               </CTabPanel>

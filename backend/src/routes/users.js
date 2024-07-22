@@ -243,21 +243,28 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
   let updateFields = { ...body };
 
   // Check if password is provided and update it securely
-  if (body.password) {
-    const isSamePassword = await bcrypt.compare(body.password, user.password);
-    if (isSamePassword) {
-      return response.status(400).json({
-        error: "Password already in use",
-        message: "The new password cannot be the same as the current password",
-      });
-    }
-    try {
-      const hashedPassword = await bcrypt.hash(body.password, 10);
-      updateFields.password = hashedPassword;
-    } catch (error) {
-      return response.status(400).json({
-        error: "Error generating password hash",
-        message: error.message,
+  if (body.is_change_password) {
+    if(body.password){
+      const isSamePassword = await bcrypt.compare(body.password, user.password);
+      if (isSamePassword) {
+        return response.status(400).json({
+          error: "Password already in use",
+          message: "The new password cannot be the same as the current password",
+        });
+      }
+      try {
+        const hashedPassword = await bcrypt.hash(body.password, 10);
+        updateFields.password = hashedPassword;
+      } catch (error) {
+        return response.status(400).json({
+          error: "Error generating password hash",
+          message: error.message,
+        });
+      }
+    }else{
+      return response.status(404).json({
+        error: "Password is required",
+        message: "Password is required",
       });
     }
   }
@@ -700,7 +707,7 @@ app.get("/api/users/:id/inventory/:purchaseProductId?/community", [validateToken
 // sell API here
 app.post('/api/users/:id/sell/:purchaseProductId', [validateToken], async (request, response) => {
   const { id, purchaseProductId } = request.params;
-  const { quantity } = request.body;
+  const { quantity, price } = request.body;
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -744,7 +751,7 @@ app.post('/api/users/:id/sell/:purchaseProductId', [validateToken], async (reque
       mining_area_id: purchasedProduct.mining_area_id,
       status: communityProductStatus.AVAILABLE, 
       quantity: quantity,
-      price: purchasedProduct.price
+      price: price
     });
 
     // Save

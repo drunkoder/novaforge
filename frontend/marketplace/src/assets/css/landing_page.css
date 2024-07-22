@@ -1,7 +1,7 @@
 body {
   margin: auto;
   overflow: auto;
-  font-family: Arial, sans-serif;
+  font-family: "Ubuntu", Arial, sans-serif;
 }
 
 canvas {
@@ -37,7 +37,7 @@ canvas {
   /* background: rgb(52 52 52 / 80%); */
   padding: 10px;
   border-radius: 5px;
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
 }
 
 #planet-table table {
@@ -63,7 +63,7 @@ canvas {
   padding: 10px;
   border-radius: 5px;
   display: none;
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
 }
 
 #back-button {
@@ -75,7 +75,7 @@ canvas {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
 }
 
 .content {

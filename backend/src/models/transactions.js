@@ -18,6 +18,22 @@ const TransactionSchema = new Schema({
   created_at: { type: Date, default: Date.now }
 });
 
+TransactionSchema.index({ product_id: 1, mining_area_id: 1 });
+
+TransactionSchema.index(
+  {
+    'product_id.name': 'text',
+    'mining_area_id.name': 'text'
+  },
+  {
+    weights: {
+      'product_id.name': 2,
+      'mining_area_id.name': 1
+    },
+    name: 'ProductMiningAreaTextIndex'
+  }
+);
+
 const TransactionModel = mongoose.model("transactions", TransactionSchema);
 
 export default TransactionModel;

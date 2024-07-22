@@ -66,7 +66,7 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 3;
   const [imagepath, setImagePath] = useState(null);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -666,7 +666,7 @@ const LandingPage = () => {
               <CIcon icon={cilX}/>
             </CButton>
           </div>
-          <div>
+          <div className='planetarium-products-desc'>
           <strong>{selectedPlanet.userData.name}</strong>
           <p><small className="text-body-secondary">{selectedPlanet.userData.description}</small></p>
           {/* <p>{selectedPlanet.userData.description}</p> */}
@@ -681,7 +681,7 @@ const LandingPage = () => {
           </CCardHeader>
           <CCardBody>
             
-            <CTable hover responsive>
+            <CTable hover responsive small>
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell>Code</CTableHeaderCell>
@@ -746,13 +746,13 @@ const LandingPage = () => {
         </CCard>
       )}
     </CContainer>
-      <div id="planet-table" className="mt-3">
-        {/* <PlanetSelector startPlanet={2000} planetCount={100} /> */}
-        <button className="fab-button" onClick={handleShowTimelineClick}>
-          {showTimeline ? 'x' : '+'}
-        </button>
-        <TimelinePlanetSelector key={rerenderSelector} planets={planetsTimelineRef.current} selectedPlanet={selectedPlanet} onDotClick={handleDotClick} showTimeline={showTimeline} />
-      </div></>
+        <div id="planet-table" className="mt-3">
+          {/* <PlanetSelector startPlanet={2000} planetCount={100} /> */}
+          <button className="fab-button" onClick={handleShowTimelineClick}>
+            {showTimeline ? 'x' : '+'}
+          </button>
+          <TimelinePlanetSelector key={rerenderSelector} planets={planetsTimelineRef.current} selectedPlanet={selectedPlanet} onDotClick={handleDotClick} showTimeline={showTimeline} />
+        </div></>
   );
 };
 

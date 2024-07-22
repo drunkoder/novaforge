@@ -4,6 +4,8 @@ import { useLocation } from 'react-router-dom'
 import routes from '../routes'
 
 import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilHome } from '@coreui/icons'
 
 const AppBreadcrumb = () => {
   const currentLocation = useLocation().pathname
@@ -32,8 +34,8 @@ const AppBreadcrumb = () => {
   const breadcrumbs = getBreadcrumbs(currentLocation)
 
   return (
-    <CBreadcrumb className="my-0">
-      <CBreadcrumbItem href="/">Home</CBreadcrumbItem>
+    <CBreadcrumb className="my-0" >
+      <CBreadcrumbItem href="/"><CIcon icon={cilHome} /></CBreadcrumbItem>
       {breadcrumbs.map((breadcrumb, index) => {
         return (
           <CBreadcrumbItem
