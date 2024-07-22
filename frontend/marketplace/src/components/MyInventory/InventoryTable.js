@@ -99,14 +99,14 @@ const MyInventoryTable = ({
                     {activeTab === 2 && <CButton
                       color="success"
                       size="sm"
-                      onClick={() => handleSell(product)}
+                      onClick={(e) => {e.stopPropagation(); handleSell(product)}}
                       disabled={isSellButtonDisabled(product.id)}
                       className='text-white'
                     >
                       <CIcon icon={cilMoney} /> Sell
                     </CButton>}
                     {activeTab === 3 && (
-                      <CButton color="danger" size="sm" className="ml-2 text-white" onClick={() => handleCancel(product)}>
+                      <CButton color="danger" size="sm" className="ml-2 text-white" onClick={(e) => { e.stopPropagation(); handleCancel(product)}}>
                         <CIcon icon={cilXCircle} /> Cancel
                       </CButton>
                     )}
