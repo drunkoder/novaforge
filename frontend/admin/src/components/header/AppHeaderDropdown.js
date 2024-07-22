@@ -29,7 +29,7 @@ const AppHeaderDropdown = () => {
   const navigate = useNavigate();
   const userStorage = sessionStorage.getItem('user') || localStorage.getItem('user');
   const storedUser = userStorage ? JSON.parse(userStorage) : null;
-  const userName = storedUser ? `${storedUser.first_name} ${storedUser.last_name}` : 'User';
+  const userName = storedUser ? `${storedUser.first_name} ${(!storedUser.last_name ? '' : storedUser.last_name)}` : 'User';
 
   const handleLogout = () =>{
       localStorage.clear();

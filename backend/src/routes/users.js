@@ -270,7 +270,7 @@ app.put("/api/users/:id", [validateToken], async (request, response) => {
       });
     }
     }
-  }
+  
 
   // Update other fields if they are different from the current user data
   let hasChanges = false;
