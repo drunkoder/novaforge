@@ -62,6 +62,67 @@ app.get('/api/transactions/buyer/:buyerId', [validateToken], async (req, res) =>
     });
   }
 });
+
+app.get('/api/transactions/user/:userId', [validateToken], async (req, res) => {
+  try {
+
+    const { search = '', page = 1, limit = 10, type, startDate, endDate } = req.query;
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    let searchQuery = {
+      $or: [
+        { buyer_id: req.params.userId },
+        { seller_id: req.params.userId }
+      ]
+    };
+
+    if (search) {
+      searchQuery['product_id'] = { $in: await ProductModel.find({ name: { $regex: search, $options: 'i' } }).distinct('_id') };
+    }
+
+    // if (search) {
+    //   const productIds = await ProductModel.find({ name: { $regex: search, $options: 'i' } }).distinct('_id');
+    //   const miningAreaIds = await MiningAreaModel.find({ name: { $regex: search, $options: 'i' } }).distinct('_id');
+
+    //   searchQuery.$or.push(
+    //     { product_id: { $in: productIds } },
+    //     { mining_area_id: { $in: miningAreaIds } }
+    //   );
+    // }
+
+    if (type) {
+      searchQuery.transaction_type = type;
+    }
+
+    if (startDate && endDate) {
+      searchQuery.created_at = { $gte: new Date(startDate), $lte: new Date(endDate) };
+    }
+
+    const transactions = await TransactionModel.find(searchQuery)
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber)
+      .populate('mining_area_id', 'name')
+      .populate('product_id', 'name description')
+      .populate('buyer_id', 'first_name last_name email')
+      .populate('seller_id', 'first_name last_name email')
+      .sort({ created_at: -1 })
+      .exec();
+
+    const totalTransactions = await TransactionModel.countDocuments(searchQuery);
+    const totalPages = Math.ceil(totalTransactions / limitNumber);
+
+    return res.status(200).json({ transactions, totalPages });
+  } catch (error) {
+    console.error('Error getting transactions:', error);
+    return res.status(500).json({
+      error: 'Database error',
+      message: error.message,
+    });
+  }
+});
+
 app.get('/api/transactions/:id', [validateToken], async (req, res) => {
   try {
     const transaction = await TransactionModel.findById(req.params.id).populate('buyer_id', 'name email').populate('product_id', 'name description').populate('mining_area_id','name type image');

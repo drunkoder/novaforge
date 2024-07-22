@@ -96,7 +96,8 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
               label="First Name"
               invalid={!!errors.first_name && validated}
             />
-            <div className="invalid-feedback">{errors.first_name}</div>
+            {/* <div className="invalid-feedback">{errors.first_name}</div> */}
+            {errors.first_name && validated && <div className="invalid-feedback">{errors.first_name}</div>}
           </CCol>
           <CCol md={6}>
             <CFormInput
@@ -120,7 +121,7 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
               label="Email"
               invalid={!!errors.email && validated}
             />
-            <div className="invalid-feedback">{errors.email}</div>
+            {errors.email && validated && <div className="invalid-feedback">{errors.email}</div>}
           </CCol>
           <CCol md={12}>
             <CFormInput

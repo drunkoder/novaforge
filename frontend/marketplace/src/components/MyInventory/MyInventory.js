@@ -21,10 +21,26 @@ import {
   CNavItem,
   CNavLink,
   CTabContent,
-  CTabPane,
+  CTabPanel,
   CCollapse,
+  CBadge,
+  CTabs,
+  CTabList,
+  CTab,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CFormLabel,
+  CToaster,
+  CToast,
+  CToastHeader,
+  CToastBody
 } from '@coreui/react'
 import '../../scss/MyInventory.scss'
+import CIcon from '@coreui/icons-react'
+import { cilStorage } from '@coreui/icons'
+import MyInventoryTable from './InventoryTable'
 
 const MyInventory = () => {
   const storedUser = localStorage.getItem('user_id')
@@ -41,37 +57,45 @@ const MyInventory = () => {
   const [sellQuantities, setSellQuantities] = useState({})
   const [expandedProductId, setExpandedProductId] = useState(null)
   const expandedRowRef = useRef(null)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [toast, setToast] = useState({ show: false, message: '', color: '' });
+  const [sellModal, setSellModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [price, setPrice] = useState(1);
 
-  const fetchInventory = async (statusOverride = '') => {
-    setLoading(true)
-    setError(null)
+  const [cancelSellModal, setCancelSellModal] = useState(false);
+  // const fetchInventory = async (statusOverride = '') => {
+  //   setLoading(true)
+  //   setError(null)
 
-    try {
-      const response = await axios.get(`/api/users/${userId}/inventory`, {
-        params: { status: statusOverride, search, page, limit: 10, sort: '-createdAt' },
-      })
+  //   try {
+  //     const response = await axios.get(`/api/users/${userId}/inventory`, {
+  //       params: { status: statusOverride, search, page, limit: itemsPerPage, sort: '-createdAt' },
+  //     })
 
-      const inventory = response.data.inventory || []
+  //     const inventory = response.data.inventory || []
 
-      const filteredData = inventory.map((item, index) => ({
-        serialNumber: (page - 1) * 10 + index + 1,
-        id: item._id,
-        productName: item.product_id.name,
-        quantity: item.quantity,
-        price: item.price,
-        totalPrice: item.price * item.quantity,
-        status: item.status,
-        mining_area: item.mining_area_id.name,
-      }))
+  //     const filteredData = inventory.map((item, index) => ({
+  //       serialNumber: (page - 1) * itemsPerPage + index + 1,
+  //       id: item._id,
+  //       productName: item.product_id.name,
+  //       quantity: item.quantity,
+  //       price: item.price,
+  //       totalPrice: item.price * item.quantity,
+  //       status: item.status,
+  //       mining_area: item.mining_area_id.name,
+  //     }))
 
-      setInventoryData(response.data)
-      setFilteredData(filteredData)
-    } catch (error) {
-      setError(error.response ? error.response.data.message : error.message)
-    }
+  //     setInventoryData(response.data);
+  //     setTotalPages(response.data?.totalPages)
+  //     setFilteredData(filteredData)
+  //   } catch (error) {
+  //     setError(error.response ? error.response.data.message : error.message)
+  //   }
 
-    setLoading(false)
-  }
+  //   setLoading(false)
+  // }
 
   const fetchCommunityProducts = async (statusOverride = 'AVAILABLE') => {
     setLoading(true)
@@ -79,13 +103,13 @@ const MyInventory = () => {
 
     try {
       const response = await axios.get(`/api/users/${userId}/inventory/community`, {
-        params: { status: statusOverride, search, page, limit: 10, sort: '-createdAt' },
+        params: { status: statusOverride, search, page, limit: itemsPerPage, sort: '-createdAt' },
       })
 
       const community = response.data.products || []
 
       const filteredCommunityData = community.map((item, index) => ({
-        serialNumber: (page - 1) * 10 + index + 1,
+        serialNumber: (page - 1) * itemsPerPage + index + 1,
         id: item._id,
         productName: item.product.name,
         quantity: item.quantity,
@@ -96,7 +120,7 @@ const MyInventory = () => {
       }))
 
       setCommunityData(response.data)
-      setFilteredCommunityData(filteredCommunityData)
+      //setFilteredCommunityData(filteredCommunityData)
     } catch (error) {
       setError(error.response ? error.response.data.message : error.message)
     }
@@ -104,105 +128,242 @@ const MyInventory = () => {
     setLoading(false)
   }
 
-  useEffect(() => {
-    let statusToFetch = ''
-    if (activeTab === 3) {
-      fetchCommunityProducts('AVAILABLE')
-    } else if (activeTab === 4) {
-      fetchCommunityProducts('SOLD')
-    } else {
-      switch (activeTab) {
-        case 2:
-          statusToFetch = 'AVAILABLE'
-          break
-        default:
-          statusToFetch = ''
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let response;
+      if (activeTab === 3) {
+        // Fetch community products for 'Available' tab
+        response = await axios.get(`/api/users/${userId}/inventory/community`, {
+          params: { status: 'AVAILABLE', search, page, limit: itemsPerPage, sort: '-createdAt' },
+        });
+        setCommunityData(response.data);
+      } else if (activeTab === 4) {
+        // Fetch community products for 'Sold' tab
+        response = await axios.get(`/api/users/${userId}/inventory/community`, {
+          params: { status: 'SOLD', search, page, limit: itemsPerPage, sort: '-createdAt' },
+        });
+        setCommunityData(response.data);
+      } else {
+        if(activeTab === 1){
+          response = await axios.get(`/api/users/${userId}/inventory/community`, {
+            params: { status: 'AVAILABLE', search, page, limit: itemsPerPage, sort: '-createdAt' },
+          });
+          setCommunityData(response.data);
+        }
+
+        // Fetch inventory products for 'My Inventory' and 'For Sale' tabs
+        const statusToFetch = activeTab === 2 ? 'AVAILABLE' : '';
+        response = await axios.get(`/api/users/${userId}/inventory`, {
+          params: { status: statusToFetch, search, page, limit: itemsPerPage, sort: '-createdAt' },
+        });
+        setInventoryData(response.data);
       }
-      fetchInventory(statusToFetch)
+
+      const data = response.data.inventory || response.data.products || [];
+      const filteredData = data.map((item, index) => ({
+        serialNumber: (page - 1) * itemsPerPage + index + 1,
+        id: item._id,
+        productName: item.product_id?.name || item.product.name,
+        quantity: item.quantity,
+        price: item.price,
+        totalPrice: item.price * item.quantity,
+        status: item.status,
+        mining_area: item.mining_area_id?.name || item.mining_area.name,
+      }));
+
+      setFilteredData(filteredData);
+    } catch (error) {
+      setError(error.response ? error.response.data.message : error.message);
     }
-  }, [userId, page, search, activeTab])
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [userId, page, search, activeTab, itemsPerPage]);
+
+  // const handleSearch = (e) => {
+  //   setSearch(e.target.value);
+  // }
+
+  const fetchCommunityProductsByProductId = async (productId) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await axios.get(`/api/users/${userId}/inventory/${productId}/community`, {
+        params: { search, page, limit: itemsPerPage, sort: '-createdAt' },
+      })
+
+      const community = response.data.products || []
+
+      const filteredCommunityData = community.map((item, index) => ({
+        serialNumber: (page - 1) * itemsPerPage + index + 1,
+        id: item._id,
+        productName: item.product.name,
+        quantity: item.quantity,
+        price: item.price,
+        totalPrice: item.price * item.quantity,
+        status: item.status,
+        mining_area: item.mining_area.name,
+      }))
+
+      setCommunityData(filteredCommunityData)
+      //setFilteredCommunityData(filteredCommunityData)
+    } catch (error) {
+      setError(error.response ? error.response.data.message : error.message)
+    }
+
+    setLoading(false)
+  }
+
+  const handleSearch = (e) => {
+    setPage(1);
+    setSearch(e.target.value);
+    fetchData();
+  };
+
+  const handleTabChange = (newTab) => {
+    setPage(1);
+    setSearch('');
+    setActiveTab(newTab);
+    setExpandedProductId(null);
+  };
+
+  // const handleTabChange = async (newTab) => {
+  //   switch (newTab) {
+  //     case 1:
+  //       await fetchInventory()
+  //       break
+  //     case 2:
+  //       await fetchInventory('AVAILABLE')
+  //       break
+  //     case 3:
+  //       await fetchInventory('FOR_SALE')
+  //       break
+  //     case 4:
+  //       await fetchInventory('SOLD')
+  //       break
+  //     default:
+  //       break
+  //   }
+  // }
+
+  const handleProductClick = (product) => {
+    setExpandedProductId(expandedProductId === product.id ? null : product.id)
+    fetchCommunityProductsByProductId(product.id);
+  }
+
+  // useEffect(() => {
+  //   let statusToFetch = ''
+  //   if (activeTab === 3) {
+  //     fetchCommunityProducts('AVAILABLE')
+  //   } else if (activeTab === 4) {
+  //     fetchCommunityProducts('SOLD')
+  //   } else {
+  //     switch (activeTab) {
+  //       case 2:
+  //         statusToFetch = 'AVAILABLE'
+  //         break
+  //       default:
+  //         statusToFetch = ''
+  //     }
+  //     fetchInventory(statusToFetch)
+  //   }
+  // }, [userId, page, search, activeTab, itemsPerPage])
 
   const handlePageChange = (newPage) => {
     setPage(newPage)
   }
 
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId)
-    setExpandedProductId(null) // Reset expanded product ID when tab changes
-    setPage(1)
-  }
+  // const handleTabChange = (tabId) => {
+  //   setActiveTab(tabId)
+  //   setExpandedProductId(null) // Reset expanded product ID when tab changes
+  //   setPage(1)
+  // }
 
-  const handleProductClick = async (product) => {
-    if (activeTab !== 1) return // Prevent expansion in tabs other than 1
+  // const handleProductClick = async (product) => {
+  //   if (activeTab !== 1) return // Prevent expansion in tabs other than 1
 
-    if (expandedProductId === product.id) {
-      setExpandedProductId(null)
-    } else {
-      setExpandedProductId(product.id)
-      try {
-        const response = await axios.get(`/api/users/${userId}/inventory/${product.id}/community`, {
-          params: { status: 'AVAILABLE', search, page: 1, limit: 10 },
-        })
-        const community = response.data.products || []
-        const expandedData = community.map((item, index) => ({
-          serialNumber: index + 1,
-          id: item._id,
-          productName: item.product.name,
-          quantity: item.quantity,
-          price: item.price,
-          totalPrice: item.price * item.quantity,
-          status: item.status,
-          mining_area: item.mining_area.name,
-        }))
-        setFilteredCommunityData(expandedData)
-      } catch (error) {
-        console.error('Error fetching community products:', error)
-      }
+  //   if (expandedProductId === product.id) {
+  //     setExpandedProductId(null)
+  //   } else {
+  //     setExpandedProductId(product.id)
+  //     try {
+  //       const response = await axios.get(`/api/users/${userId}/inventory/${product.id}/community`, {
+  //         params: { status: 'AVAILABLE', search, page: 1, limit: 10 },
+  //       })
+  //       const community = response.data.products || []
+  //       const expandedData = community.map((item, index) => ({
+  //         serialNumber: index + 1,
+  //         id: item._id,
+  //         productName: item.product.name,
+  //         quantity: item.quantity,
+  //         price: item.price,
+  //         totalPrice: item.price * item.quantity,
+  //         status: item.status,
+  //         mining_area: item.mining_area.name,
+  //       }))
+  //       setFilteredCommunityData(expandedData)
+  //     } catch (error) {
+  //       console.error('Error fetching community products:', error)
+  //     }
+  //   }
+  // }
+
+  const confirmSell = async () => {
+    const productId = selectedProduct.id;
+    //const product = filteredData.find((item) => item.id === productId)
+    //const sellQuantity = parseInt(sellQuantities[productId] || '0', 10) // Parse input to integer
+
+    console.log(`Attempting to sell ${quantity} of product ${productId}`)
+
+    if(!quantity || quantity < 1){
+      showToast('Quantity must be greater than zero.', 'danger');
+      return;
     }
-  }
 
-  const confirmSell = async (productId) => {
-    const product = filteredData.find((item) => item.id === productId)
-    const sellQuantity = parseInt(sellQuantities[productId] || '0', 10) // Parse input to integer
+    if(!price || price < 0){
+      showToast('Price must be greater than zero.', 'danger');
+      return;
+    }
 
-    console.log(`Attempting to sell ${sellQuantity} of product ${productId}`)
-
-    if (sellQuantity > 0 && sellQuantity <= product.quantity) {
+    if (quantity <= selectedProduct.quantity) {
       try {
         await axios.post(`/api/users/${userId}/sell/${productId}`, {
-          quantity: sellQuantity,
+          quantity: quantity,
+          price: price
         })
-        console.log(`Selling ${sellQuantity} of the following product:`, product) // Log the entire product object
-        alert('Product successfully listed for sale')
-
-        fetchInventory() // Refresh inventory data
+        console.log(`Selling ${quantity} of the following product for the price of  ${price}: `, selectedProduct)
+        showToast("Product is successfully listed for sale in the market", "success");
+        //alert('Product successfully listed for sale')
+        setPage(1);
+        fetchData();
+        closeSellModal();
       } catch (error) {
         console.error('Error selling product:', error)
-        alert('Error selling product')
+        //alert('Error selling product')
+        showToast(error.response ? error.response.data.message : error.message, 'danger');
       }
-    } else {
-      console.log('Invalid quantity')
-      alert('Invalid quantity')
+    }else{
+      showToast('You have no enough stock in your inventory for this product.', 'danger');
     }
   }
 
-  const handleSell = (productId) => {
-    confirmSell(productId)
-  }
-
-  const confirmCancel = async (productId) => {
+  const confirmCancel = async () => {
     try {
+      const productId = selectedProduct.id;
       const response = await axios.post(`/api/users/${userId}/cancel-sell/${productId}`)
-      alert('Product sale successfully cancelled')
-      fetchCommunityProducts('AVAILABLE') // Refresh community data for sale
+      showToast("Product has been delisted from the marketplace", "success");
+      //fetchCommunityProducts('AVAILABLE') // Refresh community data for sale
+      fetchData();
+      closeCancelSellModal();
     } catch (error) {
       console.error('Error cancelling sale:', error)
-      alert('Error cancelling sale')
+      showToast(error.response ? error.response.data.message : error.message, 'danger');
     }
-  }
-
-  const handleCancel = (productId) => {
-    confirmCancel(productId)
   }
 
   const isSellButtonDisabled = (productId) => {
@@ -211,59 +372,231 @@ const MyInventory = () => {
     return sellQuantity <= 0 || sellQuantity > product?.quantity
   }
 
-  const handleQuantityChange = (productId, value) => {
-    const parsedValue = parseInt(value, 10)
-    if (!isNaN(parsedValue) && parsedValue === parseFloat(value)) {
-      setSellQuantities((prevQuantities) => ({
-        ...prevQuantities,
-        [productId]: value,
-      }))
+  // const handleQuantityChange = (productId, value) => {
+  //   const parsedValue = parseInt(value, 10)
+  //   if (!isNaN(parsedValue) && parsedValue === parseFloat(value)) {
+  //     setSellQuantities((prevQuantities) => ({
+  //       ...prevQuantities,
+  //       [productId]: value,
+  //     }))
+  //   }
+  // }
+
+  const handleQuantityChange = (productId, quantity) => {
+    setSellQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [productId]: quantity,
+    }))
+  }
+
+  // const handleKeyDown = (productId, event) => {
+  //   if (event.key === 'Backspace') {
+  //     setSellQuantities((prevQuantities) => ({
+  //       ...prevQuantities,
+  //       [productId]: '',
+  //     }))
+  //   }
+  // }
+
+  const handleKeyDown = (productId, e) => {
+    if (e.key === 'Enter') {
+      onSell(productId)
     }
   }
 
-  const handleKeyDown = (productId, event) => {
-    if (event.key === 'Backspace') {
-      setSellQuantities((prevQuantities) => ({
-        ...prevQuantities,
-        [productId]: '',
-      }))
-    }
-  }
+  const openSellModal = (product) => {
+    setSelectedProduct(product);
+    setSellModal(true);
+  };
+
+  const closeSellModal = () => {
+    setSelectedProduct(null);
+    setSellModal(false);
+    setQuantity(1);
+    setPrice(1);
+  };
+
+  const openCancelSellModal = (product) => {
+    setSelectedProduct(product);
+    setCancelSellModal(true);
+  };
+
+  const closeCancelSellModal = () => {
+    setSelectedProduct(null);
+    setCancelSellModal(false);
+  };
+
+  const showToast = (message, color) => {
+    setToast({ show: true, message, color });
+    setTimeout(() => {
+        setToast({ show: false, message: '', color: '' });
+    }, 3000);
+  };
+
+  const handleChangeQuantity = (e) => {
+    setQuantity(e.target.value);
+  };
+
+  const handleChangePrice = (e) => {
+    setPrice(e.target.value);
+  };
+
+  useEffect(() => {
+    setPage(1);
+    setSearch('');
+    setActiveTab(activeTab)
+    handleTabChange(activeTab)
+  }, [activeTab])
+
 
   return (
     <CContainer className="my-5">
-      <CRow className="justify-content-center">
+      <CToaster position="top-end" className="position-fixed top-0 end-0 p-3">
+        {toast.show && (
+          <CToast autohide={true} visible={true} color={toast.color} className="text-white align-items-center">
+            <CToastHeader closeButton>{toast.color === 'success' ? 'Success' : 'Error'}</CToastHeader>
+            <CToastBody>{toast.message}</CToastBody>
+          </CToast>
+        )}
+      </CToaster>
+      <CRow className="justify-content-center my-inventory-table-container">
         <CCol md={20}>
           <CCard>
-            <CCardHeader>
-              <h1>User Inventory</h1>
+            <CCardHeader className='my-inventory-header'>
+              <h3><CIcon icon={cilStorage} title="My Inventory" size='lg'  /> My Inventory</h3>
             </CCardHeader>
-            <CCardBody>
-              <CNav variant="tabs">
-                <CNavItem>
-                  <CNavLink active={activeTab === 1} onClick={() => handleTabChange(1)}>
-                    All Products
-                  </CNavLink>
-                </CNavItem>
-                <CNavItem>
-                  <CNavLink active={activeTab === 2} onClick={() => handleTabChange(2)}>
-                    Available Products
-                  </CNavLink>
-                </CNavItem>
-                <CNavItem>
-                  <CNavLink active={activeTab === 3} onClick={() => handleTabChange(3)}>
-                    For Sale
-                  </CNavLink>
-                </CNavItem>
-                <CNavItem>
-                  <CNavLink active={activeTab === 4} onClick={() => handleTabChange(4)}>
-                    Sold Products
-                  </CNavLink>
-                </CNavItem>
-              </CNav>
+            <CCardBody> 
+            <CTabs activeItemKey={activeTab} onChange={handleTabChange}>
+              <CTabList variant="underline-border">
+                <CTab aria-controls="all-products-pane" itemKey={1}>All Products</CTab>
+                <CTab aria-controls="available-products-pane" itemKey={2}>In Stock</CTab>
+                <CTab aria-controls="for-sale-products-pane" itemKey={3}>On Sale</CTab>
+                <CTab aria-controls="sold-products-pane" itemKey={4}>Sold Products</CTab>
+            </CTabList>
 
-              <CTabContent className="mt-3">
-                <CTabPane visible={activeTab === 1}>
+            <CTabContent>
+          <CTabPanel itemKey={1}>
+              <div>
+                {/* <CInputGroup className="mb-3 mt-2">
+                  <CFormInput
+                    type="text"
+                    onChange={handleSearch}
+                    placeholder="Search by mining area or by product name"
+                  />
+                </CInputGroup> */}
+                {error && <p className="text-danger">{error}</p>}
+                <MyInventoryTable
+                  data={filteredData}
+                  onProductClick={handleProductClick}
+                  expandedProductId={expandedProductId}
+                  communityData={communityData}
+                  onCancel={openCancelSellModal}
+                  onSell={openSellModal}
+                  handleQuantityChange={handleQuantityChange}
+                  handleKeyDown={handleKeyDown}
+                  isSellButtonDisabled={isSellButtonDisabled}
+                  activeTab={activeTab}
+                  totalPages={activeTab === 4 ? communityData?.totalPages : inventoryData?.totalPages}
+                  itemsPerPage={itemsPerPage}
+                  currentPage={page}
+                  handlePageChange={handlePageChange}
+                  handleSearch={handleSearch}
+                  search={search}
+                />
+              </div>
+          </CTabPanel>
+          <CTabPanel itemKey={2}>
+          <div>
+                {/* <CInputGroup className="mb-3 mt-2">
+                  <CFormInput
+                    type="text"
+                    onChange={handleSearch}
+                    placeholder="Search"
+                  />
+                </CInputGroup> */}
+                {error && <p className="text-danger">{error}</p>}
+                <MyInventoryTable
+                  data={filteredData}
+                  onProductClick={handleProductClick}
+                  expandedProductId={expandedProductId}
+                  communityData={communityData}
+                  onCancel={openCancelSellModal}
+                  onSell={openSellModal}
+                  handleQuantityChange={handleQuantityChange}
+                  handleKeyDown={handleKeyDown}
+                  isSellButtonDisabled={isSellButtonDisabled}
+                  activeTab={activeTab}
+                  totalPages={inventoryData?.totalPages}
+                  itemsPerPage={itemsPerPage}
+                  currentPage={page}
+                  handlePageChange={handlePageChange}
+                  handleSearch={handleSearch}
+                  search={search}
+                />
+              </div>
+          </CTabPanel>
+          <CTabPanel itemKey={3}>
+              <div>
+                {/* <CInputGroup className="mb-3 mt-2">
+                  <CFormInput
+                    type="text"
+                    onChange={handleSearch}
+                    placeholder="Search"
+                  />
+                </CInputGroup> */}
+                {error && <p className="text-danger">{error}</p>}
+                <MyInventoryTable
+                  data={filteredData}
+                  onProductClick={handleProductClick}
+                  expandedProductId={expandedProductId}
+                  communityData={communityData}
+                  onCancel={openCancelSellModal}
+                  onSell={openSellModal}
+                  handleQuantityChange={handleQuantityChange}
+                  handleKeyDown={handleKeyDown}
+                  isSellButtonDisabled={isSellButtonDisabled}
+                  activeTab={activeTab}
+                  totalPages={communityData?.totalPages}
+                  itemsPerPage={itemsPerPage}
+                  currentPage={page}
+                  handlePageChange={handlePageChange}
+                  handleSearch={handleSearch}
+                  search={search}
+                />
+              </div>
+          </CTabPanel>
+          <CTabPanel itemKey={4}>
+              <div>
+                {/* <CInputGroup className="mb-3 mt-2">
+                  <CFormInput
+                    type="text"
+                    value={search}
+                    onChange={handleSearch}
+                    placeholder="Search"
+                  />
+                </CInputGroup> */}
+                {error && <p className="text-danger">{error}</p>}
+                <MyInventoryTable
+                  data={filteredData}
+                  onProductClick={handleProductClick}
+                  expandedProductId={expandedProductId}
+                  communityData={communityData}
+                  handleQuantityChange={handleQuantityChange}
+                  handleKeyDown={handleKeyDown}
+                  isSellButtonDisabled={isSellButtonDisabled}
+                  activeTab={activeTab}
+                  totalPages={communityData?.totalPages}
+                  itemsPerPage={itemsPerPage}
+                  currentPage={page}
+                  handlePageChange={handlePageChange}
+                  handleSearch={handleSearch}
+                  search={search}
+                />
+              </div>
+          </CTabPanel>
+        </CTabContent>
+              {/* <CTabContent className="mt-3">
+                <CTabPanel itemKey={1}>
                   <CInputGroup className="mb-3">
                     <CFormInput
                       type="text"
@@ -299,7 +632,7 @@ const MyInventory = () => {
                                 <CTableDataCell>{item.quantity}</CTableDataCell>
                                 <CTableDataCell>{item.price}</CTableDataCell>
                                 <CTableDataCell>{item.totalPrice}</CTableDataCell>
-                                <CTableDataCell>{item.status}</CTableDataCell>
+                                <CTableDataCell><CBadge className='my-inventory-status' textBgColor={item.status === "AVAILABLE" ? "success" : item.status === "SOLD" ? "danger" : "warning"}>{(item.status === "FOR_SALE" ? "For Sale" : item.status).toLowerCase()}</CBadge></CTableDataCell>
                               </CTableRow>
                               {expandedProductId === item.id && (
                                 <CTableRow>
@@ -317,7 +650,6 @@ const MyInventory = () => {
                                                 <CTableHeaderCell>Quantity</CTableHeaderCell>
                                                 <CTableHeaderCell>Price</CTableHeaderCell>
                                                 <CTableHeaderCell>Total Price</CTableHeaderCell>
-                                                {/* <CTableHeaderCell>Status</CTableHeaderCell> */}
                                               </CTableRow>
                                             </CTableHead>
                                             <CTableBody>
@@ -329,7 +661,6 @@ const MyInventory = () => {
                                                   <CTableDataCell>{communityItem.quantity}</CTableDataCell>
                                                   <CTableDataCell>{communityItem.price}</CTableDataCell>
                                                   <CTableDataCell>{communityItem.totalPrice}</CTableDataCell>
-                                                  {/* <CTableDataCell>{communityItem.status}</CTableDataCell> */}
                                                 </CTableRow>
                                               ))}
                                             </CTableBody>
@@ -365,8 +696,8 @@ const MyInventory = () => {
                       </div>
                     </>
                   )}
-                </CTabPane>
-                <CTabPane visible={activeTab === 2 || activeTab === 3 || activeTab === 4}>
+                </CTabPanel>
+                <CTabPanel itemKey={2}>
                   <CInputGroup className="mb-3">
                     <CFormInput
                       type="text"
@@ -495,12 +826,54 @@ const MyInventory = () => {
                       </div>
                     </>
                   )}
-                </CTabPane>
-              </CTabContent>
+                </CTabPanel>
+              </CTabContent> */}
+              </CTabs>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
+      <CModal visible={sellModal} backdrop="static" onClose={closeSellModal}>
+        <CModalHeader closeButton>Sell Product</CModalHeader>
+        <CModalBody>
+          <p>You are about to sell <b>{selectedProduct?.productName}</b> from your inventory.</p>
+          <div className="mb-3">
+            <CFormLabel htmlFor="quantity">Quantity</CFormLabel>
+            <CFormInput
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={quantity}
+              step="1"
+              onChange={handleChangeQuantity} />
+          </div>
+          <div className="mb-3">
+            <CFormLabel htmlFor="price">Price</CFormLabel>
+            <CFormInput
+              type="number"
+              id="price"
+              name="price"
+              value={price}
+              onChange={handleChangePrice} />
+          </div>
+          <p><b>Total Price:</b> {price * quantity} coins</p>
+          <p>Do you wish to proceed?</p>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="warning" onClick={confirmSell}>Sell</CButton>
+          <CButton color="secondary" onClick={closeSellModal}>Cancel</CButton>
+        </CModalFooter>
+      </CModal>
+      <CModal visible={cancelSellModal} backdrop="static" onClose={closeCancelSellModal}>
+        <CModalHeader closeButton>Cancel Product For Sale</CModalHeader>
+        <CModalBody>
+          <p>Are you sure you want to remove <b>{selectedProduct?.productName}</b> from the marketplace?</p>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="warning" onClick={confirmCancel}>Sell</CButton>
+          <CButton color="secondary" onClick={closeCancelSellModal}>Cancel</CButton>
+        </CModalFooter>
+      </CModal>
     </CContainer>
   )
 }
