@@ -368,7 +368,9 @@ const LandingPage = () => {
         camera.position.z = selectedPlanet.position.z + 5;
         controls.target.copy(selectedPlanet.position);
       }
-
+      labelsRef.current.forEach(label => {
+        label.lookAt(camera.position);
+      });
       controls.update();
       renderer.render(scene, camera);
     };
