@@ -183,7 +183,7 @@ const MyInventoryTable = ({
             </CCol>
             <CCol sm={4} className='text-center'>
                 <span className="mx-2 text-white">
-                Page {currentPage} of {totalPages < 1 ? 1 : totalPages}
+                Page {currentPage} of {!totalPages || totalPages < 1 ? 1 : totalPages}
                 </span>
             </CCol>
             <CCol sm={4} className='text-end'>

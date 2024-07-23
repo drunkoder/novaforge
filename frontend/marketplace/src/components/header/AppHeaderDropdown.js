@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import axios from '../../axios_interceptor';
 import {
   CAvatar,
   CBadge,
@@ -38,7 +39,40 @@ const AppHeaderDropdown = () => {
    console.log(storedUser);
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
+      //setUser(parsedUser);
+
+      if (parsedUser) {
+        const id = parsedUser.id || parsedUser._id
+        fetchUserDetails(id);
+      }
+    }
+  };
+
+  function mapUserToViewModel(user) {
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      friendly_name: `${user.first_name} ${user.last_name}`,
+      role: user.role,
+      nova_coin_balance: user.nova_coin_balance
+    };
+  }
+
+  const fetchUserDetails = async (userId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/users/${userId}`);
+      console.log(response.data);
+      const userData = mapUserToViewModel(response.data);
+      setUser(userData);
+
+      const updatedUserStr = JSON.stringify(userData);
+        sessionStorage.setItem('user', updatedUserStr); 
+        localStorage.setItem('user', updatedUserStr); 
+
+    } catch (error) {
+      console.error('Error fetching user details:', error);
     }
   };
 

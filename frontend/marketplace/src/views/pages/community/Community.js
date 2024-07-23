@@ -27,9 +27,10 @@ import {
     CModalHeader,
     CModalBody,
     CModalContent,
-    CModalFooter
+    CModalFooter,
+    CAlert
 } from '@coreui/react';
-import { cilCart, cilLemon } from '@coreui/icons';
+import { cilCart, cilLemon, cilWarning } from '@coreui/icons';
 import axios from '../../../axios_interceptor';
 import { getUserFromSession, updateUserWalletSession } from "../../../UserSession";
 
@@ -161,11 +162,13 @@ const Community = ({})=>{
                         </CForm>
                     </CCol>
                 </CRow>
-                <CRow className="align-items-start commmunity-marketplace-row">
-                    {products?.map(product => (
+                
+                {products && products.length > 0 ? (
+                    <><CRow className="align-items-start commmunity-marketplace-row">
+                        {products?.map(product => (
                         <CCol key={product._id} md="4" className="mb-2">
                             <CCard>
-                                <CCardImage orientation="top" src={product.product.image ? BASE_URL+product.product.image : 'https://www.eiscolabs.com/cdn/shop/products/cgmlkzyhnsnpubkioc42_800x480.jpg?v=1605118049'} className="community-product-image"/>
+                                <CCardImage orientation="top" src={(product && product.product && product.product.image) ? BASE_URL+product?.product?.image : 'https://www.eiscolabs.com/cdn/shop/products/cgmlkzyhnsnpubkioc42_800x480.jpg?v=1605118049'} className="community-product-image"/>
                                 <CCardBody>
                                     <CCardTitle className="community-product-name">{product.product.name} 
                                         <CBadge textBgColor="light" className="community-product-badge">{product.mining_area.name}</CBadge>
@@ -190,18 +193,29 @@ const Community = ({})=>{
                                     <small className="text-body-secondary community-seller float-right"><b>Quantity:</b> <span> {product.quantity}</span></small>
                                 </CCardFooter>
                             </CCard>
-                        </CCol>
-                    ))}
-                </CRow>
-                <CPagination align="center" className="community-marketplace-pagination">
-                    <CPaginationItem className="pages" disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>&lt;</CPaginationItem>
-                    <CPaginationItem disabled className="mt-1 page-text">Page {currentPage} of {totalPages < 1 ? 1 : totalPages}</CPaginationItem>
-                    <CPaginationItem className="pages" disabled={currentPage === totalPages || totalPages === 0} onClick={() => handlePageChange(currentPage + 1)}>&gt;</CPaginationItem>
-                </CPagination>
+                        </CCol>))}
+                        </CRow>
+                        <CPagination align="center" className="community-marketplace-pagination">
+                            <CPaginationItem className="pages" disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>&lt;</CPaginationItem>
+                            <CPaginationItem disabled className="mt-1 page-text">Page {currentPage} of {totalPages < 1 ? 1 : totalPages}</CPaginationItem>
+                            <CPaginationItem className="pages" disabled={currentPage === totalPages || totalPages === 0} onClick={() => handlePageChange(currentPage + 1)}>&gt;</CPaginationItem>
+                        </CPagination></>
+                    ) : (
+                        <CRow>
+                            <CCol>
+
+                            <CAlert color="warning" className="d-flex align-items-center">
+                            <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
+                            <div>No products found.</div>
+                        </CAlert>
+                            </CCol>
+                        </CRow>
+                      )}
+                
 
                 <CModal visible={purchaseModal} backdrop="static" onClose={closePurchaseModal}>
                     <CModalHeader closeButton>Purchase Product</CModalHeader>
-                    <CModalBody>You are about to purchase <b>{selectedProduct?.quantity}</b> {selectedProduct?.product?.name} for <b>{selectedProduct?.price}</b> coins from <b>{selectedProduct?.user?.first_name}</b>. Do you wish to proceed?</CModalBody>
+                    <CModalBody>You are about to purchase <b>{selectedProduct?.quantity}</b> {selectedProduct?.product?.name} for <b>{selectedProduct?.price}</b> coins per piece from <b>{selectedProduct?.user?.first_name}</b>. Do you wish to proceed?</CModalBody>
                     <CModalFooter>
                         <CButton color="warning" onClick={handleBuy}>Buy</CButton>
                         <CButton color="secondary" onClick={closePurchaseModal}>Cancel</CButton>

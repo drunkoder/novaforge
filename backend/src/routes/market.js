@@ -171,8 +171,10 @@ app.post('/api/community/:userId/buy/:communityProductId', [validateToken], asyn
       return response.status(404).json({ message: 'Seller not found' });
     }
 
+    console.log(communityProduct);
     // Calculate total price
     const totalPrice = communityProduct.price * quantity;
+    console.log('totalPrice', totalPrice);
 
     // Check if buyer has enough coins
     if (buyer.nova_coin_balance < totalPrice) {
@@ -203,7 +205,7 @@ app.post('/api/community/:userId/buy/:communityProductId', [validateToken], asyn
     buyer.nova_coin_balance -= totalPrice;
 
     // Update community product quantity
-    communityProduct.quantity -= quantity;
+    //communityProduct.quantity -= quantity;
 
     // Update or add purchased product in buyer's inventory
     let updated = false;
@@ -230,9 +232,9 @@ app.post('/api/community/:userId/buy/:communityProductId', [validateToken], asyn
     }
 
     // If no quantity left, update status to SOLD
-    if (communityProduct.quantity === 0) {
+    //if (communityProduct.quantity === 0) {
       communityProduct.status = communityProductStatus.SOLD;
-    }
+    //}
 
     await communityProduct.save(opts);
     
@@ -254,6 +256,7 @@ app.post('/api/community/:userId/buy/:communityProductId', [validateToken], asyn
 app.post('/api/planetarium/:userId/buy', [validateToken], async (request, response) => {
   const { userId } = request.params;
   const { miningAreaId, productId, quantity } = request.body;
+  const qty = parseInt(quantity);
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -302,7 +305,7 @@ app.post('/api/planetarium/:userId/buy', [validateToken], async (request, respon
     }
 
     // Calculate total price
-    const totalPrice = productToBuy.price * quantity;
+    const totalPrice = productToBuy.price * qty;
 
     // Check if buyer has enough coins
     if (buyer.nova_coin_balance < totalPrice) {
@@ -317,7 +320,7 @@ app.post('/api/planetarium/:userId/buy', [validateToken], async (request, respon
       seller_id: seller._id,
       product_id: productId,
       mining_area_id: miningAreaId,
-      quantity,
+      quantity: qty,
       coins_used: totalPrice,
       transaction_type: transactionTypes.BUY,
       is_community: false
@@ -329,7 +332,7 @@ app.post('/api/planetarium/:userId/buy', [validateToken], async (request, respon
     buyer.nova_coin_balance -= totalPrice;
 
     // Update product inventory quantity
-    productToBuy.quantity -= quantity;
+    productToBuy.quantity -= qty;
 
     var productIdObj = new mongoose.Types.ObjectId(productId);
     const result = await MiningAreaModel.findOneAndUpdate(
@@ -352,7 +355,8 @@ app.post('/api/planetarium/:userId/buy', [validateToken], async (request, respon
       if (buyer.purchased_products[i].product_id._id.toString() === productId &&
           buyer.purchased_products[i].mining_area_id._id.toString() === miningAreaId) {
         // If product and mining area match, update quantity
-        buyer.purchased_products[i].quantity += quantity;
+        buyer.purchased_products[i].quantity += qty;
+        buyer.purchased_products[i].status = inventoryStatus.AVAILABLE;
         updated = true;
         break;
       }
@@ -364,7 +368,7 @@ app.post('/api/planetarium/:userId/buy', [validateToken], async (request, respon
         product_id: productId,
         mining_area_id: miningAreaId,
         price: productToBuy.price,
-        quantity,
+        quantity: qty,
         purchase_date: new Date(),
         status: inventoryStatus.AVAILABLE
       });
