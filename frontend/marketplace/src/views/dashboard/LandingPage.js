@@ -110,7 +110,8 @@ const LandingPage = () => {
   }
 
   const handleChangeQuantity = (e) => {
-      setQuantity(e.target.value);
+      const enteredValue = e.target.value.replace(/[^\d]/g, '');
+      setQuantity(enteredValue);
   };
 
   const createPlanetLabel = (planet, text, font) => {
@@ -686,9 +687,9 @@ const LandingPage = () => {
                 <CTableRow>
                   <CTableHeaderCell>Code</CTableHeaderCell>
                   <CTableHeaderCell>Description</CTableHeaderCell>
-                  <CTableHeaderCell>Price</CTableHeaderCell>
-                  <CTableHeaderCell>Quantity</CTableHeaderCell>
-                  <CTableHeaderCell>Action</CTableHeaderCell>
+                  <CTableHeaderCell className='text-right'>Price</CTableHeaderCell>
+                  <CTableHeaderCell className='text-right'>Quantity</CTableHeaderCell>
+                  <CTableHeaderCell className='text-right'>Action</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -696,9 +697,9 @@ const LandingPage = () => {
                   <CTableRow key={product.code}>
                     <CTableDataCell>{product.code}</CTableDataCell>
                     <CTableDataCell>{product.description}</CTableDataCell>
-                    <CTableDataCell>{product.price}</CTableDataCell>
-                    <CTableDataCell>{product.quantity}</CTableDataCell>
-                    <CTableDataCell>
+                    <CTableDataCell className='text-right'>{product.price}</CTableDataCell>
+                    <CTableDataCell className='text-right'>{product.quantity}</CTableDataCell>
+                    <CTableDataCell className='text-right'>
                       <CButton color="primary" size="sm" className=" mr-2 text-center planetarium-product-btn-buy" disabled={product.quantity < 1} onClick={(e) => { e.preventDefault(); openPurchaseModal(product); } }>
                         <CIcon icon={cilCart} className="me-1" />
                         Buy
@@ -732,9 +733,9 @@ const LandingPage = () => {
                     id="quantity"
                     name="quantity"
                     value={quantity}
-                    onChange={handleChangeQuantity} />
+                    onChange={handleChangeQuantity} min={1} step={1} />
                 </div>
-                <p>Total cost: {selectedProduct?.price * quantity} coins</p>
+                <p>Total cost: {(selectedProduct?.price * quantity).toFixed(2)} coins</p>
                 <p>Do you wish to proceed?</p>
               </CModalBody>
               <CModalFooter>

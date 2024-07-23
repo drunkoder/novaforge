@@ -29,21 +29,22 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      const mailOptions = {
-        to: email,
-        from: process.env.EMAIL_USER,
-        subject: 'Password Reset Instructions',
-        text: `Hello,\n\nIt seems you have requested a password reset, but this email is not registered with us. If you believe this is an error, please contact support.\n`,
-      };
+      // TODO: No need this if user is not found but still return 200 OK
+      // const mailOptions = {
+      //   to: email,
+      //   from: process.env.EMAIL_USER,
+      //   subject: 'Password Reset Instructions',
+      //   text: `Hello,\n\nIt seems you have requested a password reset, but this email is not registered with us. If you believe this is an error, please contact support.\n`,
+      // };
 
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error('Error sending email:', err.message);
-          console.error('Error details:', err);
-          return res.status(500).json({ message: 'Error sending email', error: err.message });
-        }
-        console.log('Instruction email sent:', info.response);
-      });
+      // transporter.sendMail(mailOptions, (err, info) => {
+      //   if (err) {
+      //     console.error('Error sending email:', err.message);
+      //     console.error('Error details:', err);
+      //     return res.status(500).json({ message: 'Error sending email', error: err.message });
+      //   }
+      //   console.log('Instruction email sent:', info.response);
+      // });
 
       return res.status(200).json({ message: 'Instructions sent to your email if it is registered with us.' });
     }

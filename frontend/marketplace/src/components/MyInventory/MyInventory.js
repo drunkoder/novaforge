@@ -434,7 +434,8 @@ const MyInventory = () => {
   };
 
   const handleChangeQuantity = (e) => {
-    setQuantity(e.target.value);
+    const enteredValue = e.target.value.replace(/[^\d]/g, '');
+      setQuantity(enteredValue);
   };
 
   const handleChangePrice = (e) => {
@@ -844,8 +845,7 @@ const MyInventory = () => {
               id="quantity"
               name="quantity"
               value={quantity}
-              step="1"
-              onChange={handleChangeQuantity} />
+              onChange={handleChangeQuantity} min={1} step={1} />
           </div>
           <div className="mb-3">
             <CFormLabel htmlFor="price">Price</CFormLabel>
@@ -854,9 +854,9 @@ const MyInventory = () => {
               id="price"
               name="price"
               value={price}
-              onChange={handleChangePrice} />
+              onChange={handleChangePrice} min={1} step={0.1} />
           </div>
-          <p><b>Total Price:</b> {price * quantity} coins</p>
+          <p><b>Total Price:</b> {(price * quantity).toFixed(2)} coins</p>
           <p>Do you wish to proceed?</p>
         </CModalBody>
         <CModalFooter>

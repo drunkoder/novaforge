@@ -18,6 +18,7 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import axios from 'axios';
+import validators from '../../../ValidationUtil';
 
 const Register = () => {
   const [errors, setErrors] = useState({});
@@ -45,23 +46,36 @@ const Register = () => {
   }, [formData]);
 
   const validateForm = () => {
+    const MAX_TEXT_LENGTH = 100;
+    const MIN_TEXT_LENGTH = 1;
+
     const errors = {};
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = 'Email is invalid';
-    }
+    }  else if (!validators.validateTextLength(formData.email.trim(), MIN_TEXT_LENGTH, MAX_TEXT_LENGTH)) {
+      errors.email = 'Email is too long';
+    } 
+
     if (!formData.password.trim()) {
       errors.password = 'Password is required';
     }  else if (!/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/.test(formData.password)) {
       errors.password = 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character';
     }
+
     if (!formData.first_name.trim()) {
       errors.first_name = 'First Name is required';
+    } else if (!validators.validateTextLength(formData.first_name.trim(), MIN_TEXT_LENGTH, MAX_TEXT_LENGTH)) {
+      errors.email = 'First Name is too long';
     }
 
     if (password !== confirmPassword) {
       errors.confirmPassword = 'Passwords do not match.';
+    }
+
+    if (formData.last_name?.trim() && !validators.validateTextLength(formData.last_name?.trim(), MIN_TEXT_LENGTH, MAX_TEXT_LENGTH)) {
+      errors.email = 'Last Name is too long';
     }
 
     setErrors(errors);
@@ -137,7 +151,7 @@ const Register = () => {
                       autoComplete="first_name"
                       name="first_name"
                       value={first_name}
-                      onChange={onChange}
+                      onChange={onChange} maxLength={100}
                       invalid={!!errors.first_name && validated}
                     />
                   
@@ -149,7 +163,7 @@ const Register = () => {
                       placeholder="Last Name"
                       autoComplete="last_name"
                       name="last_name"
-                      value={last_name}
+                      value={last_name} maxLength={100}
                       onChange={onChange}
                     />
                   </CInputGroup>
@@ -160,7 +174,7 @@ const Register = () => {
                       autoComplete="email"
                       name="email"
                       value={email}
-                      onChange={onChange}
+                      onChange={onChange} maxLength={100}
                       invalid={!!errors.email && validated}
                     />
                     {errors.email && <div className="invalid-feedback">{errors.email}</div>}

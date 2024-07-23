@@ -7,8 +7,11 @@ import {
   CModal,
   CModalBody,
   CModalFooter,
-  CModalHeader
+  CModalHeader,
+  CFormTextarea
 } from '@coreui/react';
+import { IMaskInput, IMaskMixin } from 'react-imask';
+
 
 const EditAccount = ({ visible, onClose, onSubmit, user }) => {
   const [formData, setFormData] = useState({
@@ -92,7 +95,7 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
               id="first_name"
               name="first_name"
               value={formData.first_name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="First Name"
               invalid={!!errors.first_name && validated}
             />
@@ -105,7 +108,7 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
               id="last_name"
               name="last_name"
               value={formData.last_name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="Last Name"
               
             />
@@ -117,35 +120,59 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
               id="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="Email"
               invalid={!!errors.email && validated}
             />
             {errors.email && validated && <div className="invalid-feedback">{errors.email}</div>}
           </CCol>
           <CCol md={12}>
-            <CFormInput
+          <CFormTextarea
+            type="text"
+            id="address"
+            name="address"
+            value={formData.address} maxLength={250}
+            onChange={handleChange}
+            label="Address"
+            rows={3}
+          ></CFormTextarea>
+            {/* <CFormInput
               type="text"
               id="address"
               name="address"
-              value={formData.address}
+              value={formData.address} maxLength={250}
               onChange={handleChange}
               label="Address"
               
-            />
+            /> */}
            
           </CCol>
           <CCol md={12}>
-            <CFormInput
-              type="text"
+          {/* <CFormInputWithMask
+              mask="+{1}(000)000-00-00"
+              placeholder=""
+              autoComplete="tel"
+              type="tel"
               id="phone"
               name="phone"
               value={formData.phone}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={20}
               label="Phone"
-              
+            /> */}
+            <label className="form-label" htmlFor="phone">Phone</label>
+            <IMaskInput
+              mask="+{1} (000) 000-00-00"
+              radix="."
+              autoComplete="tel"
+              id="phone"
+              name="phone"
+              type="tel"
+              className="form-control"
+              value={formData.phone}
+              onChange={handleChange} maxLength={20}
+              label="Phone"
+              as={CFormInput}
             />
-            
           </CCol>
         </CForm>
       </CModalBody>

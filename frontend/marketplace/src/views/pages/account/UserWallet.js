@@ -73,6 +73,8 @@ const UserWallet = ({ hideTitle }) => {
       if (response.status === 200 || response.status === 201) {
         showToast('You have successfully added funds!', 'success');
         //setUser(response.data);
+
+        console.log(response.data);
         fetchUserDetails(response.data.updatedUser.id);
 
         const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');

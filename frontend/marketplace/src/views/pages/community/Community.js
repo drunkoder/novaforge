@@ -58,6 +58,7 @@ const Community = ({})=>{
 
     const handleSearchChange = event => {
         setSearchTerm(event.target.value);
+        setCurrentPage(1);
     };
 
     const handleSearch = () => {

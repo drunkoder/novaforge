@@ -69,11 +69,11 @@ const Login = () => {
     setFormValid(Object.keys(errors).length === 0);
   };
 
-  const showToast = (message, color) => {
+  const showToast = (message, color, time = 3000) => {
     setToast({ visible: true, message, color });
     setTimeout(() => {
       setToast({ visible: false, message: '', color: '' });
-    }, 3000);
+    }, time);
   };
 
   const onSubmit = async e => {
@@ -103,7 +103,7 @@ const Login = () => {
 
           setTimeout(() => {
             window.location.replace('/');
-          }, 3000);
+          }, 2000);
 
           // Clear form data and errors after successful login
           setFormData({
@@ -149,13 +149,13 @@ const Login = () => {
         });
 
         if (res.status === 200 || res.status === 201) {
-          showToast('Password reset link sent to your email', 'primary');
+          showToast("Check your email for instructions on resetting your password. If your email address exists in our system, you will receive an email shortly. Please also check your spam folder if you don't see it in your inbox.", 'primary', 8000);
         } else {
           throw new Error('Invalid response from server');
         }
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
-        showToast(err.response.data.message, 'danger');
+        showToast(err.response?.data?.message, 'danger');
       }
 
       setModalVisible(false);

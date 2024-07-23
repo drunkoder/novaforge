@@ -64,10 +64,10 @@ const MyInventoryTable = ({
             <CTableHeaderCell>Mining Area</CTableHeaderCell>
             <CTableHeaderCell>Product Name</CTableHeaderCell>
             <CTableHeaderCell className='text-right'>Quantity</CTableHeaderCell>
-            {activeTab !== 1 && activeTab !== 2 && <CTableHeaderCell>Price</CTableHeaderCell>}
-            {activeTab !== 1 && activeTab !== 2 && <CTableHeaderCell>Total Price</CTableHeaderCell>}
+            {activeTab !== 1 && activeTab !== 2 && <CTableHeaderCell className='text-right'>Price</CTableHeaderCell>}
+            {activeTab !== 1 && activeTab !== 2 && <CTableHeaderCell className='text-right'>Total Price</CTableHeaderCell>}
             {activeTab === 1 && <CTableHeaderCell>Status</CTableHeaderCell>}
-            {activeTab !== 1 && activeTab !== 4 &&<CTableHeaderCell>Actions</CTableHeaderCell>}
+            {activeTab !== 1 && activeTab !== 4 &&<CTableHeaderCell className='text-right'>Actions</CTableHeaderCell>}
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -86,8 +86,8 @@ const MyInventoryTable = ({
                   <CTableDataCell>{product.mining_area}</CTableDataCell>
                   <CTableDataCell>{product.productName}</CTableDataCell>
                   <CTableDataCell className='text-right'>{product.quantity}</CTableDataCell>
-                  {activeTab !== 1 && activeTab !== 2 && <CTableDataCell>{product.price}</CTableDataCell>}
-                  {activeTab !== 1 && activeTab !== 2 && <CTableDataCell>{product.totalPrice}</CTableDataCell>}
+                  {activeTab !== 1 && activeTab !== 2 && <CTableDataCell className='text-right'>{product.price?.toFixed(2)}</CTableDataCell>}
+                  {activeTab !== 1 && activeTab !== 2 && <CTableDataCell className='text-right'>{product.totalPrice?.toFixed(2)}</CTableDataCell>}
                   {activeTab === 1 && (
                     <CTableDataCell>
                       <CBadge color={product.quantity > 0 ? 'success' : 'secondary'}>
@@ -95,7 +95,7 @@ const MyInventoryTable = ({
                       </CBadge>
                     </CTableDataCell>
                   )}
-                  {activeTab !== 1 &&<CTableDataCell>
+                  {activeTab !== 1 &&<CTableDataCell className='text-right'>
                     {activeTab === 2 && <CButton
                       color="success"
                       size="sm"
@@ -125,10 +125,10 @@ const MyInventoryTable = ({
                                 <CTableHeaderCell>S/N</CTableHeaderCell>
                                 <CTableHeaderCell>Mining Area</CTableHeaderCell>
                                 <CTableHeaderCell>Product Name</CTableHeaderCell>
-                                <CTableHeaderCell>Quantity</CTableHeaderCell>
+                                <CTableHeaderCell className='text-right'>Quantity</CTableHeaderCell>
                                 <CTableHeaderCell>Status</CTableHeaderCell>
-                                <CTableHeaderCell>Price</CTableHeaderCell>
-                                <CTableHeaderCell>Total Price</CTableHeaderCell>
+                                <CTableHeaderCell className='text-right'>Price</CTableHeaderCell>
+                                <CTableHeaderCell className='text-right'>Total Price</CTableHeaderCell>
                               </CTableRow>
                             </CTableHead>
                             <CTableBody>
@@ -137,14 +137,14 @@ const MyInventoryTable = ({
                                   <CTableDataCell>{communityItem.serialNumber}</CTableDataCell>
                                   <CTableDataCell>{communityItem.mining_area}</CTableDataCell>
                                   <CTableDataCell>{communityItem.productName}</CTableDataCell>
-                                  <CTableDataCell>{communityItem.quantity}</CTableDataCell>
+                                  <CTableDataCell className='text-right'>{communityItem.quantity}</CTableDataCell>
                                   <CTableDataCell>
                                     <CBadge color={communityItem.status === 'AVAILABLE' ? 'success': communityItem.status === 'SOLD' ? 'danger' : 'warning'}>
                                     {communityItem.status}
                                     </CBadge>
                                   </CTableDataCell>
-                                  <CTableDataCell>{communityItem.price.toFixed(2)}</CTableDataCell>
-                                  <CTableDataCell>{communityItem.totalPrice.toFixed(2)}</CTableDataCell>
+                                  <CTableDataCell className='text-right'>{communityItem.price.toFixed(2)}</CTableDataCell>
+                                  <CTableDataCell className='text-right'>{communityItem.totalPrice.toFixed(2)}</CTableDataCell>
                                 </CTableRow>
                               ))}
                             </CTableBody>

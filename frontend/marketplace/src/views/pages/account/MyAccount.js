@@ -122,7 +122,7 @@ const MyAccount = () => {
     try {
       const response = await axios.put(`${BASE_URL}/api/users/${userInfo._id}`, formData);
       if (response.status === 200) {
-
+        const responseData = response.data;
         if (responseData.message === "No changes made") {
           showToast('No changes were made to user information', 'danger');
           // Optionally, update the form fields with existing user data
@@ -131,8 +131,12 @@ const MyAccount = () => {
             ...formData  // Assuming formData contains the edited user data
           }));
         } else {
-          fetchUserInfo(userInfo._id); // Fetch updated user info
+          //fetchUserInfo(userInfo._id); // Fetch updated user info
           showToast('Account updated successfully', 'success');
+          
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         }
       } else {
         throw new Error('Invalid response from server');
@@ -250,8 +254,8 @@ const MyAccount = () => {
                         className="rounded-circle"
                         style={{ width: '75%' }}
                       />
-                      <p className="text-muted mb-1 mt-2 name">{userInfo.first_name} {userInfo.last_name}</p>
-                      <p className="text-muted mb-4">{userInfo.address}</p>
+                      <p className="text-muted mb-1 mt-2 name word-wrap-break-word">{userInfo.first_name} {userInfo.last_name}</p>
+                      <p className="text-muted mb-4 word-wrap-break-word">{userInfo.address}</p>
                       <div className="d-flex justify-content-center mb-2">
                         <CButton color="primary" onClick={openEditModal}>Edit Profile</CButton>
                       </div>

@@ -610,6 +610,7 @@ ul.main-menu{
     width: 100%;
     border-radius: 50px;
     /* color: #ea842a; */
+	color: #88aed3;
     font-size: 16px;
     box-shadow: inset 0px 0px 4px 2px #ea842a;
     background: none;
@@ -923,4 +924,17 @@ ul.main-menu{
 
 .text-orange{
 	color: #ea842a;
+}
+
+.my-account-container .detail-section p.text-danger{
+	color: rgba(var(--cui-danger-rgb), var(--cui-text-opacity)) !important;
+}
+
+.word-wrap-break-word{
+	max-width: 100%;
+    word-wrap: break-word;
+}
+
+.text-right{
+	text-align: right;
 }
