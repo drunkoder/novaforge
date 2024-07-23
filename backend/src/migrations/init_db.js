@@ -80,7 +80,7 @@ const createSampleMiningAreas = async () => {
         // Create sample mining areas with products
         const sampleMiningAreas = [
             {
-                name: 'Asteroid Mining Site Alpha',
+                name: 'Asteroid Alpha',
                 type: 'Asteroid',
                 description: 'Prime asteroid belt location for mineral extraction.',
                 image: getRandomPlanetImage(),
@@ -91,7 +91,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Lunar Mining Base Omega',
+                name: 'Lunar Base Omega',
                 type: 'Moon',
                 description: 'State-of-the-art facility on the lunar surface for rare metal extraction.',
                 image: getRandomPlanetImage(),
@@ -102,7 +102,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Martian Mining Outpost Delta',
+                name: 'Martian Outpost',
                 type: 'Planet',
                 description: 'Remote outpost on Mars for harvesting valuable minerals.',
                 image: getRandomPlanetImage(),
@@ -113,7 +113,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Europa Ice Mining Station Gamma',
+                name: 'Europa Ice Mining',
                 type: 'Moon',
                 description: 'Subsurface ice mining station on Jupiter\'s moon Europa.',
                 image: getRandomPlanetImage(),
@@ -124,7 +124,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Kuiper Belt Mining Facility Epsilon',
+                name: 'Kuiper Belt Facility',
                 type: 'Asteroid',
                 description: 'Advanced mining facility located in the Kuiper Belt for rare elements.',
                 image: getRandomPlanetImage(),
@@ -135,7 +135,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Mercury Mining Outpost Theta',
+                name: 'Mercury Outpost',
                 type: 'Planet',
                 description: 'Outpost on Mercury\'s surface for heat-resistant mineral extraction.',
                 image: getRandomPlanetImage(),
@@ -146,7 +146,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Venus Cloud Mining Platform Zeta',
+                name: 'Venus Cloud Platform',
                 type: 'Planet',
                 description: 'Floating platform in Venus\'s atmosphere for cloud mining operations.',
                 image: getRandomPlanetImage(),
@@ -157,7 +157,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Phobos Regolith Mining Facility Sigma',
+                name: 'Phobos Regolith',
                 type: 'Moon',
                 description: 'Base on Mars\'s moon Phobos for regolith mining.',
                 image: getRandomPlanetImage(),
@@ -168,7 +168,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Deimos Ice Mining Outpost Kappa',
+                name: 'Deimos Ice Outpost',
                 type: 'Moon',
                 description: 'Outpost on Mars\'s moon Deimos for ice mining operations.',
                 image: getRandomPlanetImage(),
@@ -179,7 +179,7 @@ const createSampleMiningAreas = async () => {
                 ]
             },
             {
-                name: 'Oort Cloud Prospecting Station Omega',
+                name: 'Oort Cloud Station',
                 type: 'Asteroid',
                 description: 'Remote station in the Oort Cloud for prospecting comet nuclei.',
                 image: getRandomPlanetImage(),
@@ -257,7 +257,8 @@ const createSampleUser = async () => {
             }
         ];
 
-        user.purchased_products = purchasedProducts;
+        // TODO: temporarily removed purchased products
+        user.purchased_products = []; //purchasedProducts;
         await user.save();
         console.log("User created successfully.");
     } catch (error) {
@@ -462,8 +463,9 @@ const initializeDatabase = async () => {
         await createExchangeRates();
         await createAdminUser();
         await createSampleUser();
-        await createSampleUsers();
-        await createSampleCommunityProducts();
+        // TODO: remove temporarily
+        //await createSampleUsers();
+        //await createSampleCommunityProducts();
         await createNovaDynamicsAsSeller();
     } catch (error) {
         console.error('Error initializing database:', error);

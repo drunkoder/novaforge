@@ -105,6 +105,7 @@ const ProductManagement = () => {
   const closeDeleteModal = () => {
     setSelectedProduct(null);
     setDeleteModal(false);
+    setCurrentPage(1);
   };
 
   const handleAddProduct = async formData => {
@@ -172,6 +173,7 @@ const ProductManagement = () => {
         showToast(error.response.data.message, 'danger');
       } else {
         showToast(error.response ? error.response.data.message : error.message, 'danger');
+        closeDeleteModal();
       }
     }
   };

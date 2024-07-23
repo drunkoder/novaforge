@@ -363,6 +363,7 @@ const MyInventory = () => {
     } catch (error) {
       console.error('Error cancelling sale:', error)
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeCancelSellModal();
     }
   }
 

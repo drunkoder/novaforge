@@ -111,6 +111,7 @@ const UserManagement = () => {
   const closeDeleteModal = () => {
     setSelectedUser(null);
     setDeleteModal(false);
+    setCurrentPage(1);
   };
 
   const handleAddUser = async formData => {
@@ -174,6 +175,7 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Error deleting user:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeDeleteModal();
     }
   };
 

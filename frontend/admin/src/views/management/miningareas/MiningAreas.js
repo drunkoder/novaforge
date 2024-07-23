@@ -109,6 +109,7 @@ const MiningAreaManagement = () => {
   const closeDeleteModal = () => {
     setSelectedMiningArea(null);
     setDeleteModal(false);
+    setCurrentPage(1);
   };
 
   const handleAddMiningArea = async formData => {
@@ -165,6 +166,7 @@ const MiningAreaManagement = () => {
     } catch (error) {
       console.error('Error deleting mining area:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeDeleteModal();
     }
   };
 

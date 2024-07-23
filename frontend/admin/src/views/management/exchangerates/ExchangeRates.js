@@ -106,6 +106,7 @@ const ExchangeRateManagement = () => {
   const closeDeleteModal = () => {
     setSelectedExchangeRate(null);
     setDeleteModal(false);
+    setCurrentPage(1);
   };
 
   const handleAddExchangeRate = async formData => {
@@ -155,6 +156,7 @@ const ExchangeRateManagement = () => {
     } catch (error) {
       console.error('Error deleting exchange rate:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeDeleteModal();
     }
   };
 
