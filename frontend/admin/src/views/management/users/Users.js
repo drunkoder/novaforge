@@ -41,6 +41,7 @@ const UserManagement = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '', color: '' });
+  const [init, setInit] = useState(true);
 
   useEffect(() => {
     fetchUsers();
@@ -71,23 +72,35 @@ const UserManagement = () => {
     fetchUsers();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSearch();
+    }
+  };
+  
   const openAddModal = () => {
     setSelectedUser(null);
     setAddModal(true);
+    setInit(true);
   };
 
   const closeAddModal = () => {
+    setSelectedUser(null);
     setAddModal(false);
+    setInit(false);
   };
 
   const openEditModal = user => {
     setSelectedUser(user);
     setEditModal(true);
+    setInit(true);
   };
 
   const closeEditModal = () => {
     setSelectedUser(null);
     setEditModal(false);
+    setInit(false);
   };
 
   const openDeleteModal = user => {
@@ -195,17 +208,17 @@ const UserManagement = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer>
+      <CContainer className='mt-4 mb-4 management'>
         <CRow className="justify-content-center">
           <CCol md="12">
             <CCard>
               <CCardHeader>
                 <CRow className="align-items-center">
                   <CCol xs="4" md="10">
-                    <h4 className="mb-0">User Management</h4>
+                    <h4 className="mb-0 p-4">User Management</h4>
                   </CCol>
                   <CCol xs="8" md="2" className="text-right">
-                    <CButton color="primary" onClick={openAddModal}>
+                    <CButton color="primary" onClick={openAddModal} shape="rounded-0">
                       <CIcon icon={cilPlus} size="sm" /> Add User
                     </CButton>
                   </CCol>
@@ -215,34 +228,40 @@ const UserManagement = () => {
                 <CForm className="mb-3">
                   <CRow className="mb-3">
                     <CCol md="6">
-                      <CFormLabel htmlFor="search">Search</CFormLabel>
                       <CFormInput
                         type="text"
                         id="search"
                         placeholder="Search user by name or email"
                         value={searchTerm}
                         onChange={handleSearchChange}
+                        onKeyDown={handleKeyPress}
                       />
                     </CCol>
                     <CCol md="6" className="d-flex align-items-end">
-                      <CButton color="primary" onClick={handleSearch}>Search</CButton>
+                      <CButton color="primary" onClick={handleSearch} shape="rounded-0">Search</CButton>
                     </CCol>
                   </CRow>
                 </CForm>
-                <CTable striped responsive>
-                  <CTableHead>
+                <CTable responsive small striped>
+                  <CTableHead className='thead-dark'>
                     <CTableRow>
+                      <CTableHeaderCell className='text-center'>S/N</CTableHeaderCell>
                       <CTableHeaderCell>Email</CTableHeaderCell>
                       <CTableHeaderCell>First Name</CTableHeaderCell>
                       <CTableHeaderCell>Last Name</CTableHeaderCell>
                       <CTableHeaderCell>Role</CTableHeaderCell>
                       <CTableHeaderCell>Status</CTableHeaderCell>
-                      <CTableHeaderCell>Actions</CTableHeaderCell>
+                      <CTableHeaderCell className='text-right'>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {users.map(user => (
+                  {users?.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="text-center">No users found</td>
+                        </tr>
+                      ) : (users.map((user, index) => (
                       <CTableRow key={user.id}>
+                        <CTableDataCell className='text-center'>{(currentPage - 1) * usersPerPage + index + 1}</CTableDataCell>
                         <CTableDataCell>{user.email}</CTableDataCell>
                         <CTableDataCell>{user.first_name}</CTableDataCell>
                         <CTableDataCell>{user.last_name || '------'}</CTableDataCell>
@@ -252,20 +271,20 @@ const UserManagement = () => {
                             icon={user.is_active ? cilUser : cilUserX}
                             size="lg"
                             className={user.is_active ? 'icon-active' : 'icon-inactive'}
-                            style={{ color: user.is_active ? 'green' : 'red', cursor: 'pointer' }}
+                            style={{ color: user.is_active ? 'green' : 'red', cursor: 'pointer' }} title='Click to enable or disable the user'
                             onClick={() => handleStatusToggle(user)}
                           />
                         </CTableDataCell>
-                        <CTableDataCell>
-                          <CButton color="info" onClick={() => openEditModal(user)} className="m-1 text-white align-items-center" disabled={user.is_active===false}>
+                        <CTableDataCell className='text-right'>
+                          <CButton color="info" onClick={() => openEditModal(user)} className="m-1 text-white align-items-center" disabled={user.is_active===false} shape="rounded-0">
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
-                          <CButton color="danger" onClick={() => openDeleteModal(user)} className="text-white align-items-center" disabled={user.is_active===true}>
+                          <CButton color="danger" onClick={() => openDeleteModal(user)} className="text-white align-items-center" disabled={user.is_active===true} shape="rounded-0">
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
                       </CTableRow>
-                    ))}
+                    )))}
                   </CTableBody>
                 </CTable>
                 <div className="d-flex justify-content-center">
@@ -297,6 +316,7 @@ const UserManagement = () => {
         visible={addModal}
         onClose={closeAddModal}
         onSubmit={handleAddUser}
+        init={init}
       />
       <AddEditUserDialog
         visible={editModal}
@@ -308,8 +328,8 @@ const UserManagement = () => {
         <CModalHeader closeButton>Delete User</CModalHeader>
         <CModalBody>Are you sure you want to delete this user?</CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={handleDeleteUser}>Delete</CButton>
-          <CButton color="secondary" onClick={closeDeleteModal}>Cancel</CButton>
+          <CButton color="danger" onClick={handleDeleteUser}  shape="rounded-0">Delete</CButton>
+          <CButton color="secondary" onClick={closeDeleteModal}  shape="rounded-0">Cancel</CButton>
         </CModalFooter>
       </CModal>
     </div>

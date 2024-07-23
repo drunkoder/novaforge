@@ -4,6 +4,7 @@ import {
   CCol,
   CForm,
   CFormInput,
+  CFormTextarea,
   CModal,
   CModalBody,
   CModalFooter,
@@ -128,7 +129,7 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
               id="code"
               name="code"
               value={formData.code}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={30}
               label="Code"
               invalid={!!errors.code && validated}
             />
@@ -140,7 +141,7 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
               id="name"
               name="name"
               value={formData.name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="Name"
               invalid={!!errors.name && validated}
             />
@@ -148,14 +149,22 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
           </CCol>
           <CCol md={12}>
             <label htmlFor="description" className="form-label">Description</label>
-            <textarea
+            <CFormTextarea
               id="description"
               name="description"
-              value={formData.description}
+              value={formData.description} maxLength={250}
               onChange={handleChange}
               className={`form-control ${errors.description && validated ? 'is-invalid' : ''}`}
               rows={5}
-            />
+            ></CFormTextarea>
+            {/* <textarea
+              id="description"
+              name="description"
+              value={formData.description} maxLength={250}
+              onChange={handleChange}
+              className={`form-control ${errors.description && validated ? 'is-invalid' : ''}`}
+              rows={5}
+            /> */}
             {errors.description && validated && <div className="invalid-feedback">{errors.description}</div>}
           </CCol>
           <CCol md={12}>

@@ -87,7 +87,7 @@ const app = express();
                 });
             }
     
-            if (coins < 1) {
+            if (coins <= 0) {
                 return res.status(400).json({
                     error: "Validation error",
                     message: "Value of coins must be greater than zero.",
@@ -151,7 +151,7 @@ const app = express();
                 });
             }
     
-            if (coins < 1) {
+            if (coins  <= 0) {
                 return res.status(400).json({
                     error: "Validation error",
                     message: "Value of coins must be greater than zero.",

@@ -66,7 +66,7 @@ const AddEditExchangeRateDialog = ({ visible, onClose, onSubmit, exchangeRate })
 
     if (!formData.coins || isNaN(formData.coins)) {
       errors.coins = 'Coins must be a number';
-    } else if (formData.coins < 1) {
+    } else if (formData.coins <= 0) {
       errors.coins = 'Coins must be greater than zero.';
     } else if (!/^\d+(\.\d{1,2})?$/.test(formData.coins)) {
       errors.coins = 'Coins must have at most 2 decimal places';
@@ -104,7 +104,7 @@ const AddEditExchangeRateDialog = ({ visible, onClose, onSubmit, exchangeRate })
               id="country_name"
               name="country_name"
               value={formData.country_name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={30}
               label="Country Name"
               invalid={!!errors.country_name && validated}
             />

@@ -11,7 +11,7 @@ import {
   CModalHeader
 } from '@coreui/react';
 
-const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
+const AddEditUserDialog = ({ visible, onClose, onSubmit, user, init }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,7 +24,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
   const [validated, setValidated] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !init) {
       setFormData({
         email: user.email || '',
         password: '',
@@ -35,7 +35,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
     } else {
       resetForm();
     }
-  }, [user]);
+  }, [user, init]);
 
   useEffect(() => {
     setValidated(false);
@@ -101,7 +101,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
               id="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="Email"
               invalid={!!errors.email && validated}
             />
@@ -126,7 +126,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
               id="first_name"
               name="first_name"
               value={formData.first_name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="First Name"
               invalid={!!errors.first_name && validated}
             />
@@ -137,7 +137,7 @@ const AddEditUserDialog = ({ visible, onClose, onSubmit, user }) => {
               id="last_name"
               name="last_name"
               value={formData.last_name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="Last Name"
             />
           </CCol>

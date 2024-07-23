@@ -75,6 +75,13 @@ const MiningAreaManagement = () => {
     fetchMiningAreas();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSearch();
+    }
+  };
+
   const openAddModal = () => {
     setSelectedMiningArea(null);
     setAddModal(true);
@@ -176,17 +183,17 @@ const MiningAreaManagement = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer>
+      <CContainer className='mt-4 mb-4 management'>
         <CRow className="justify-content-center">
           <CCol md="12">
             <CCard>
               <CCardHeader>
                 <CRow className="align-items-center">
                   <CCol xs="4" md="10">
-                    <h4 className="mb-0">Mining Area Management</h4>
+                    <h4 className="mb-0 p-4">Mining Area Management</h4>
                   </CCol>
                   <CCol xs="8" md="2" className="text-right">
-                    <CButton color="primary" onClick={openAddModal}>
+                    <CButton color="primary" onClick={openAddModal} shape="rounded-0">
                       <CIcon icon={cilPlus} size="sm" /> Add MiningArea
                     </CButton>
                   </CCol>
@@ -196,33 +203,39 @@ const MiningAreaManagement = () => {
                 <CForm className="mb-3">
                   <CRow className="mb-3">
                     <CCol md="6">
-                      <CFormLabel htmlFor="search">Search</CFormLabel>
                       <CFormInput
                         type="text"
                         id="search"
-                        placeholder="Enter keyword..."
+                        placeholder="Search by name or description..."
                         value={searchTerm}
                         onChange={handleSearchChange}
+                        onKeyDown={handleKeyPress}
                       />
                     </CCol>
                     <CCol md="6" className="d-flex align-items-end">
-                      <CButton color="primary" onClick={handleSearch}>Search</CButton>
+                      <CButton color="primary" onClick={handleSearch} shape="rounded-0">Search</CButton>
                     </CCol>
                   </CRow>
                 </CForm>
-                <CTable striped responsive>
-                  <CTableHead>
+                <CTable responsive small striped>
+                <CTableHead className='thead-dark'>
                     <CTableRow>
+                    <CTableHeaderCell className='text-center'>S/N</CTableHeaderCell>
                       <CTableHeaderCell>Name</CTableHeaderCell>
                       <CTableHeaderCell>Description</CTableHeaderCell>
                       <CTableHeaderCell>Type</CTableHeaderCell>
                       <CTableHeaderCell>Image</CTableHeaderCell>
-                      <CTableHeaderCell>Actions</CTableHeaderCell>
+                      <CTableHeaderCell className='text-right'>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {miningAreas.map(miningArea => (
+                  {miningAreas?.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="text-center">No mining areas found</td>
+                        </tr>
+                      ) : (miningAreas.map((miningArea, index) => (
                       <CTableRow key={miningArea._id}>
+                        <CTableDataCell className='text-center'>{(currentPage - 1) * miningAreasPerPage + index + 1}</CTableDataCell>
                         <CTableDataCell>{miningArea.name}</CTableDataCell>
                         <CTableDataCell>{miningArea.description}</CTableDataCell>
                         <CTableDataCell>{miningArea.type}</CTableDataCell>
@@ -233,16 +246,16 @@ const MiningAreaManagement = () => {
                             </div>
                           )}
                         </CTableDataCell>
-                        <CTableDataCell>
-                          <CButton color="info" onClick={() => openEditModal(miningArea)} className="m-1 text-white align-items-center">
+                        <CTableDataCell className='text-right'>
+                          <CButton color="info" onClick={() => openEditModal(miningArea)} className="m-1 text-white align-items-center" shape="rounded-0">
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
-                          <CButton color="danger" onClick={() => openDeleteModal(miningArea)} className="text-white align-items-center">
+                          <CButton color="danger" onClick={() => openDeleteModal(miningArea)} className="text-white align-items-center" shape="rounded-0">
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
                       </CTableRow>
-                    ))}
+                    )))}
                   </CTableBody>
                 </CTable>
                 <div className="d-flex justify-content-center">
@@ -285,8 +298,8 @@ const MiningAreaManagement = () => {
         <CModalHeader closeButton>Delete Mining Area</CModalHeader>
         <CModalBody>Are you sure you want to delete this mining area?</CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={handleDeleteMiningArea}>Delete</CButton>
-          <CButton color="secondary" onClick={closeDeleteModal}>Cancel</CButton>
+          <CButton color="danger" onClick={handleDeleteMiningArea} shape="rounded-0">Delete</CButton>
+          <CButton color="secondary" onClick={closeDeleteModal} shape="rounded-0">Cancel</CButton>
         </CModalFooter>
       </CModal>
     </div>

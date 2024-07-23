@@ -71,6 +71,13 @@ const ProductManagement = () => {
     fetchProducts();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSearch();
+    }
+  };
+
   const openAddModal = () => {
     setSelectedProduct(null);
     setAddModal(true);
@@ -186,17 +193,17 @@ const ProductManagement = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer>
+      <CContainer className='mt-4 mb-4 management'>
         <CRow className="justify-content-center">
           <CCol md="12">
             <CCard>
               <CCardHeader>
                 <CRow className="align-items-center">
                   <CCol xs="4" md="10">
-                    <h4 className="mb-0">Product Management</h4>
+                    <h4 className="mb-0 p-4">Product Management</h4>
                   </CCol>
                   <CCol xs="8" md="2" className="text-right">
-                    <CButton color="primary" onClick={openAddModal}>
+                    <CButton color="primary" onClick={openAddModal} shape="rounded-0">
                       <CIcon icon={cilPlus} size="sm" /> Add Product
                     </CButton>
                   </CCol>
@@ -206,54 +213,60 @@ const ProductManagement = () => {
                 <CForm className="mb-3">
                   <CRow className="mb-3">
                     <CCol md="6">
-                      <CFormLabel htmlFor="search">Search</CFormLabel>
                       <CFormInput
                         type="text"
                         id="search"
-                        placeholder="Enter product name..."
+                        placeholder="Search by product name..."
                         value={searchTerm}
                         onChange={handleSearchChange}
+                        onKeyDown={handleKeyPress}
                       />
                     </CCol>
                     <CCol md="6" className="d-flex align-items-end">
-                      <CButton color="primary" onClick={handleSearch}>Search</CButton>
+                      <CButton color="primary" onClick={handleSearch} shape="rounded-0">Search</CButton>
                     </CCol>
                   </CRow>
                 </CForm>
-                <CTable striped responsive>
-                  <CTableHead>
+                <CTable responsive small striped>
+                  <CTableHead className='thead-dark'>
                     <CTableRow>
+                    <CTableHeaderCell className='text-center'>S/N</CTableHeaderCell>
                       <CTableHeaderCell>Code</CTableHeaderCell>
                       <CTableHeaderCell>Image</CTableHeaderCell>
                       <CTableHeaderCell>Name</CTableHeaderCell>
                       <CTableHeaderCell>Description</CTableHeaderCell>
-                      <CTableHeaderCell>Actions</CTableHeaderCell>
+                      <CTableHeaderCell className='text-right'>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {products.map(product => (
+                  {products?.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="text-center">No products found</td>
+                        </tr>
+                      ) : (products.map((product, index) => (
                       <CTableRow key={product._id}>
+                        <CTableDataCell className='text-center'>{(currentPage - 1) * productsPerPage + index + 1}</CTableDataCell>
                         <CTableDataCell>{product.code}</CTableDataCell>
                         <CTableDataCell>
                           {product.image && <img src={`${BASE_URL}${product.image}`} alt={product.image} style={{ maxHeight: '100px' }} />}
                         </CTableDataCell>
                         <CTableDataCell>{product.name}</CTableDataCell>
                         <CTableDataCell>{product.description}</CTableDataCell>
-                        <CTableDataCell>
-                          <CButton color="info" onClick={() => openEditModal(product)} className="m-1 text-white align-items-center">
+                        <CTableDataCell className='text-right'>
+                          <CButton color="info" onClick={() => openEditModal(product)} className="m-1 text-white align-items-center" shape="rounded-0">
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
                           <CButton
                             color="danger"
                             onClick={() => openDeleteModal(product)}
-                            className="text-white align-items-center"
+                            className="text-white align-items-center" shape="rounded-0"
                             disabled={product.inUse} // Disable if the product is in use
                           >
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
                       </CTableRow>
-                    ))}
+                    )))}
                   </CTableBody>
                 </CTable>
                 <div className="d-flex justify-content-center">
@@ -300,8 +313,8 @@ const ProductManagement = () => {
         </CModalHeader>
         <CModalBody>Are you sure you want to delete this product?</CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={handleDeleteProduct}>Delete</CButton>
-          <CButton color="secondary" onClick={closeDeleteModal}>Cancel</CButton>
+          <CButton color="danger" onClick={handleDeleteProduct} shape="rounded-0">Delete</CButton>
+          <CButton color="secondary" onClick={closeDeleteModal} shape="rounded-0">Cancel</CButton>
         </CModalFooter>
       </CModal>
     </div>

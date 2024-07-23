@@ -823,6 +823,8 @@ ul.main-menu{
 
 .transactions-history-container #transactions table td{
 	border-bottom: none;
+    word-break: break-word;
+    max-width: 200px;
 }
 
 
@@ -867,6 +869,8 @@ ul.main-menu{
 	border-bottom: none;
 	background: none;
 	color: #fff;
+    word-break: break-word;
+    max-width: 200px;
 }
 
 .planetarium-products-desc, .planetarium-products-desc p small{
@@ -912,6 +916,7 @@ ul.main-menu{
 	border-bottom: none;
 	background: none;
 	color: #fff;
+	max-width: 200px;
 }
 
 .my-inventory-table-details-btn .icon{

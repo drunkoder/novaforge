@@ -72,6 +72,13 @@ const ExchangeRateManagement = () => {
     fetchExchangeRates();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSearch();
+    }
+  };
+
   const openAddModal = () => {
     setSelectedExchangeRate(null);
     setAddModal(true);
@@ -166,18 +173,18 @@ const ExchangeRateManagement = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer>
+      <CContainer className='mt-4 mb-4 management'>
         <CRow className="justify-content-center">
           <CCol md="12">
             <CCard>
               <CCardHeader>
                 <CRow className="align-items-center">
                   <CCol xs="4" md="10">
-                    <h4 className="mb-0">Exchange Rate Management</h4>
+                    <h4 className="mb-0 p-4">Exchange Rate Management</h4>
                   </CCol>
                   <CCol xs="8" md="2" className="text-right">
-                    <CButton color="primary" onClick={openAddModal}>
-                      <CIcon icon={cilPlus} size="sm" /> Add Exchange Rate
+                    <CButton color="primary" onClick={openAddModal} shape="rounded-0">
+                      <CIcon icon={cilPlus} size="sm" /> Add Rate
                     </CButton>
                   </CCol>
                 </CRow>
@@ -186,45 +193,51 @@ const ExchangeRateManagement = () => {
                 <CForm className="mb-3">
                   <CRow className="mb-3">
                     <CCol md="6">
-                      <CFormLabel htmlFor="search">Search</CFormLabel>
                       <CFormInput
                         type="text"
                         id="search"
-                        placeholder="Enter country or code to search here..."
+                        placeholder="Search by country or code..."
                         value={searchTerm}
                         onChange={handleSearchChange}
+                        onKeyDown={handleKeyPress}
                       />
                     </CCol>
                     <CCol md="6" className="d-flex align-items-end">
-                      <CButton color="primary" onClick={handleSearch}>Search</CButton>
+                      <CButton color="primary" onClick={handleSearch} shape="rounded-0">Search</CButton>
                     </CCol>
                   </CRow>
                 </CForm>
-                <CTable striped responsive>
-                  <CTableHead>
+                <CTable responsive small striped>
+                <CTableHead className='thead-dark'>
                     <CTableRow>
-                      <CTableHeaderCell>Name</CTableHeaderCell>
+                    <CTableHeaderCell className='text-center'>S/N</CTableHeaderCell>
+                      <CTableHeaderCell>Country</CTableHeaderCell>
                       <CTableHeaderCell>Currency Code</CTableHeaderCell>
-                      <CTableHeaderCell>Equivalent NovaCoins</CTableHeaderCell>
-                      <CTableHeaderCell>Actions</CTableHeaderCell>
+                      <CTableHeaderCell className='text-right'>Equivalent NovaCoins</CTableHeaderCell>
+                      <CTableHeaderCell className='text-right'>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {exchangeRates.map(exchangeRate => (
+                    {exchangeRates?.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="text-center">No rates found</td>
+                        </tr>
+                      ) : (exchangeRates.map((exchangeRate, index) => (
                       <CTableRow key={exchangeRate._id}>
+                        <CTableDataCell className='text-center'>{(currentPage - 1) * exchangeRatesPerPage + index + 1}</CTableDataCell>
                         <CTableDataCell>{exchangeRate.country_name}</CTableDataCell>
                         <CTableDataCell>{exchangeRate.code}</CTableDataCell>
-                        <CTableDataCell>{exchangeRate.coins}</CTableDataCell>
-                        <CTableDataCell>
-                          <CButton color="info" onClick={() => openEditModal(exchangeRate)} className="m-1 text-white align-items-center">
+                        <CTableDataCell className='text-right'>{exchangeRate.coins}</CTableDataCell>
+                        <CTableDataCell className='text-right'>
+                          <CButton color="info" onClick={() => openEditModal(exchangeRate)} className="m-1 text-white align-items-center" shape="rounded-0">
                             <CIcon icon={cilPencil} size="sm" title="Edit" />
                           </CButton>
-                          <CButton color="danger" onClick={() => openDeleteModal(exchangeRate)} className="text-white align-items-center">
+                          <CButton color="danger" onClick={() => openDeleteModal(exchangeRate)} className="text-white align-items-center" shape="rounded-0">
                             <CIcon icon={cilTrash} size="sm" title="Delete" />
                           </CButton>
                         </CTableDataCell>
                       </CTableRow>
-                    ))}
+                    )))}
                   </CTableBody>
                 </CTable>
                 <div className="d-flex justify-content-center">
@@ -267,8 +280,8 @@ const ExchangeRateManagement = () => {
         <CModalHeader closeButton>Delete Exchange Rate</CModalHeader>
         <CModalBody>Are you sure you want to delete this exchange rate?</CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={handleDeleteExchangeRate}>Delete</CButton>
-          <CButton color="secondary" onClick={closeDeleteModal}>Cancel</CButton>
+          <CButton color="danger" onClick={handleDeleteExchangeRate} shape="rounded-0">Delete</CButton>
+          <CButton color="secondary" onClick={closeDeleteModal} shape="rounded-0">Cancel</CButton>
         </CModalFooter>
       </CModal>
     </div>

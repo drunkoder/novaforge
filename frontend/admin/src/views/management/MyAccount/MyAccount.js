@@ -27,7 +27,8 @@ import {
   CTabList,
   CTab,
   CTabContent,
-  CTabPanel
+  CTabPanel,
+  CCardHeader
 } from '@coreui/react';
 import EditAccount from './EditAccount';
 
@@ -182,21 +183,22 @@ const MyAccount = () => {
           </CToast>
         )}
       </CToaster>
-      <CContainer className="py-5 px-5">
+      <CContainer className="py-5 px-5 my-account">
         <CRow>
-          <CCard>
+          <CCard className='my-account-container'>
+          <CCardHeader className='profile-header'>Profile</CCardHeader>
             <CCardBody>
               <CRow>
                 <CCol lg="4">
                   <CCard className="mb-4 my-account-photo-section">
                     <CCardBody className="text-center img-section">
                       <CCardImage
-                        src="https://raw.githubusercontent.com/twbs/icons/main/icons/person.svg"
+                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
                         alt="avatar"
                         className="rounded-circle"
                         style={{ width: '75%' }}
                       />
-                      <p className="text-muted mb-1">{userInfo.first_name} {userInfo.last_name}</p>
+                      <p className="text-muted mb-1 mt-3">{userInfo.first_name} {userInfo.last_name}</p>
                       <p className="text-muted mb-4">{userInfo.address}</p>
                       <div className="d-flex justify-content-center mb-2">
                         <CButton color="primary" onClick={openEditModal}>Edit Profile</CButton>

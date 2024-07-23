@@ -8,6 +8,7 @@ import {
   CFormInput,
   CFormLabel,
   CFormSelect,
+  CFormTextarea,
   CModal,
   CModalBody,
   CModalFooter,
@@ -125,7 +126,11 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/products`);
+      const response = await axios.get(`${BASE_URL}/api/products`, {
+        params: {
+          limit: 99999999,
+        },
+      });
       console.log(response.data.products)
       return response.data.products || [];
     } catch (error) {
@@ -193,7 +198,7 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
               id="name"
               name="name"
               value={formData.name}
-              onChange={handleChange}
+              onChange={handleChange} maxLength={100}
               label="Name"
               invalid={!!errors.name && validated}
             />
@@ -201,14 +206,23 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
           </CCol>
           <CCol md={12}>
             <label htmlFor="description" className='form-label'>Description</label>
-            <textarea
+            <CFormTextarea
               id="description"
               name="description"
-              value={formData.description}
+              value={formData.description} maxLength={400}
+              onChange={handleChange}
+              className={`${errors.description && validated ? 'is-invalid' : ''}`}
+              rows={5}
+            ></CFormTextarea>
+
+            {/* <textarea
+              id="description"
+              name="description"
+              value={formData.description} maxLength={250}
               onChange={handleChange}
               className={`form-control ${errors.description && validated ? 'is-invalid' : ''}`}
-              rows={5}
-            />
+              rows={10}
+            /> */}
             {errors.description && validated && <div className="invalid-feedback">{errors.description}</div>}
           </CCol>
           <CCol md={12}>

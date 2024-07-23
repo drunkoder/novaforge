@@ -1,1 +1,142 @@
 // Here you can add other styles
+body {
+    font-family: Ubuntu;
+}
+
+.simplebar-wrapper{
+    background: white;
+}
+
+.sidebar-nav .nav-link, .sidebar-nav .nav-link .nav-icon, .sidebar-nav .nav-link.active .nav-icon {
+    color: #2b303d
+}
+
+.sidebar-nav .nav-title{
+    color: #585858a3;
+}
+
+.sidebar-nav .nav-link.active{
+    background: #f3f3f3;
+    color: #222;
+}
+
+.sidebar-nav .nav-link:hover,.sidebar-nav .nav-link:hover .nav-icon {
+    color: #181818 !important;
+    text-decoration: none;
+    background: #f3f3f3 !important;
+}
+
+.body{
+    width: 100%;
+    /* min-height: 100vh; */
+    transition: ease all 0.3s;
+    /* position: relative; */
+    /* padding: 60px 25px 25px 305px; */
+    background: #f8f8f8;
+}
+
+.management .card{
+    background: #fff;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    margin-top: 0;
+    border: none;
+}
+
+.management .card-header{
+    border: none
+}
+
+.management .table thead.thead-dark th {
+    background: #15283c;
+    font-weight: 300;
+    padding: 15px 15px;
+}
+.management .table .thead-dark th {
+    color: #fff;
+    background-color: #212529;
+    border-color: #32383e;
+}
+
+.text-right{
+    text-align: right;
+}
+
+.text-center{
+    text-align: center;
+}
+
+.management .table tbody td {
+    padding: 15px 15px;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #666;
+    vertical-align: middle;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.management #search{
+    border: medium none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #222;
+    float: left;
+    height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 500;
+    /* width: 210px; */
+    background: #f8f8f8;
+    border: 1px solid #17283b1f;
+}
+
+.form-control{
+    border: medium none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #222;
+    float: left;
+    height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 500;
+    /* width: 210px; */
+    background: #f8f8f8;
+    border: 1px solid rgba(23, 40, 59, 0.1215686275);
+}
+
+.form-select{
+    border: 1px solid #e7e7e7;
+    border-radius: 3px !important;
+    color: #afafaf;
+    display: inline-block;
+    padding: 5px 35px 5px 10px;
+}
+
+.my-account .my-account-container{
+    border: none;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+textarea.form-control {
+    min-height: calc(1.5em + .75rem + var(--cui-border-width)* 2) !important;
+    height: 80%;
+}
+.my-account-photo-section{
+    height: 95%;
+}
+
+.profile-header{
+    padding: 20px;
+    margin: none;
+    font-size: 26px;
+    border-bottom: none;
+    background: #e5e5e5;
+    background: #15283c;
+    font-weight: 300;
+    padding: 15px 15px;
+    color: #fff;
+}
