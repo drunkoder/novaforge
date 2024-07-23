@@ -18,7 +18,8 @@ import {
   cilArrowTop,
   cilArrowBottom,
   
-  cilCalculator
+  cilCalculator,
+  cilChartLine
 } from '@coreui/icons';
 
 
@@ -37,15 +38,15 @@ const KpiCard = ({ title, total, icon, color }) => (
   </CCard>
 );
 
-const InsightCard = ({ title, value, icon, color }) => (
+const InsightCard = ({ title, value, icon, color, fontColor }) => (
   <CCard className="mb-4 h-100" style={{ backgroundColor: color }}>
     <CCardBody className="d-flex flex-column justify-content-between">
       <div className="d-flex justify-content-between align-items-center">
-        <h4 className="text-white mb-0">{title}</h4>
-        <CIcon icon={icon} size="3xl" className="text-white" />
+        <h4 className="mb-0" style={{ color: fontColor }}>{title}</h4>
+        <CIcon icon={icon} size="3xl" className=""  style={{ color: fontColor }}/>
       </div>
-      <div className="text-white mt-4">
-        <h2 className="mb-0">{value}</h2>
+      <div className="text-white mt-4 dashboard-card-content">
+        <h2 className="mb-0" style={{ color: fontColor }}>{value}</h2>
       </div>
     </CCardBody>
   </CCard>
@@ -68,16 +69,21 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response_miningareas = await axios.get('/api/miningareas');
+        const response_miningareas = await axios.get('/api/miningareas', {
+          params: {
+            page: 1,
+            limit: 99999,
+          },
+        });
         setMiningAreasCount(response_miningareas.data.miningAreas.length);
 
         const response_users = await axios.get('/api/users', {
           params: {
             page: 1,
-            limit: 100,
+            limit: 99999,
           },
         });
-        setUserCount(response_users.data.users.length);
+        setUserCount(response_users.data.users.filter(e=> !e.is_system).length);
 
         const response_currency = await axios.get('/api/exchange-rates');
         setCurrencyCount(response_currency.data.exchangeRates.length);
@@ -132,29 +138,29 @@ export default function Dashboard() {
   };
 
   return (
-    <CContainer fluid>
+    <CContainer fluid className='dashboard'>
       <CRow>
         <CCol>
           <CCard className="mb-4">
             <CCardHeader>
               <h2>Dashboard</h2>
             </CCardHeader>
-            <CCardBody>
+            {/* <CCardBody>
               <p>Welcome to dashboard!</p>
-            </CCardBody>
+            </CCardBody> */}
           </CCard>
         </CCol>
       </CRow>
       <CRow>
-        <CCol sm={6} lg={4} xl={3} className="mb-4">
+        {/* <CCol sm={6} lg={6} className="mb-4">
           <KpiCard
             title="Mining Areas"
             total={miningAreasCount}
             icon={cilFactory}
             color="#4CAF50"
           />
-        </CCol>
-        <CCol sm={6} lg={4} xl={3} className="mb-4">
+        </CCol> */}
+        <CCol sm={6} lg={6} className="mb-4">
           <KpiCard
             title="Users"
             total={userCount}
@@ -162,28 +168,46 @@ export default function Dashboard() {
             color="#2196F3"
           />
         </CCol>
-        <CCol sm={6} lg={4} xl={3} className="mb-4">
+        {/* <CCol sm={6} lg={6} className="mb-4">
           <KpiCard
             title=" Supporting Currencies"
             total={currencyCount}
             icon={cilMoney}
             color="#FFC107"
           />
-        </CCol>
-        <CCol sm={6} lg={4} xl={3} className="mb-4">
+        </CCol> */}
+        <CCol sm={6} lg={6} className="mb-4">
           <KpiCard
-            title="Transactions"
+            title="Total Transactions"
             total={transactionsCount}
             icon={cilSwapHorizontal}
             color="#9C27B0"
           />
         </CCol>
-        <CCol sm={6} lg={4} xl={3} className="mb-4">
+        {/* <CCol sm={6} lg={6} className="mb-4">
           <KpiCard
             title="Products"
             total={productsCount}
             icon={cilBasket}
             color="#FF5722"
+          />
+        </CCol> */}
+        <CCol sm={6} lg={6} className="mb-4">
+          <KpiCard
+            title="Mining Areas"
+            total={miningAreasCount}
+            icon={cilFactory}
+            color="#4CAF50"
+          />
+        </CCol> 
+        <CCol sm={6} lg={6} className="mb-4">
+          <InsightCard
+            title="Trending Product"
+            // value={`${transactionInsights.mostPurchasedProduct.name} (${transactionInsights.mostPurchasedProduct.count} transactions)`}
+            value={`${transactionInsights.mostPurchasedProduct.name}`}
+            icon={cilChartLine}
+            color="#3F51B5"
+            fontColor="#fff"
           />
         </CCol>
       </CRow>
@@ -191,17 +215,21 @@ export default function Dashboard() {
         <CCol sm={6} lg={4} className="mb-4">
           <InsightCard
             title="Most Spent"
-            value={`${transactionInsights.mostSpent.value} coins (${transactionInsights.mostSpent.product})`}
+            // value={`${transactionInsights.mostSpent.value} coins (${transactionInsights.mostSpent.product})`}
+            value={`${transactionInsights.mostSpent.value} coins`}
             icon={cilArrowTop}
-            color="#E91E63"
+            color="#fff"
+            fontColor="#E91E63"
           />
         </CCol>
         <CCol sm={6} lg={4} className="mb-4">
           <InsightCard
             title="Least Spent"
-            value={`${transactionInsights.leastSpent.value} coins (${transactionInsights.leastSpent.product})`}
+            // value={`${transactionInsights.leastSpent.value} coins (${transactionInsights.leastSpent.product})`}
+            value={`${transactionInsights.leastSpent.value} coins`}
             icon={cilArrowBottom}
-            color="#00BCD4"
+            color="#fff"
+            fontColor="#00BCD4"
           />
         </CCol>
         <CCol sm={6} lg={4} className="mb-4">
@@ -209,25 +237,26 @@ export default function Dashboard() {
             title="Average Spent"
             value={`${transactionInsights.averageSpent.toFixed(2)} coins`}
             icon={cilCalculator}
-            color="#8BC34A"
+            color="#fff"
+            fontColor="#8BC34A"
           />
         </CCol>
-        <CCol sm={6} lg={6} className="mb-4">
+        {/* <CCol sm={6} lg={6} className="mb-4">
           <InsightCard
             title="Most Sold Product"
             value={`${transactionInsights.mostSoldProduct.name} (${transactionInsights.mostSoldProduct.count} transactions)`}
             icon={cilArrowTop}
             color="#FF9800"
           />
-        </CCol>
-        <CCol sm={6} lg={6} className="mb-4">
+        </CCol> */}
+        {/* <CCol sm={6} lg={6} className="mb-4">
           <InsightCard
             title="Most Purchased Product"
             value={`${transactionInsights.mostPurchasedProduct.name} (${transactionInsights.mostPurchasedProduct.count} transactions)`}
             icon={cilArrowTop}
             color="#3F51B5"
           />
-        </CCol>
+        </CCol> */}
       </CRow>
     </CContainer>
   );

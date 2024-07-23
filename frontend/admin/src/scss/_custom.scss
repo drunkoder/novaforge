@@ -140,3 +140,23 @@ textarea.form-control {
     padding: 15px 15px;
     color: #fff;
 }
+
+
+.dashboard .card{
+    background: #fff;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    margin-top: 0;
+    border: none;
+}
+
+.dashboard .card-header{
+    border: none
+}
+
+.dashboard-card-content{
+    max-height: 100px;
+    overflow: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

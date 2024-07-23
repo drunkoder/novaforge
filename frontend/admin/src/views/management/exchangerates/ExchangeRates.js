@@ -121,6 +121,7 @@ const ExchangeRateManagement = () => {
     } catch (error) {
       console.error('Error adding exchange rate:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeAddModal();
     }
   };
 
@@ -137,6 +138,7 @@ const ExchangeRateManagement = () => {
     } catch (error) {
       console.error('Error editing exchange rate:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeEditModal();
     }
   };
 

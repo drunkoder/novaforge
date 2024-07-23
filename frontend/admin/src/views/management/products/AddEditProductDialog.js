@@ -129,7 +129,7 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
               id="code"
               name="code"
               value={formData.code}
-              onChange={handleChange} maxLength={30}
+              onChange={handleChange} maxLength={20}
               label="Code"
               invalid={!!errors.code && validated}
             />
@@ -141,7 +141,7 @@ const AddEditProductDialog = ({ visible, onClose, onSubmit, product }) => {
               id="name"
               name="name"
               value={formData.name}
-              onChange={handleChange} maxLength={100}
+              onChange={handleChange} maxLength={20}
               label="Name"
               invalid={!!errors.name && validated}
             />

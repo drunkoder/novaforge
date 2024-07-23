@@ -124,6 +124,7 @@ const ProductManagement = () => {
     } catch (error) {
       console.error('Error adding product:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeAddModal();
     }
   };
 
@@ -149,6 +150,7 @@ const ProductManagement = () => {
     } catch (error) {
       console.error('Error editing product:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeEditModal();
     }
   };
 

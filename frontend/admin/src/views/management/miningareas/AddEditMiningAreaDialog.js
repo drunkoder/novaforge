@@ -198,7 +198,7 @@ const AddEditMiningAreaDialog = ({ visible, onClose, onSubmit, miningArea }) => 
               id="name"
               name="name"
               value={formData.name}
-              onChange={handleChange} maxLength={100}
+              onChange={handleChange} maxLength={20}
               label="Name"
               invalid={!!errors.name && validated}
             />

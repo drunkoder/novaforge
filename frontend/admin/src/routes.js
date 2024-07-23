@@ -9,7 +9,7 @@ const UserManagement = React.lazy(() => import('./views/management/users/Users')
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard-content', name: 'Dashboard', element: DashboardContent },
+  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/users', name: 'Users', element: UserManagement },
   { path: '/products', name: 'Products', element: ProductManagement},
   { path: '/miningareas', name: 'Mining Areas', element: MiningAreaManagement },

@@ -196,7 +196,12 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/miningareas`);
+        const response = await axios.get(`${BASE_URL}/api/miningareas`, {
+          params: {
+            page: 1,
+            limit: 99999,
+          },
+        });
         setMiningAreas(response.data.miningAreas);
         setLoading(false);
       } catch (error) {
@@ -719,7 +724,7 @@ const LandingPage = () => {
                 active={currentPage}
                 pages={Math.ceil(filteredProducts.length / itemsPerPage)}
                 onClick={setCurrentPage} />
-              <CButton color="primary" size="sm" onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredProducts.length / itemsPerPage)}>
+              <CButton color="primary" size="sm" onClick={handleNextPage} disabled={Math.ceil(filteredProducts.length / itemsPerPage) <= currentPage }>
                 Next
               </CButton>
             </div>

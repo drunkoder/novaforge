@@ -124,6 +124,7 @@ const MiningAreaManagement = () => {
     } catch (error) {
       console.error('Error adding miningArea:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeAddModal();
     }
   };
 
@@ -146,6 +147,7 @@ const MiningAreaManagement = () => {
     } catch (error) {
         console.error('Error editing mining area:', error);
         showToast(error.response ? error.response.data.message : error.message, 'danger');
+        closeEditModal();
     }
 };
 

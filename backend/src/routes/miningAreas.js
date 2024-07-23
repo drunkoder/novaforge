@@ -3,6 +3,7 @@ import MiningAreaModel from "../models/mining_areas.js";
 import MiningAreaProductModel from "../models/mining_area_products.js";
 import { validateToken } from "../middlewares/auth.js";
 import UserModel from "../models/users.js";
+import CommunityProductModel from "../models/community_products.js";
 const app = express();
 
 // Gets all but paginated and searchable by name
@@ -92,6 +93,28 @@ const deepEqual = (arr1, arr2) => {
     );
   };
   
+  
+
+  const productBeingUsed = (productId, miningAreaId) => {
+    console.log(productId, miningAreaId)
+    return UserModel.findOne({
+        purchased_products: {
+          $elemMatch: {
+            product_id: productId,
+            mining_area_id: miningAreaId
+          }
+        }
+    })
+    .then(u => {
+        console.log(u);
+      return !!u;
+    })
+    .catch(err => {
+      console.error('Error checking user purchased products:', err);
+      throw err; 
+    });
+  };
+
   app.put("/api/miningareas/:id", [validateToken], async (req, res) => {
       try {
           const { name, type, description, image, products } = req.body;
@@ -106,6 +129,7 @@ const deepEqual = (arr1, arr2) => {
           console.log('Existing Mining Area Products:', existingMiningArea.products);
           console.log('New Products:', products);
   
+          
           // Check if the data has changed
           const isSameData = 
               existingMiningArea.name === name &&
@@ -120,6 +144,38 @@ const deepEqual = (arr1, arr2) => {
               return res.status(200).json({ message: "No changes made" });
           }
   
+          if (existingMiningArea.products.length > products.length) {
+            const deletedProducts = existingMiningArea.products.filter(p => !products.some(pp => pp.product_id.toString() == p.product_id.toString()));
+            console.log('deleted products:', deletedProducts);
+            console.log('existing products:', existingMiningArea.products);
+          
+            // Check if any of the deleted products are used in other mining areas
+            const usedInOtherMiningAreas = await Promise.all(deletedProducts.map(async deletedProduct => {
+                console.log(deletedProduct);
+                console.log(existingMiningArea);
+                return await productBeingUsed(deletedProduct.product_id, existingMiningArea._id);
+              }));
+              
+              // Check if any product is being used in other mining areas
+              if (usedInOtherMiningAreas.some(isBeingUsed => isBeingUsed)) {
+                return res.status(400).json({ message: "Some deleted products were already bought by users. Cannot delete." });
+              }
+          
+            // Check if any of the deleted products are used in community products
+            const deletedProductIds = deletedProducts.map(p => p.id);
+          
+            CommunityProductModel.find({ product_id: { $in: deletedProductIds } })
+              .then(communityProducts => {
+                if (communityProducts.length > 0) {
+                  return res.status(400).json({ message: "Some deleted products are used in community products. Cannot delete." });
+                } 
+              })
+              .catch(err => {
+                console.error('Error checking community products:', err);
+                return res.status(500).json({ message: "Error checking community products" });
+              });
+          } 
+
           // Update the mining area if changes are detected
           const updatedMiningArea = await MiningAreaModel.findByIdAndUpdate(
               req.params.id,
@@ -269,6 +325,5 @@ app.put("/api/miningareas/:miningAreaId/products/:productId/quantity", [validate
       });
   }
 });
-
 
 export default app;

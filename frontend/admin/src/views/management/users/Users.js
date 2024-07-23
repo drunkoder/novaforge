@@ -126,6 +126,7 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Error adding user:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeAddModal();
     }
   };
 
@@ -154,6 +155,7 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Error editing user:', error);
       showToast(error.response ? error.response.data.message : error.message, 'danger');
+      closeEditModal();
     }
   };
   

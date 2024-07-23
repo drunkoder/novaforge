@@ -220,6 +220,8 @@
     margin-right: 10px;
     left: 30px;
     position: relative;
+    max-width: 100%;
+    word-wrap: break-word;
   }
 
 	h3 {
@@ -673,14 +675,22 @@ ul.main-menu{
 
 .community-product-name {
 	font-weight: 600;
-	color: #ea842a;
+    color: #ea842a;
+    height: 40px;
+    /* word-break: break-word; */
+    /* overflow: hidden; */
+    /* width: 40%; */
+    /* scrollbar-width: none; */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .community-product-desc {
 	
 	height: 120px;
 	word-break: break-all;
-    overflow: hidden;
+    overflow: auto;
 	width: 100%;
     scrollbar-width: none;
     -ms-overflow-style: none;
