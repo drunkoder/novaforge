@@ -23,31 +23,40 @@ Follow these instructions to set up and run the project locally.
 
 ### Running the Back-End Server
 
-1. Update the `.env` file located in the `backend` directory according to your configuration or leave it as is.
-2. Navigate to the `backend` directory:
+1. Find ```mongod.cfg``` in ```C:\Program Files\MongoDB\Server\{version}``` and look for ```replication```. Update as administrator with the following details:
+  ```bash
+   replication:
+     replSetName: rs0
+   ```
+2. Execute the following in mongosh:
+   ```bash
+   rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }]})
+   ```
+3. Update the `.env` file located in the `backend` directory according to your configuration.
+4. Navigate to the `backend` directory:
    ```bash
    cd backend
    ```
-3. Install dependencies:
+5. Install dependencies:
    ```bash
    npm install
    ```
-4. Navigate to the migrations directory:
+6. Navigate to the migrations directory:
    ```bash
    cd src/migrations
    ```
 
-5. Run the database initialization script:
+7. Run the database initialization script:
    ```bash
    node init_db.js
    ```
 
-6. Return to the `backend` directory:
+8. Return to the `backend` directory:
    ```bash
    cd ../..
    ```
 
-7. Start the server:
+10. Start the server:
    ```bash
    npm start
    ```
