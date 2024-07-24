@@ -21,9 +21,11 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CAlert,
+  CAlertHeading,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilLockLocked, cilUser } from '@coreui/icons';
+import { cilLockLocked, cilUser, cilInfo } from '@coreui/icons';
 import axios from 'axios';
 
 const Login = () => {
@@ -60,6 +62,7 @@ const Login = () => {
       errors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = 'Email is invalid';
+      console.log('oops');
     }
     if (!formData.password.trim()) {
       errors.password = 'Password is required';
@@ -183,14 +186,23 @@ const Login = () => {
           </CToast>
         )}
       </CToaster>
-      <CModal alignment="center" visible={modalVisible} onClose={() => ModalVisible(false)}>
+      <CModal alignment="center" visible={modalVisible} onClose={() => ModalVisible(false)} size="lg" backdrop="static">
         <CModalHeader closeButton>
           <CModalTitle>Forgot Password</CModalTitle>
         </CModalHeader>
         <CModalBody>
+        <CAlert color="light" className="d-flex align-items-center">
+          {/* <CAlertHeading as="h4">Forgot your password?</CAlertHeading>
+          <p>
+          Enter the email address you use to log into your account. You'll receive instructions to reset your password via email.
+        </p> */}
+            <CIcon icon={cilInfo} className="flex-shrink-0 me-2 text-info" width={24} height={24} />
+            <div>Enter the email address you use to log into your account. You'll receive instructions to reset your password via email.</div>
+        </CAlert>
           <CFormInput
             type="email"
-            placeholder="Enter your email"
+            placeholder=""
+            floatingLabel="Email"
             value={forgotPasswordEmail}
             onChange={e => setForgotPasswordEmail(e.target.value)}
             invalid={!!errors.forgotPasswordEmail && validated}

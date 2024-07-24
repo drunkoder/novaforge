@@ -56,7 +56,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     const resetToken = crypto.randomBytes(20).toString('hex');
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 60000; // 1 minute
+    user.resetPasswordExpires = Date.now() + (60000 * 5); // 5 minutes
 
     await user.save();
 
@@ -118,13 +118,13 @@ app.post('/reset-password/:token', async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
+      return res.status(400).json({ message: 'The reset token is invalid or has expired. Please request a new password reset.' });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-      return res.status(400).json({ message: 'This password is currently in use. Please try a different password.' });
+      return res.status(400).json({ message: 'You have previously used this password. Please choose a different one.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -151,7 +151,7 @@ app.post('/reset-password/:token', async (req, res) => {
       }
     });
 
-    res.json({ message: 'Password reset successful', redirectUrl: '/login' });
+    res.json({ message: 'You have successfully reset your password.', redirectUrl: '/login' });
   } catch (error) {
     console.error('Error resetting password:', error);
     res.status(500).json({ message: 'Error resetting password' });

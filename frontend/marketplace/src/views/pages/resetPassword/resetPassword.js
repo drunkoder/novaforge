@@ -4,6 +4,8 @@ import { useParams} from 'react-router-dom';
 import {
   CForm, CFormInput, CButton, CContainer, CRow, CCol, CCard, CCardBody, CAlert
 } from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilWarning, cilInfo } from '@coreui/icons'
 
 
 
@@ -26,7 +28,7 @@ const ResetPassword = () => {
           console.log('invalid link');
           setTimeout(() => {
             window.location.replace('/login');
-          }, 10000); 
+          }, 5000); 
         }
       } catch (error) {
         console.error('Error validating token:', error);
@@ -58,6 +60,12 @@ const ResetPassword = () => {
       return;
     }
 
+    if (!/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/.test(password)) {
+      setMessage('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character');
+      setMessageType('danger');
+      return;
+    }
+
     try {
       const res = await axios.post(`${BASE_URL}/reset-password/${token}`, { password, confirmPassword });
       setMessage(res.data.message);
@@ -66,7 +74,7 @@ const ResetPassword = () => {
       setConfirmPassword(''); // Clear confirmPassword field
         setTimeout(() => {
           window.location.replace('/login');
-        }, 3000); // Redirect after 3 seconds
+        }, 2000); // Redirect after 2 seconds
       
     } catch (error) {
       setMessage(error.response ? error.response.data.message : error.message);
@@ -84,7 +92,7 @@ const ResetPassword = () => {
           <CCard className="mt-5">
             <CCardBody>
               <h1 className="mb-4">Reset Password</h1>
-              {message && <CAlert color={messageType}>{message}</CAlert>}
+              {message && <CAlert color={messageType} className="d-flex align-items-center"><CIcon icon={cilInfo} className="flex-shrink-0 me-2" width={24} height={24} /> {message}</CAlert>}
               {isValidToken ? (
                 <CForm onSubmit={onSubmit}>
                   <CFormInput
@@ -110,7 +118,10 @@ const ResetPassword = () => {
                   </CButton>
                 </CForm>
               ) : (
-                <CAlert color="danger">Invalid or Expired link. Please request a new password reset.</CAlert>
+                <CAlert color="danger" className="d-flex align-items-center">
+                  <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
+                  <div>Invalid or Expired link. Please request a new password reset.</div>
+                </CAlert>
               )}
             </CCardBody>
           </CCard>
