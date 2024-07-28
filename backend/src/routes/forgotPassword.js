@@ -60,7 +60,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     await user.save();
 
-    const resetUrl = `http://localhost:3002/reset-password/${resetToken}`;
+    const resetUrl = `http://54.71.217.98:3000/reset-password/${resetToken}`;
 
     const mailOptions = {
       to: user.email,

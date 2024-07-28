@@ -4,7 +4,7 @@ import path from 'node:path'
 import autoprefixer from 'autoprefixer'
 
 const getBaseUrl = () => {
-  return '"http://localhost:3000"';
+  return '"http://54.244.189.91:3000"';
 };
 
 
@@ -48,7 +48,8 @@ export default defineConfig(({ mode }) => {
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.scss'],
     },
     server: {
-      port: 3001,
+      host: '0.0.0.0',
+      port: 3000,
       proxy: {
         // https://vitejs.dev/config/server-options.html
       },

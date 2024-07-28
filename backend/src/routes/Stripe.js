@@ -32,8 +32,8 @@ app.post("/api/paymentgateway", async (req, res) => {
         quantity: 1
       }],
       mode: "payment",
-      success_url: `http://localhost:3002/my-wallet?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: "http://localhost:3002/my-wallet",
+      success_url: `http://54.71.217.98:3000/my-wallet?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: "http://54.71.217.98:3000/my-wallet",
       metadata: {
         userId: userId,
         nova_balance: nova_balance.toString() 

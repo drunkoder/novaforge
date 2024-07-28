@@ -62,8 +62,11 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
     
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+      console.log('oops');
     }
-    
+
     setErrors(errors);
     setFormValid(Object.keys(errors).length === 0);
   };
@@ -169,7 +172,7 @@ const EditAccount = ({ visible, onClose, onSubmit, user }) => {
               type="tel"
               className="form-control"
               value={formData.phone}
-              onChange={handleChange} maxLength={20}
+              onChange={handleChange} maxLength={20} minLength={12}
               label="Phone"
               as={CFormInput}
             />
